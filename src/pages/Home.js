@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Home.css';
 
@@ -19,105 +19,32 @@ function Home() {
     'BACK TO SCHOOL Support for High Schoolers',
   ];
 
-  // Courses — matching the 5 courses on the original site
-  const courses = [
-    {
-      id: 3295,
-      title: 'EFFECTIVE PRESENTATION',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2025/03/Presentation-skills-500x300.jpg',
-      url: '/courses',
-      price: '₦45,000.00',
-      originalPrice: '₦50,000.00',
-      duration: '12 Hours',
-      level: 'All levels',
-      lessons: 23,
-      quizzes: 0,
-      students: 12,
-      excerpt: 'An effective presentation is one that clearly conveys a message, engages the audience, and achieves its intended purpose, whether it is to inform, persuade, or inspire.',
-    },
-    {
-      id: 2255,
-      title: 'LIFE/SOCIAL SKILLS – TECH BOOTCAMP',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2024/04/Life-Skills-4-TYPES-Final-800x568-1-500x300.png',
-      url: '/courses',
-      price: 'Free',
-      duration: '6 Weeks',
-      level: 'All levels',
-      lessons: 25,
-      quizzes: 0,
-      students: 36,
-      excerpt: 'Life skills are defined as "a group of psychosocial competencies and interpersonal skills that help people make informed decisions, solve problems, think critically and creatively, communicate effectively…"',
-    },
-    {
-      id: 2186,
-      title: 'UI/UX [Product Design]',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2024/04/ui-ux-500x300.jpg',
-      url: '/courses',
-      price: 'Free',
-      duration: '6 Weeks',
-      level: 'All levels',
-      lessons: 21,
-      quizzes: 0,
-      students: 23,
-      excerpt: 'UI (User Interface) and UX (User Experience) are two crucial elements in the design and development of digital products such as websites, mobile apps, and software applications.',
-    },
-    {
-      id: 2183,
-      title: 'Graphics Design',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2024/04/Graphics-design-taining-500x300.jpg',
-      url: '/courses',
-      price: 'Free',
-      duration: '2 Weeks',
-      level: 'All levels',
-      lessons: 0,
-      quizzes: 0,
-      students: 11,
-      excerpt: 'Learn the fundamentals of Graphics Design, from color theory and typography to layout and composition, and start designing professionally.',
-    },
-    {
-      id: 2180,
-      title: 'Programming [Web Development]',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2024/04/programming-500x300.jpg',
-      url: '/courses',
-      price: 'Free',
-      duration: '6 Weeks',
-      level: 'All levels',
-      lessons: 12,
-      quizzes: 0,
-      students: 20,
-      excerpt: 'At its most basic, programming tells a computer what to do. First, a programmer writes code—a set of letters, numbers, and other characters. Next, a compiler converts each line of code…',
-    },
-  ];
+  // Live courses from WordPress LearnPress
+  const [courses, setCourses] = useState([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
 
-  // Testimonials — matching the 4 on the original site
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_WP_API}/learnpress/v1/courses`)
+      .then(res => res.json())
+      .then(data => {
+        setCourses(Array.isArray(data) ? data.slice(0, 5) : []);
+        setLoadingCourses(false);
+      })
+      .catch(err => {
+        console.error('Courses fetch error:', err);
+        setLoadingCourses(false);
+      });
+  }, []);
+
+  // Testimonials — will connect to WordPress later
   const testimonials = [
-    {
-      quote: 'Dear Miss Macaulay, I love your teaching today, I wish to be your friend but I know you can\'t stay in the school forever. But are you going to come back? If yes, please come tomorrow.',
-      name: 'Jemima',
-      role: 'Pearlygate Private School, Ikotun, Lagos - Student',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2022/10/IMG_20170628_162654.jpg',
-    },
-    {
-      quote: 'I personally love the close attention paid to individual strengths and development of personal code of ethics. We hope that we guardians too will have the opportunity to enjoy from your wealth of knowledge.',
-      name: 'Mr. Ajayi',
-      role: 'FRICOM COLLEGE, Ikotun - Principal',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo-1.png',
-    },
-    {
-      quote: 'Thank you MyDreamConnect for impacting our students SO GREATLY. Our students await more encounters with you - they love all the activities especially the chess game.',
-      name: 'Mr. Jatto',
-      role: 'JANET Memorial Schools - Principal',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2022/10/IMG_20170628_151333-1.jpg',
-    },
-    {
-      quote: 'Our students are always excited to come to your Centre, they say the atmosphere is wonderful and a place they have gained the confidence to accept new people as well.',
-      name: 'Mrs. Ajibade',
-      role: 'HOPEWELL COLLEGE, Proprietress',
-      image: 'https://mydreamconnect.org.ng/wp-content/uploads/2022/10/FB_IMG_1623781752620.jpg',
-    },
+    { quote: 'Dear Miss Macaulay, I love your teaching today, I wish to be your friend but I know you can\'t stay in the school forever. But are you going to come back? If yes, please come tomorrow.', name: 'Jemima', role: 'Pearlygate Private School, Ikotun, Lagos - Student', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2022/10/IMG_20170628_162654.jpg' },
+    { quote: 'I personally love the close attention paid to individual strengths and development of personal code of ethics. We hope that we guardians too will have the opportunity to enjoy from your wealth of knowledge.', name: 'Mr. Ajayi', role: 'FRICOM COLLEGE, Ikotun - Principal', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo-1.png' },
+    { quote: 'Thank you MyDreamConnect for impacting our students SO GREATLY. Our students await more encounters with you - they love all the activities especially the chess game.', name: 'Mr. Jatto', role: 'JANET Memorial Schools - Principal', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2022/10/IMG_20170628_151333-1.jpg' },
+    { quote: 'Our students are always excited to come to your Centre, they say the atmosphere is wonderful and a place they have gained the confidence to accept new people as well.', name: 'Mrs. Ajibade', role: 'HOPEWELL COLLEGE, Proprietress', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2022/10/FB_IMG_1623781752620.jpg' },
   ];
 
-  // Instructors — matching the 6 on the original site
+  // Instructors — will connect to WordPress later
   const instructors = [
     { name: 'Georgine Pudo', role: 'Digital Media Marketing Instructor', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2025/05/Georgine-Pudo_MyDreamConnect-TECH_Bootcamp-Instructor-Digital-Media.png' },
     { name: 'Oluwatomisin Olowoyo', role: 'Digital Media Marketing Instructor', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2025/05/Tomisin-Olowoyo_MyDreamConnect-TECH_Bootcamp-Instructor-Digital-Media.png' },
@@ -127,7 +54,7 @@ function Home() {
     { name: 'Simon Onguka', role: 'Data Analysis Instructor', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2025/05/Simon-Onguka_MyDreamConnect-TECH_Bootcamp-Instructor-Data-Analysis.png' },
   ];
 
-  // Blogs — matching the 6 on the original site
+  // Blogs — will connect to WordPress later
   const blogs = [
     { title: 'Emotional Intelligence Has 12 Elements', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2024/05/image.png', url: '/blog' },
     { title: 'PIXELS & PROGRAMS: Understanding the Contrasts Between Technical and Digital Media Skills', image: 'https://mydreamconnect.org.ng/wp-content/uploads/2024/05/pixels-programs-digital-landscape.webp', url: '/blog' },
@@ -210,38 +137,60 @@ function Home() {
         </div>
       </section>
 
-      {/* ============ COURSES ============ */}
+      {/* ============ COURSES (LIVE) ============ */}
       <section className="courses-preview">
         <div className="section-heading">
           <span className="heading-lead">Check Out</span>{' '}
           <span className="heading-main">Our Courses</span>
         </div>
 
-        <div className="courses-grid">
-          {courses.map(course => (
-            <div className="course-card" key={course.id}>
-              <div className="course-image">
-                <img src={course.image} alt="" />
-              </div>
-              <div className="course-body">
-                <h3>{course.title}</h3>
-                <p className="course-excerpt">{course.excerpt}</p>
-                <div className="course-meta">
-                  <span>{course.duration}</span>
-                  <span>{course.level}</span>
-                  <span>{course.lessons} Lessons</span>
-                  <span>{course.students} Students</span>
+        {loadingCourses && (
+          <p style={{ textAlign: 'center', padding: '40px' }}>Loading courses...</p>
+        )}
+
+        {!loadingCourses && courses.length === 0 && (
+          <p style={{ textAlign: 'center', padding: '40px' }}>No courses yet.</p>
+        )}
+
+        {!loadingCourses && courses.length > 0 && (
+          <div className="courses-grid">
+            {courses.map(course => {
+              const isFree = !course.price || course.price === 0;
+              const lessons = course.meta_data?._lp_offline_lesson_count || course.meta_data?._lp_lesson_count || 0;
+              const level = course.meta_data?._lp_level === 'all' ? 'All Levels' : (course.meta_data?._lp_level || 'All Levels');
+
+              return (
+                <div className="course-card" key={course.id}>
+                  <div className="course-image">
+                    <img src={course.image} alt="" />
+                  </div>
+                  <div className="course-body">
+                    <h3>{course.name}</h3>
+                    <p className="course-excerpt">
+                      {course.excerpt
+                        ? course.excerpt.replace(/<[^>]+>/g, '').substring(0, 90) + '...'
+                        : 'Click to view full course description and enroll today.'}
+                    </p>
+                    <div className="course-meta">
+                      <span>{course.duration}</span>
+                      <span>{level}</span>
+                      <span>{lessons} Lessons</span>
+                      <span>{course.count_students} Students</span>
+                    </div>
+                    <div className="course-footer">
+                      <span className="course-price">
+                        {isFree ? 'Free' : course.price_rendered}
+                      </span>
+                      <Link to={`/courses/${course.id}`} className="course-btn">
+                        {isFree ? 'Enroll Now' : 'Buy Now'}
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-                <div className="course-footer">
-                  <span className="course-price">{course.price}</span>
-                  <Link to="/courses" className="course-btn">
-                    {course.price === 'Free' ? 'Enroll Now' : 'Buy Now'}
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* ============ TESTIMONIALS ============ */}

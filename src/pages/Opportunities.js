@@ -1,5 +1,6 @@
 import React from 'react';
 import './Opportunities.css';
+import Sidebar from '../components/Sidebar';
 
 function Opportunities() {
   // Real opportunities from the WordPress site (category: OPPORTUNITIES FOR DEVELOPMENT)
@@ -124,73 +125,8 @@ function Opportunities() {
 
         </article>
 
-        {/* === SIDEBAR === */}
-        <aside className="opps-sidebar">
-
-          <div className="widget">
-            <h3>Search</h3>
-            <form className="sidebar-search" onSubmit={(e) => e.preventDefault()}>
-              <input type="text" placeholder="" />
-              <button type="submit">Search</button>
-            </form>
-          </div>
-
-          <div className="widget">
-            <h3>Recent Posts</h3>
-            <ul className="widget-list">
-              <li><a href="/blog">Call for Proposals: Global Youth Action Fund 2026</a></li>
-              <li><a href="/blog">FORTIFIED 2025: TECH Powered, FORTIFIED for Success Impact Report</a></li>
-              <li><a href="/blog">Register</a></li>
-              <li><a href="/blog">I Want to Learn Tech, But I Don't Know Where to Start</a></li>
-              <li><a href="/blog">Why Learning to Code This Holiday Could Be the Smartest Decision for Your Child's Future</a></li>
-            </ul>
-          </div>
-
-          <div className="widget">
-            <h3>Recent Comments</h3>
-            <ul className="widget-list comments-list">
-              <li><strong>MyDreamConnect</strong> on <a href="/blog">Hello June!</a></li>
-              <li><strong>Tinuola Ameh</strong> on <a href="/blog">Hello June!</a></li>
-              <li><strong>MyDreamConnect</strong> on <a href="/blog">Emotional Intelligence Has 12 Elements</a></li>
-              <li><strong>Elvis Boateng</strong> on <a href="/blog">Emotional Intelligence Has 12 Elements</a></li>
-            </ul>
-          </div>
-
-          <div className="widget">
-            <h3>Archives</h3>
-            <ul className="widget-list">
-              <li><a href="/blog">January 2026</a></li>
-              <li><a href="/blog">December 2025</a></li>
-              <li><a href="/blog">October 2025</a></li>
-              <li><a href="/blog">August 2025</a></li>
-              <li><a href="/blog">July 2025</a></li>
-              <li><a href="/blog">June 2025</a></li>
-            </ul>
-          </div>
-
-          <div className="widget">
-            <h3>Categories</h3>
-            <ul className="widget-list">
-              <li><a href="/blog">Blogs</a></li>
-              <li><a href="/blog">Digital Information</a></li>
-              <li><a href="/blog">Health &amp; Wellness</a></li>
-              <li><a href="/blog">News &amp; Events</a></li>
-              <li><a href="/blog">OPPORTUNITIES FOR DEVELOPMENT</a></li>
-              <li><a href="/blog">Personal Development</a></li>
-              <li><a href="/blog">Wellness</a></li>
-            </ul>
-          </div>
-
-          <div className="widget">
-            <h3>Subscribe</h3>
-            <form className="sidebar-subscribe" onSubmit={(e) => e.preventDefault()}>
-              <input type="text" placeholder="Enter your name" />
-              <input type="email" placeholder="Enter your email" />
-              <button type="submit">Subscribe</button>
-            </form>
-          </div>
-
-        </aside>
+        {/* === SIDEBAR (LIVE) === */}
+        <Sidebar />
 
       </div>
     </div>

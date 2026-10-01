@@ -270,3 +270,12 @@
     padding: 30px 25px;
   }
 }
+.form-error {
+  background: #fdecea;
+  color: #b81c00;
+  padding: 15px 20px;
+  border-radius: 6px;
+  border-left: 4px solid #e74c3c;
+  font-size: 14px;
+  margin-bottom: 15px;
+}

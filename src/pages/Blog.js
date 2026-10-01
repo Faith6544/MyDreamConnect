@@ -7,7 +7,7 @@ function Blog() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://staging.mydreamconnect.org.ng/wp-json/wp/v2/posts?_embed')
+    fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts?_embed`)
       .then(res => res.json())
       .then(data => {
         setPosts(data);

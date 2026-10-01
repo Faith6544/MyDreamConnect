@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './BlogPost.css';
-
+import Sidebar from '../components/Sidebar';
 function BlogPost() {
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -11,7 +11,7 @@ function BlogPost() {
 
   // Fetch the single post
   useEffect(() => {
-    fetch(`https://staging.mydreamconnect.org.ng/wp-json/wp/v2/posts/${id}?_embed`)
+fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts/${id}?_embed`)
       .then(res => res.json())
       .then(data => {
         setPost(data);
@@ -26,7 +26,7 @@ function BlogPost() {
 
   // Fetch related posts (latest 4, excluding this one)
   useEffect(() => {
-    fetch('https://staging.mydreamconnect.org.ng/wp-json/wp/v2/posts?per_page=5&_embed')
+fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts?per_page=5&_embed`)
       .then(res => res.json())
       .then(data => {
         const others = data.filter(p => String(p.id) !== String(id)).slice(0, 4);
@@ -117,7 +117,7 @@ function BlogPost() {
         </article>
 
         {/* ============ RIGHT: Sidebar ============ */}
-        <aside className="bp-sidebar">
+        <sidebar className="bp-sidebar">
 
           <div className="widget">
             <h3>Search</h3>
@@ -161,7 +161,7 @@ function BlogPost() {
             </form>
           </div>
 
-        </aside>
+        </sidebar>
 
       </div>
 

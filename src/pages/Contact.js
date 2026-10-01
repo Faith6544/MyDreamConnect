@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './Contact.css';
 
+const ACCESS_KEY = '7ccbf4db-5413-4d7f-8537-2ee111f3832f';
+
 function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -8,19 +10,49 @@ function Contact() {
     subject: '',
     message: '',
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'success' | 'error'
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In production, this will POST to your WordPress contact form endpoint.
-    console.log('Form submitted:', formData);
-    setSubmitted(true);
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    setTimeout(() => setSubmitted(false), 5000);
+    setStatus('sending');
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: ACCESS_KEY,
+          subject: 'New Contact Message - MyDreamConnect',
+          from_name: 'MyDreamConnect Website',
+          name: formData.name,
+          email: formData.email,
+          user_subject: formData.subject,
+          message: formData.message,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        setTimeout(() => setStatus('idle'), 6000);
+      } else {
+        setStatus('error');
+        setTimeout(() => setStatus('idle'), 6000);
+      }
+    } catch (err) {
+      console.error('Contact form error:', err);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 6000);
+    }
   };
 
   return (
@@ -88,9 +120,15 @@ function Contact() {
         <div className="contact-form-wrapper">
           <h3>Send Us a Message</h3>
 
-          {submitted && (
+          {status === 'success' && (
             <div className="form-success">
               ✅ Thank you! Your message has been sent. We will get back to you soon.
+            </div>
+          )}
+
+          {status === 'error' && (
+            <div className="form-error">
+              ❌ Something went wrong. Please try again or email us directly at info@mydreamconnect.org.ng.
             </div>
           )}
 
@@ -105,6 +143,7 @@ function Contact() {
                 onChange={handleChange}
                 required
                 placeholder="Enter your full name"
+                disabled={status === 'sending'}
               />
             </div>
 
@@ -118,6 +157,7 @@ function Contact() {
                 onChange={handleChange}
                 required
                 placeholder="Enter your email address"
+                disabled={status === 'sending'}
               />
             </div>
 
@@ -131,6 +171,7 @@ function Contact() {
                 onChange={handleChange}
                 required
                 placeholder="What is this about?"
+                disabled={status === 'sending'}
               />
             </div>
 
@@ -144,11 +185,12 @@ function Contact() {
                 onChange={handleChange}
                 required
                 placeholder="Write your message here..."
+                disabled={status === 'sending'}
               />
             </div>
 
-            <button type="submit" className="contact-submit">
-              Send Message →
+            <button type="submit" className="contact-submit" disabled={status === 'sending'}>
+              {status === 'sending' ? 'Sending...' : 'Send Message →'}
             </button>
           </form>
         </div>

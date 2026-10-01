@@ -1,37 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './About.css';
+import Sidebar from '../components/Sidebar';
 
 function About() {
-  const recentPosts = [
-    { title: 'Call for Proposals: Global Youth Action Fund 2026', url: '/blog' },
-    { title: 'FORTIFIED 2025: TECH Powered, FORTIFIED for Success Impact Report', url: '/blog' },
-    { title: 'Register', url: '/blog' },
-    { title: 'I Want to Learn Tech, But I Don\'t Know Where to Start', url: '/blog' },
-    { title: 'Why Learning to Code This Holiday Could Be the Smartest Decision for Your Child\'s Future', url: '/blog' },
-  ];
-
-  const recentComments = [
-    { author: 'MyDreamConnect', post: 'Hello June!' },
-    { author: 'Tinuola Ameh', post: 'Hello June!' },
-    { author: 'MyDreamConnect', post: 'Emotional Intelligence Has 12 Elements' },
-    { author: 'Elvis Boateng', post: 'Emotional Intelligence Has 12 Elements' },
-    { author: 'Yetunde Macaulay', post: 'PIXELS & PROGRAMS: Understanding the Contrasts' },
-  ];
-
-  const archives = [
-    'January 2026', 'December 2025', 'October 2025', 'August 2025', 'July 2025',
-    'June 2025', 'May 2025', 'April 2025', 'March 2025', 'February 2025',
-    'May 2024', 'March 2024', 'February 2024', 'January 2024', 'December 2023',
-    'October 2023', 'July 2023', 'October 2022', 'September 2022', 'August 2022',
-    'July 2022', 'June 2022',
-  ];
-
-  const categories = [
-    'Blogs', 'Digital Information', 'Health & Wellness', 'News & Events',
-    'OPPORTUNITIES FOR DEVELOPMENT', 'Personal Development', 'Wellness',
-  ];
-
   return (
     <div className="about-page">
 
@@ -116,71 +88,8 @@ function About() {
 
         </article>
 
-        {/* === SIDEBAR === */}
-        <aside className="about-sidebar">
-
-          {/* Search */}
-          <div className="widget">
-            <h3>Search</h3>
-            <form className="sidebar-search" onSubmit={(e) => e.preventDefault()}>
-              <input type="text" placeholder="" />
-              <button type="submit">Search</button>
-            </form>
-          </div>
-
-          {/* Recent Posts */}
-          <div className="widget">
-            <h3>Recent Posts</h3>
-            <ul className="widget-list">
-              {recentPosts.map((post, i) => (
-                <li key={i}><Link to={post.url}>{post.title}</Link></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Recent Comments */}
-          <div className="widget">
-            <h3>Recent Comments</h3>
-            <ul className="widget-list comments-list">
-              {recentComments.map((c, i) => (
-                <li key={i}>
-                  <strong>{c.author}</strong> on <Link to="/blog">{c.post}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Archives */}
-          <div className="widget">
-            <h3>Archives</h3>
-            <ul className="widget-list">
-              {archives.map((a, i) => (
-                <li key={i}><Link to="/blog">{a}</Link></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Categories */}
-          <div className="widget">
-            <h3>Categories</h3>
-            <ul className="widget-list">
-              {categories.map((c, i) => (
-                <li key={i}><Link to="/blog">{c}</Link></li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Subscribe */}
-          <div className="widget">
-            <h3>Subscribe</h3>
-            <form className="sidebar-subscribe" onSubmit={(e) => e.preventDefault()}>
-              <input type="text" placeholder="Enter your name" />
-              <input type="email" placeholder="Enter your email" />
-              <button type="submit">Subscribe</button>
-            </form>
-          </div>
-
-        </aside>
+        {/* === SIDEBAR (LIVE) === */}
+        <Sidebar />
 
       </div>
     </div>

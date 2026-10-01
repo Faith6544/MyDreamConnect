@@ -9,7 +9,7 @@ function CourseDetail() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`https://staging.mydreamconnect.org.ng/wp-json/learnpress/v1/courses/${id}`)
+   fetch(`${process.env.REACT_APP_WP_API}/learnpress/v1/courses/${id}`)
       .then(res => res.json())
       .then(data => {
         setCourse(data);

@@ -15,17 +15,17 @@ function Courses() {
   const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
-    fetch('https://staging.mydreamconnect.org.ng/wp-json/learnpress/v1/courses')
-      .then(res => res.json())
-      .then(data => {
-        setCourses(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Error:", err);
-        setLoading(false);
-      });
-  }, []);
+  fetch(`${process.env.REACT_APP_WP_API}/learnpress/v1/courses`)
+    .then(res => res.json())
+    .then(data => {
+      setCourses(data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      setLoading(false);
+    });
+}, []);
 
   const filteredCourses = courses.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -99,7 +99,6 @@ function Courses() {
 
               <div className="course-meta">
                 <span>🕐 {course.duration}</span>
-                <span>📚 23 Lessons</span>
               </div>
 
               <div className="course-footer">

@@ -11,6 +11,7 @@ import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import Contact from './pages/Contact';
 import GetStarted from './pages/GetStarted';
+import MediaHome from './pages/MediaHome';
 import Photos from './pages/Photos';
 import Videos from './pages/Videos';
 import TalentHome from './pages/TalentHome';
@@ -23,6 +24,7 @@ import Flyers from './pages/Flyers';
 import Terms from './pages/Terms';
 import NotFound from './pages/NotFound';
 import WhatsAppButton from './components/WhatsAppButton';
+
 function App() {
   return (
     <Router>
@@ -36,8 +38,10 @@ function App() {
         <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/get-started" element={<GetStarted />} />
+        <Route path="/media" element={<MediaHome />} />
         <Route path="/media/photos" element={<Photos />} />
         <Route path="/media/videos" element={<Videos />} />
+        <Route path="/media/flyers" element={<Flyers />} />
         <Route path="/talent" element={<TalentHome />} />
         <Route path="/talent/jobs" element={<Jobs />} />
         <Route path="/talent/opportunities" element={<Opportunities />} />
@@ -46,12 +50,11 @@ function App() {
         <Route path="/partnership" element={<Partnership />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/media/flyers" element={<Flyers />} />
       </Routes>
       <Footer />
-<BackToTop />
-<WhatsAppButton />
-</Router>
+      <BackToTop />
+      <WhatsAppButton />
+    </Router>
   );
 }
 

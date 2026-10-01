@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './Volunteer.css';
 
+const ACCESS_KEY = '7ccbf4db-5413-4d7f-8537-2ee111f3832f';
+
 function Volunteer() {
   const [formData, setFormData] = useState({
     name: '',
@@ -11,34 +13,65 @@ function Volunteer() {
     availability: '',
     message: '',
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState('idle');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In production, send to WordPress via REST API or a form service.
-    console.log('Volunteer form submitted:', formData);
-    setSubmitted(true);
-    setFormData({
-      name: '', email: '', phone: '', city: '',
-      skills: '', availability: '', message: '',
-    });
-    setTimeout(() => setSubmitted(false), 6000);
+    setStatus('sending');
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: ACCESS_KEY,
+          subject: 'New Volunteer Application - MyDreamConnect',
+          from_name: 'MyDreamConnect Website',
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          city: formData.city,
+          skills: formData.skills,
+          availability: formData.availability,
+          message: formData.message,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setStatus('success');
+        setFormData({
+          name: '', email: '', phone: '', city: '',
+          skills: '', availability: '', message: '',
+        });
+        setTimeout(() => setStatus('idle'), 6000);
+      } else {
+        setStatus('error');
+        setTimeout(() => setStatus('idle'), 6000);
+      }
+    } catch (err) {
+      console.error('Volunteer form error:', err);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 6000);
+    }
   };
 
   return (
     <div className="volunteer-page">
 
-      {/* Banner */}
       <section className="volunteer-banner">
         <h1>Volunteer With Us</h1>
         <p>Home / Volunteer</p>
       </section>
 
-      {/* Intro */}
       <section className="volunteer-intro">
         <h2>Become a Changemaker</h2>
         <p>
@@ -49,16 +82,21 @@ function Volunteer() {
         </p>
       </section>
 
-      {/* Two-column layout */}
       <section className="volunteer-layout">
 
         {/* Left: Form */}
         <div className="volunteer-form-wrap">
           <h3>Volunteer Application</h3>
 
-          {submitted && (
+          {status === 'success' && (
             <div className="form-success">
               ✅ Thank you for applying! We will contact you soon.
+            </div>
+          )}
+
+          {status === 'error' && (
+            <div className="form-error">
+              ❌ Something went wrong. Please try again or email us directly at info@mydreamconnect.org.ng.
             </div>
           )}
 
@@ -74,6 +112,7 @@ function Volunteer() {
                   onChange={handleChange}
                   placeholder="Your full name"
                   required
+                  disabled={status === 'sending'}
                 />
               </div>
 
@@ -86,6 +125,7 @@ function Volunteer() {
                   onChange={handleChange}
                   placeholder="you@example.com"
                   required
+                  disabled={status === 'sending'}
                 />
               </div>
             </div>
@@ -99,6 +139,7 @@ function Volunteer() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+234 ..."
+                  disabled={status === 'sending'}
                 />
               </div>
 
@@ -110,6 +151,7 @@ function Volunteer() {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder="Lagos, Nigeria"
+                  disabled={status === 'sending'}
                 />
               </div>
             </div>
@@ -123,6 +165,7 @@ function Volunteer() {
                 onChange={handleChange}
                 placeholder="e.g. Teaching, Design, Coding, Event Planning"
                 required
+                disabled={status === 'sending'}
               />
             </div>
 
@@ -133,6 +176,7 @@ function Volunteer() {
                 value={formData.availability}
                 onChange={handleChange}
                 required
+                disabled={status === 'sending'}
               >
                 <option value="">Choose one</option>
                 <option value="weekly">1 hour per week</option>
@@ -151,11 +195,12 @@ function Volunteer() {
                 onChange={handleChange}
                 placeholder="Tell us a bit about yourself and why you want to join..."
                 rows="5"
+                disabled={status === 'sending'}
               />
             </div>
 
-            <button type="submit" className="volunteer-submit">
-              Submit Application →
+            <button type="submit" className="volunteer-submit" disabled={status === 'sending'}>
+              {status === 'sending' ? 'Sending...' : 'Submit Application →'}
             </button>
           </form>
         </div>
@@ -206,7 +251,6 @@ function Volunteer() {
 
       </section>
 
-      {/* Closing CTA */}
       <section className="volunteer-closing">
         <h2>Ready to Serve?</h2>
         <p>Fill out the form above and someone from our team will reach out.</p>
