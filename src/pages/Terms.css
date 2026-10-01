@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.tm-page {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+  color: #444;
+}
+
+.tm-banner {
+  background: #0a4711;
+  padding: 70px 20px;
+  color: #fff;
+}
+
+.tm-banner h1 {
+  font-size: 38px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.tm-banner p {
+  font-size: 14px;
+  color: #cfd8cf;
+  margin: 0;
+}
+
+.tm-content {
+  max-width: 820px;
+  margin: 60px auto 100px;
+  padding: 0 20px;
+}
+
+.tm-updated {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.tm-content h2 {
+  font-size: 20px;
+  color: #0a4711;
+  font-weight: 700;
+  margin: 35px 0 12px;
+}
+
+.tm-content p {
+  font-size: 15px;
+  line-height: 1.85;
+  margin-bottom: 15px;
+}
+
+.tm-content ul {
+  padding-left: 25px;
+  margin-bottom: 20px;
+}
+
+.tm-content li {
+  font-size: 15px;
+  line-height: 1.85;
+  margin-bottom: 8px;
+}
+
+.tm-content a {
+  color: #d4a017;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .tm-banner h1 {
+    font-size: 26px;
+  }
+  .tm-content h2 {
+    font-size: 18px;
+  }
+}

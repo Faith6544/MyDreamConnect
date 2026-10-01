@@ -1,0 +1,310 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.donate-page {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+}
+
+/* Banner */
+.donate-banner {
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url('https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo-1024x817.png') center/cover;
+  padding: 80px 20px;
+  color: #fff;
+}
+
+.donate-banner h1 {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.donate-banner p {
+  font-size: 14px;
+  color: #ddd;
+  margin: 0;
+}
+
+/* Intro */
+.donate-intro {
+  max-width: 800px;
+  margin: 60px auto 40px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.donate-intro h2 {
+  font-size: 32px;
+  color: #0a4711;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.donate-intro p {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.8;
+}
+
+/* Layout */
+.donate-layout {
+  max-width: 1100px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 50px;
+  align-items: start;
+}
+
+/* Form */
+.donate-form-wrap {
+  background: #fbfbfb;
+  padding: 40px;
+  border-radius: 10px;
+  border: 1px solid #f1f1f1;
+}
+
+.donate-form-wrap h3 {
+  font-size: 22px;
+  color: #0a4711;
+  margin-bottom: 25px;
+  font-weight: 700;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #d4a017;
+  display: inline-block;
+}
+
+.frequency-toggle {
+  display: flex;
+  gap: 0;
+  margin-bottom: 25px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.freq-btn {
+  padding: 12px 26px;
+  border: none;
+  background: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.freq-btn.active {
+  background: #0a4711;
+  color: #fff;
+}
+
+.donate-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.amount-btn {
+  padding: 14px 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.amount-btn:hover {
+  border-color: #d4a017;
+}
+
+.amount-btn.active {
+  background: #0a4711;
+  border-color: #0a4711;
+  color: #fff;
+}
+
+.custom-amount {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0 16px;
+  background: #fff;
+  margin-bottom: 25px;
+}
+
+.custom-amount span {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0a4711;
+  margin-right: 8px;
+}
+
+.custom-amount input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 16px 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+
+.donate-submit {
+  width: 100%;
+  padding: 16px;
+  background: #0a4711;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.donate-submit:hover {
+  background: #d4a017;
+  transform: translateY(-2px);
+}
+
+.donate-note {
+  margin-top: 15px;
+  font-size: 12.5px;
+  color: #888;
+  text-align: center;
+}
+
+/* Why section */
+.donate-why h3 {
+  font-size: 22px;
+  color: #0a4711;
+  margin-bottom: 25px;
+  font-weight: 700;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #d4a017;
+  display: inline-block;
+}
+
+.why-item {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 25px;
+  align-items: flex-start;
+}
+
+.why-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fef9e7;
+  border-radius: 50%;
+}
+
+.why-item h4 {
+  font-size: 15px;
+  color: #333;
+  margin: 0 0 5px 0;
+  font-weight: 700;
+}
+
+.why-item p {
+  font-size: 13.5px;
+  color: #666;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.donate-alt {
+  background: #fef9e7;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #d4a017;
+  margin-top: 30px;
+}
+
+.donate-alt p {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 10px 0;
+}
+
+.donate-alt a {
+  color: #0a4711;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.donate-alt a:hover {
+  color: #d4a017;
+}
+
+/* Closing */
+.donate-closing {
+  background: #0a4711;
+  color: #fff;
+  text-align: center;
+  padding: 70px 20px;
+}
+
+.donate-closing h2 {
+  font-size: 30px;
+  color: #d4a017;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.donate-closing p {
+  font-size: 15px;
+  color: #eaeaea;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .donate-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .donate-banner h1 {
+    font-size: 32px;
+  }
+  .donate-intro h2 {
+    font-size: 24px;
+  }
+  .donate-form-wrap {
+    padding: 30px 25px;
+  }
+}
+
+@media (max-width: 480px) {
+  .amount-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

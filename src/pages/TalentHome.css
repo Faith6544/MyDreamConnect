@@ -1,0 +1,357 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.talent-page {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+}
+
+/* ============ DISCOVER SECTION ============ */
+.discover-section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 60px 20px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.discover-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 30px;
+}
+
+/* Search row */
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+}
+
+.search-box input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px 0 42px;
+  border: 1px solid #e1e4ea;
+  border-radius: 25px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  border-color: #0a4711;
+  box-shadow: 0 0 0 3px rgba(10, 71, 17, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #b2b2b2;
+}
+
+.filter-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #e1e4ea;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  color: #525866;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #f7f8f4;
+  border-color: #0a4711;
+}
+
+.sort-btn {
+  height: 44px;
+  padding: 0 18px;
+  border: 1px solid #e1e4ea;
+  background: #fff;
+  border-radius: 25px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.sort-btn:hover {
+  background: #f7f8f4;
+  border-color: #0a4711;
+}
+
+.chev {
+  font-size: 10px;
+  color: #525866;
+}
+
+/* Category pills */
+.category-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scrollbar-width: none;
+}
+
+.category-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.pill {
+  flex-shrink: 0;
+  padding: 8px 18px;
+  border-radius: 25px;
+  border: none;
+  background: transparent;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #525866;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.pill:hover {
+  color: #000;
+  background: #f5f5f5;
+}
+
+.pill.active {
+  background: #0a4711;
+  color: #fff;
+}
+
+/* ============ TALENT GRID ============ */
+.talents-section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+.talents-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+}
+
+.talent-card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 22px;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.talent-card:hover {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+}
+
+.talent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.talent-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.talent-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.talent-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 3px 0;
+}
+
+.talent-role {
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+.view-profile-btn {
+  background: #0a4711;
+  color: #fff;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 25px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.3s;
+}
+
+.view-profile-btn:hover {
+  background: #d4a017;
+}
+
+.talent-meta {
+  display: flex;
+  gap: 18px;
+  font-size: 12.5px;
+  color: #666;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.availability {
+  color: #0a4711;
+  font-weight: 500;
+}
+
+/* Portfolio placeholders */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.portfolio-placeholder {
+  aspect-ratio: 1 / 1;
+  background: #f5f5f5;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #ccc;
+}
+
+/* Skill tags */
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  background: #eaf3eb;
+  color: #0a4711;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.skill-tag-more {
+  color: #888;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 8px;
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  font-size: 15px;
+}
+
+/* ============ BOTTOM CTA ============ */
+.talent-cta {
+  background: #f7f8f4;
+  padding: 80px 20px;
+  text-align: center;
+  border-top: 1px solid #f0f0f0;
+}
+
+.cta-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 20px;
+}
+
+.talent-cta h2 {
+  font-size: 38px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 15px;
+  line-height: 1.2;
+}
+
+.talent-cta p {
+  font-size: 15px;
+  color: #525866;
+  margin-bottom: 30px;
+}
+
+.cta-btn {
+  display: inline-block;
+  background: #0a4711;
+  color: #fff;
+  padding: 14px 36px;
+  border-radius: 25px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.cta-btn:hover {
+  background: #d4a017;
+  transform: translateY(-2px);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1024px) {
+  .talents-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .discover-title {
+    font-size: 24px;
+  }
+  .search-row {
+    flex-wrap: wrap;
+  }
+  .search-box {
+    flex-basis: 100%;
+  }
+  .talent-cta h2 {
+    font-size: 26px;
+  }
+  .portfolio-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

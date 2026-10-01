@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+.mh-page {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+}
+
+.mh-banner {
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url('https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo-1024x817.png') center/cover;
+  padding: 80px 20px;
+  color: #fff;
+}
+
+.mh-banner h1 {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.mh-banner p {
+  font-size: 14px;
+  color: #ddd;
+  margin: 0;
+}
+
+.mh-intro {
+  max-width: 800px;
+  margin: 60px auto 40px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.mh-intro h2 {
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.mh-intro p {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.7;
+}
+
+.mh-cards {
+  max-width: 1000px;
+  margin: 0 auto 80px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.mh-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 50px 35px;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
+  border-top: 6px solid #d4a017;
+}
+
+.mh-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(212,160,23,0.25);
+}
+
+.mh-card-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.mh-card h3 {
+  font-size: 26px;
+  color: #0a4711;
+  margin-bottom: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mh-card p {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 25px;
+}
+
+.mh-card-btn {
+  display: inline-block;
+  color: #d4a017;
+  font-weight: 700;
+  font-size: 15px;
+  transition: color 0.3s;
+}
+
+.mh-card:hover .mh-card-btn {
+  color: #b88a0f;
+}
+
+@media (max-width: 768px) {
+  .mh-cards {
+    grid-template-columns: 1fr;
+  }
+  .mh-banner h1 {
+    font-size: 32px;
+  }
+  .mh-intro h2 {
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+.nf-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  background: #f9f9f9;
+  font-family: 'Poppins', sans-serif;
+}
+
+.nf-content {
+  text-align: center;
+  max-width: 520px;
+}
+
+.nf-code {
+  font-size: 120px;
+  font-weight: 800;
+  color: #0a4711;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -4px;
+}
+
+.nf-title {
+  font-size: 28px;
+  color: #333;
+  font-weight: 700;
+  margin: 10px 0 20px;
+}
+
+.nf-text {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 35px;
+}
+
+.nf-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.nf-btn-primary,
+.nf-btn-secondary {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+}
+
+.nf-btn-primary {
+  background: #0a4711;
+  color: #fff;
+}
+
+.nf-btn-primary:hover {
+  background: #d4a017;
+  transform: translateY(-2px);
+}
+
+.nf-btn-secondary {
+  background: #fff;
+  color: #0a4711;
+  border: 2px solid #0a4711;
+}
+
+.nf-btn-secondary:hover {
+  background: #0a4711;
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .nf-code {
+    font-size: 80px;
+  }
+  .nf-title {
+    font-size: 22px;
+  }
+}

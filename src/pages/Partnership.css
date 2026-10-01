@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.ps-page {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+}
+
+.ps-banner {
+  background: #0a4711;
+  padding: 80px 20px;
+  color: #fff;
+}
+
+.ps-banner h1 {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.ps-banner p {
+  font-size: 14px;
+  color: #cfd8cf;
+  margin: 0;
+}
+
+.ps-intro {
+  max-width: 800px;
+  margin: 60px auto 40px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.ps-intro h2 {
+  font-size: 32px;
+  color: #0a4711;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.ps-intro p {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.8;
+}
+
+.ps-layout {
+  max-width: 1150px;
+  margin: 0 auto 80px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 50px;
+  align-items: start;
+}
+
+.ps-form-wrap {
+  background: #fbfbfb;
+  padding: 40px;
+  border-radius: 10px;
+  border: 1px solid #f1f1f1;
+}
+
+.ps-form-wrap h3 {
+  font-size: 22px;
+  color: #0a4711;
+  margin-bottom: 25px;
+  font-weight: 700;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #d4a017;
+  display: inline-block;
+}
+
+.ps-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.ps-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.ps-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.ps-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ps-group input,
+.ps-group select,
+.ps-group textarea {
+  padding: 13px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.ps-group input:focus,
+.ps-group select:focus,
+.ps-group textarea:focus {
+  border-color: #0a4711;
+  box-shadow: 0 0 0 3px rgba(10,71,17,0.08);
+}
+
+.ps-group textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.ps-submit {
+  background: #0a4711;
+  color: #fff;
+  border: none;
+  padding: 15px 30px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-top: 8px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.ps-submit:hover {
+  background: #d4a017;
+  transform: translateY(-2px);
+}
+
+.form-success {
+  background: #e8f5e9;
+  color: #0a4711;
+  padding: 15px 20px;
+  border-radius: 6px;
+  border-left: 4px solid #27ae60;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.ps-why h3 {
+  font-size: 22px;
+  color: #0a4711;
+  margin-bottom: 25px;
+  font-weight: 700;
+  padding-bottom: 15px;
+  border-bottom: 3px solid #d4a017;
+  display: inline-block;
+}
+
+.ps-why-item {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 25px;
+  align-items: flex-start;
+}
+
+.ps-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fef9e7;
+  border-radius: 50%;
+}
+
+.ps-why-item h4 {
+  font-size: 15px;
+  color: #333;
+  margin: 0 0 5px;
+  font-weight: 700;
+}
+
+.ps-why-item p {
+  font-size: 13.5px;
+  color: #666;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.ps-contact {
+  background: #fef9e7;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #d4a017;
+  margin-top: 30px;
+}
+
+.ps-contact p {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 8px;
+}
+
+.ps-contact a {
+  color: #0a4711;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.ps-contact a:hover {
+  color: #d4a017;
+}
+
+@media (max-width: 900px) {
+  .ps-layout {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .ps-row {
+    grid-template-columns: 1fr;
+  }
+  .ps-form-wrap {
+    padding: 30px 25px;
+  }
+  .ps-banner h1 {
+    font-size: 28px;
+  }
+  .ps-intro h2 {
+    font-size: 24px;
+  }
+}

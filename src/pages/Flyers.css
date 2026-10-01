@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.fl-page {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+}
+
+/* Banner */
+.fl-banner {
+  background: #0a4711;
+  padding: 70px 20px;
+  color: #fff;
+}
+
+.fl-banner h1 {
+  font-size: 40px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.fl-banner p {
+  font-size: 14px;
+  color: #cfd8cf;
+  margin: 0;
+}
+
+/* Intro */
+.fl-intro {
+  max-width: 750px;
+  margin: 60px auto 30px;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.fl-intro h2 {
+  font-size: 30px;
+  color: #0a4711;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.fl-intro p {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.8;
+}
+
+/* Category pills */
+.fl-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  margin-bottom: 40px;
+}
+
+.fl-pill {
+  padding: 10px 22px;
+  border-radius: 25px;
+  background: #fff;
+  border: 1px solid #ddd;
+  color: #666;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.fl-pill:hover {
+  border-color: #0a4711;
+  color: #0a4711;
+}
+
+.fl-pill.active {
+  background: #0a4711;
+  color: #fff;
+  border-color: #0a4711;
+}
+
+/* Flyer grid */
+.fl-grid {
+  max-width: 1200px;
+  margin: 0 auto 80px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.fl-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.fl-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.fl-image {
+  width: 100%;
+  height: 220px;
+  background: #eaf3eb;
+  overflow: hidden;
+  position: relative;
+}
+
+.fl-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fl-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  color: #0a4711;
+}
+
+.fl-placeholder span {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.fl-placeholder p {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0a4711;
+  margin: 0;
+  line-height: 1.4;
+  max-width: 80%;
+}
+
+.fl-body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.fl-cat {
+  display: inline-block;
+  background: #fef9e7;
+  color: #d4a017;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+
+.fl-body h3 {
+  font-size: 16px;
+  color: #333;
+  font-weight: 700;
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+
+.fl-body p {
+  font-size: 13.5px;
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+.fl-btn {
+  display: block;
+  text-align: center;
+  background: #0a4711;
+  color: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.fl-btn:hover {
+  background: #d4a017;
+}
+
+.fl-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+/* CTA */
+.fl-cta {
+  background: #f9f9f9;
+  text-align: center;
+  padding: 70px 20px;
+  border-top: 1px solid #eee;
+}
+
+.fl-cta h2 {
+  font-size: 28px;
+  color: #0a4711;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.fl-cta p {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 25px;
+}
+
+.fl-cta-btn {
+  display: inline-block;
+  background: #d4a017;
+  color: #fff;
+  padding: 14px 36px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.fl-cta-btn:hover {
+  background: #b88a0f;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .fl-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .fl-grid {
+    grid-template-columns: 1fr;
+  }
+  .fl-banner h1 {
+    font-size: 28px;
+  }
+  .fl-intro h2 {
+    font-size: 24px;
+  }
+}
