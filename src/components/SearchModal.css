@@ -1,68 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 .sm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 71, 17, 0.55);
-  z-index: 2000;
+  background: rgba(10, 71, 17, 0.35);
+  z-index: 9999;
   display: flex;
-  align-items: flex-start;
   justify-content: center;
-  padding: 100px 20px 40px;
-  animation: smFadeIn 0.2s ease;
+  align-items: flex-start;
+  padding-top: 80px;
+  animation: sm-fade 0.15s ease-out;
 }
 
-@keyframes smFadeIn {
+@keyframes sm-fade {
   from { opacity: 0; }
-  to   { opacity: 1; }
+  to { opacity: 1; }
 }
 
 .sm-box {
-  background: #eaf3eb;
-  border-radius: 12px;
-  max-width: 720px;
+  background: #fff;
   width: 100%;
-  max-height: 75vh;
-  display: flex;
-  flex-direction: column;
+  max-width: 720px;
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   position: relative;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  font-family: 'Poppins', sans-serif;
   overflow: hidden;
-  border-top: 5px solid #0a4711;
 }
 
 .sm-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 18px;
+  right: 20px;
   background: none;
   border: none;
   font-size: 26px;
-  line-height: 1;
-  color: #0a4711;
+  color: #999;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  transition: background 0.2s;
+  line-height: 1;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
   z-index: 2;
 }
 
 .sm-close:hover {
-  background: #d5e6d8;
+  color: #333;
+  background: #f1f1f1;
 }
 
-/* Search bar */
 .sm-search-bar {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px 25px;
-  background: #fff;
-  border-bottom: 1px solid #d5e6d8;
+  padding: 22px 60px 22px 24px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .sm-search-icon {
   font-size: 18px;
-  color: #0a4711;
+  color: #888;
+  flex-shrink: 0;
 }
 
 .sm-search-bar input {
@@ -71,85 +69,59 @@
   outline: none;
   font-family: 'Poppins', sans-serif;
   font-size: 17px;
-  padding: 8px 40px 8px 0;
   color: #333;
   background: transparent;
 }
 
 .sm-search-bar input::placeholder {
-  color: #8aa78e;
+  color: #b5b5b5;
 }
 
-/* Results */
-.sm-results {
-  padding: 20px 25px;
+.sm-suggestions {
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+  max-height: 420px;
   overflow-y: auto;
-  background: #eaf3eb;
+}
+
+.sm-suggestions li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #333;
+  transition: background 0.12s;
+}
+
+.sm-suggestions li:hover,
+.sm-suggestions li.active {
+  background: #f7fbf7;
+}
+
+.sm-suggestion-icon {
+  font-size: 13px;
+  color: #b2b2b2;
+  flex-shrink: 0;
+}
+
+.sm-suggestion-word {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sm-suggestion-word strong {
+  color: #0a4711;
+  font-weight: 700;
 }
 
 .sm-hint {
+  padding: 24px;
+  margin: 0;
+  color: #999;
   font-size: 14px;
-  color: #5a7260;
   text-align: center;
-  padding: 30px 10px;
-  margin: 0;
-}
-
-.sm-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sm-list li {
-  margin-bottom: 6px;
-}
-
-.sm-list a {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  text-decoration: none;
-  color: #0a4711;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid #d5e6d8;
-  transition: all 0.2s;
-}
-
-.sm-list a:hover {
-  background: #f7fdf8;
-  border-color: #0a4711;
-  transform: translateX(3px);
-}
-
-.sm-type {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  flex-shrink: 0;
-  color: #fff;
-}
-
-.sm-type-course { background: #0a4711; }
-.sm-type-blog   { background: #d4a017; }
-.sm-type-page   { background: #666; }
-
-.sm-title {
-  font-size: 14.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  color: #333;
-}
-
-@media (max-width: 640px) {
-  .sm-overlay { padding: 60px 15px 20px; }
-  .sm-search-bar { padding: 16px 18px; }
-  .sm-search-bar input { font-size: 15px; }
-  .sm-results { padding: 15px 18px; }
 }

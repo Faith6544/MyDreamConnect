@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './SearchModal.css';
+import { supabase } from '../lib/supabase';
 
 function SearchModal({ onClose }) {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [allWords, setAllWords] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Focus the input when the modal opens. Escape closes it.
   useEffect(() => {
     inputRef.current?.focus();
 
@@ -25,116 +27,143 @@ function SearchModal({ onClose }) {
     };
   }, [onClose]);
 
-  // Search only when the user has typed something
+  // Load word dictionary — posts only for now
   useEffect(() => {
-    const q = query.trim();
+    const loadWords = async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('title');
 
-    // Empty query — do not fetch anything
-    if (q.length === 0) {
-      setResults([]);
-      setLoading(false);
+      if (error) {
+        console.error('Search dictionary error:', error);
+        return;
+      }
+
+      const words = new Set();
+      const collect = (text) => {
+        if (!text) return;
+        text
+          .toLowerCase()
+          .split(/[\s\-_,.;:!?()[\]{}"'/\\|]+/)
+          .forEach(w => {
+            const clean = w.replace(/[^a-z0-9]/g, '');
+            if (clean.length >= 3) words.add(clean);
+          });
+      };
+
+      (data || []).forEach(p => collect(p.title));
+      setAllWords(Array.from(words).sort());
+    };
+
+    loadWords();
+  }, []);
+
+  useEffect(() => {
+    const trimmed = query.trim().toLowerCase();
+
+    if (trimmed.length < 2) {
+      setSuggestions([]);
+      setActiveIndex(-1);
       return;
     }
 
-    const controller = new AbortController();
-    setLoading(true);
-
-    Promise.all([
-      fetch(`https://staging.mydreamconnect.org.ng/wp-json/wp/v2/posts?search=${encodeURIComponent(q)}&per_page=8`, { signal: controller.signal })
-        .then(res => res.json())
-        .catch(() => []),
-      fetch(`https://staging.mydreamconnect.org.ng/wp-json/wp/v2/pages?search=${encodeURIComponent(q)}&per_page=8`, { signal: controller.signal })
-        .then(res => res.json())
-        .catch(() => []),
-      fetch(`https://staging.mydreamconnect.org.ng/wp-json/learnpress/v1/courses`, { signal: controller.signal })
-        .then(res => res.json())
-        .then(data => {
-          if (!Array.isArray(data)) return [];
-          return data
-            .filter(c => c.name.toLowerCase().includes(q.toLowerCase()))
-            .slice(0, 8);
-        })
-        .catch(() => []),
-    ])
-      .then(([posts, pages, courses]) => {
-        const merged = [
-          ...courses.map(c => ({
-            type: 'Course',
-            id: `course-${c.id}`,
-            title: c.name,
-            url: `/courses/${c.id}`,
-          })),
-          ...posts.map(p => ({
-            type: 'Blog',
-            id: `post-${p.id}`,
-            title: p.title?.rendered?.replace(/<[^>]+>/g, '') || '',
-            url: `/blog/${p.id}`,
-          })),
-          ...pages.map(p => ({
-            type: 'Page',
-            id: `page-${p.id}`,
-            title: p.title?.rendered?.replace(/<[^>]+>/g, '') || '',
-            url: `/${p.slug}`,
-          })),
-        ];
-        setResults(merged);
-        setLoading(false);
+    const matches = allWords
+      .filter(w => w.startsWith(trimmed) || w.includes(trimmed))
+      .sort((a, b) => {
+        const aStarts = a.startsWith(trimmed) ? 0 : 1;
+        const bStarts = b.startsWith(trimmed) ? 0 : 1;
+        if (aStarts !== bStarts) return aStarts - bStarts;
+        return a.localeCompare(b);
       })
-      .catch(() => setLoading(false));
+      .slice(0, 10);
 
-    return () => controller.abort();
-  }, [query]);
+    setSuggestions(matches);
+    setActiveIndex(-1);
+  }, [query, allWords]);
 
-  const hasQuery = query.trim().length > 0;
+  const commitSearch = (value) => {
+    if (!value.trim()) return;
+    onClose();
+    navigate(`/search?q=${encodeURIComponent(value.trim())}`);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const finalTerm = activeIndex >= 0 && suggestions[activeIndex]
+      ? suggestions[activeIndex]
+      : query;
+    commitSearch(finalTerm);
+  };
+
+  const handleSuggestionClick = (word) => {
+    commitSearch(word);
+  };
+
+  const handleKeyDown = (e) => {
+    if (suggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(i => (i + 1) % suggestions.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(i => (i - 1 + suggestions.length) % suggestions.length);
+    }
+  };
+
+  const hasQuery = query.trim().length >= 2;
 
   return (
     <div className="sm-overlay" onClick={onClose}>
       <div className="sm-box" onClick={(e) => e.stopPropagation()}>
 
-        <button
-          className="sm-close"
-          onClick={onClose}
-          aria-label="Close search"
-        >
-          ×
-        </button>
+        <button className="sm-close" onClick={onClose} aria-label="Close search">×</button>
 
-        <div className="sm-search-bar">
+        <form className="sm-search-bar" onSubmit={handleSubmit}>
           <span className="sm-search-icon">🔍</span>
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search courses, blog posts, pages..."
+            placeholder="Search..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            autoComplete="off"
           />
-        </div>
+        </form>
 
-        {hasQuery && (
-          <div className="sm-results">
+        {hasQuery && suggestions.length > 0 && (
+          <ul className="sm-suggestions">
+            {suggestions.map((word, i) => {
+              const idx = word.indexOf(query.trim().toLowerCase());
+              const before = word.slice(0, idx);
+              const match = word.slice(idx, idx + query.trim().length);
+              const after = word.slice(idx + query.trim().length);
 
-            {loading && <p className="sm-hint">Searching...</p>}
+              return (
+                <li
+                  key={word}
+                  className={i === activeIndex ? 'active' : ''}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSuggestionClick(word);
+                  }}
+                  onMouseEnter={() => setActiveIndex(i)}
+                >
+                  <span className="sm-suggestion-icon">🔍</span>
+                  <span className="sm-suggestion-word">
+                    {before}
+                    <strong>{match}</strong>
+                    {after}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
-            {!loading && results.length > 0 && (
-              <ul className="sm-list">
-                {results.map(r => (
-                  <li key={r.id}>
-                    <Link to={r.url} onClick={onClose}>
-                      <span className={`sm-type sm-type-${r.type.toLowerCase()}`}>
-                        {r.type}
-                      </span>
-                      <span className="sm-title">{r.title}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {!loading && results.length === 0 && (
-              <p className="sm-hint">No results for "{query}".</p>
-            )}
-
-          </div>
+        {hasQuery && suggestions.length === 0 && (
+          <p className="sm-hint">No suggestions for "{query}"</p>
         )}
 
       </div>

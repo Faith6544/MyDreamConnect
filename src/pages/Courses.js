@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Courses.css';
+import ImageWithFallback from '../components/ImageWithFallback';
+import { supabase } from '../lib/supabase';
 
-// Helper to format price in Naira
 const formatPrice = (course) => {
   if (!course.price || course.price === 0) return 'Free';
   return `₦${course.price.toLocaleString('en-NG')}`;
@@ -15,27 +16,32 @@ function Courses() {
   const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
-  fetch(`${process.env.REACT_APP_WP_API}/learnpress/v1/courses`)
-    .then(res => res.json())
-    .then(data => {
-      setCourses(data);
+    const fetchCourses = async () => {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Courses fetch error:', error);
+      } else {
+        setCourses(data || []);
+      }
       setLoading(false);
-    })
-    .catch(err => {
-      console.error("Error:", err);
-      setLoading(false);
-    });
-}, []);
+    };
+
+    fetchCourses();
+  }, []);
 
   const filteredCourses = courses.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const sortedCourses = [...filteredCourses].sort((a, b) => {
-    if (sortBy === 'newest') return b.id - a.id;
-    if (sortBy === 'oldest') return a.id - b.id;
-    if (sortBy === 'price-low') return a.price - b.price;
-    if (sortBy === 'price-high') return b.price - a.price;
+    if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
+    if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
+    if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
+    if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
     return 0;
   });
 
@@ -45,10 +51,8 @@ function Courses() {
 
   return (
     <div className="courses-page">
-
       <h1 className="courses-title">All Courses</h1>
 
-      {/* Filter Bar */}
       <div className="filter-bar">
         <div className="search-box">
           <input
@@ -68,48 +72,33 @@ function Courses() {
         </select>
       </div>
 
-      {/* Course Grid */}
       <div className="courses-grid">
         {sortedCourses.map(course => (
           <div className="course-card" key={course.id}>
-
-            {/* Image */}
             <div className="course-image">
-              <img src={course.image} alt="" />
+              <ImageWithFallback src={course.image_url} alt="" />
               {course.price === 0 && <span className="badge-free">FREE</span>}
               {course.price > 0 && <span className="badge-paid">PAID</span>}
             </div>
 
-            {/* Content */}
             <div className="course-content">
-
-              <div className="course-categories">
-                {course.categories && course.categories.length > 0
-                  ? course.categories.map(cat => cat.name).join(', ')
-                  : 'General'}
-              </div>
-
+              <div className="course-categories">General</div>
               <h3 className="course-title">{course.name}</h3>
-
               <p className="course-excerpt">
                 {course.excerpt
-                  ? course.excerpt.replace(/<[^>]+>/g, '').substring(0, 90) + '...'
+                  ? course.excerpt.substring(0, 90) + '...'
                   : 'Click to view full course description and enroll today.'}
               </p>
-
               <div className="course-meta">
-                <span>🕐 {course.duration}</span>
+                <span>🕐 {course.duration || 'Flexible'}</span>
               </div>
-
               <div className="course-footer">
                 <span className="course-price">{formatPrice(course)}</span>
                 <Link to={`/courses/${course.id}`} className="buy-btn">
                   {course.price === 0 ? 'Enroll Now' : 'Buy Now'}
                 </Link>
               </div>
-
             </div>
-
           </div>
         ))}
       </div>
@@ -117,7 +106,6 @@ function Courses() {
       {sortedCourses.length === 0 && (
         <p style={{ textAlign: 'center', padding: '50px' }}>No courses found.</p>
       )}
-
     </div>
   );
 }

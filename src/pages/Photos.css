@@ -116,3 +116,21 @@
     font-size: 32px;
   }
 }
+.year-group {
+  margin-bottom: 50px;
+}
+
+.year-heading {
+  font-size: 22px;
+  color: #0a4711;
+  font-weight: 700;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #eaf3eb;
+}
+
+.album-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}

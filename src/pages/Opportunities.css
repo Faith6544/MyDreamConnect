@@ -63,7 +63,7 @@
   margin-bottom: 25px;
 }
 
-.social-btn {
+.opps-social-btn {
   width: 40px;
   height: 40px;
   display: flex;
@@ -78,10 +78,9 @@
   transition: background 0.3s;
 }
 
-.social-btn:hover {
+.opps-social-btn:hover {
   background: #d4a017;
 }
-
 .opps-content p {
   margin-bottom: 20px;
 }

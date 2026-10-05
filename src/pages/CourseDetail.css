@@ -278,3 +278,58 @@
   font-size: 14px;
   margin-bottom: 15px;
 }
+.cd-buy-error {
+  background: #fdecea;
+  color: #b81c00;
+  font-size: 12.5px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin: 0 0 12px;
+  border-left: 3px solid #e74c3c;
+}
+
+.cd-enrolled-badge {
+  display: block;
+  background: #e8f5e9;
+  color: #0a4711;
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  margin: 15px 0 12px;
+}
+
+.cd-lessons-preview {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cd-lessons-preview li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 15px;
+  color: #333;
+}
+
+.cd-lessons-preview li:last-child {
+  border-bottom: none;
+}
+
+.cd-lesson-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #eaf3eb;
+  color: #0a4711;
+  border-radius: 50%;
+  font-size: 12.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+}

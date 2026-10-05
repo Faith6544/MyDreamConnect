@@ -1,25 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Blog.css';
+import { supabase } from '../lib/supabase';
+import ImageWithFallback from '../components/ImageWithFallback';
 
 function Blog() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts?_embed`)
-      .then(res => res.json())
-      .then(data => {
-        setPosts(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Error:", err);
-        setLoading(false);
-      });
+    const fetchPosts = async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Supabase fetch error:', error);
+      } else {
+        setPosts(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchPosts();
   }, []);
 
-  if (loading) return <h2 style={{ textAlign: 'center', padding: '100px' }}>Loading Blogs...</h2>;
+  if (loading) {
+    return <h2 style={{ textAlign: 'center', padding: '100px' }}>Loading Blogs...</h2>;
+  }
 
   return (
     <div className="blog-page">
@@ -30,24 +39,21 @@ function Blog() {
 
       <div className="blog-grid">
         {posts.map(post => {
-          // Get featured image from embedded data
-          const featuredImage = post._embedded && post._embedded['wp:featuredmedia']
-            ? post._embedded['wp:featuredmedia'][0].source_url
-            : 'https://via.placeholder.com/600x400?text=No+Image';
-
-          // Format the date
-          const date = new Date(post.date).toLocaleDateString('en-US', {
+          const date = new Date(post.created_at).toLocaleDateString('en-US', {
             year: 'numeric', month: 'long', day: 'numeric'
           });
 
-          // Strip HTML from title and excerpt
-          const title = post.title.rendered.replace(/<[^>]+>/g, '');
-          const excerpt = post.excerpt.rendered.replace(/<[^>]+>/g, '').substring(0, 110) + '...';
+          const title = post.title || 'Untitled';
+          const excerpt = post.excerpt
+            ? post.excerpt.substring(0, 110) + '...'
+            : post.content
+              ? post.content.replace(/<[^>]+>/g, '').substring(0, 110) + '...'
+              : 'Read more...';
 
           return (
             <Link to={`/blog/${post.id}`} key={post.id} className="blog-card">
               <div className="blog-image">
-                <img src={featuredImage} alt={title} />
+                <ImageWithFallback src={post.image_url} alt={title} />
               </div>
               <div className="blog-content">
                 <div className="blog-date">{date}</div>

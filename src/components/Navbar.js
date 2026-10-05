@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SearchModal from './SearchModal';
 import './Navbar.css';
+import ImageWithFallback from '../components/ImageWithFallback';
+import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -9,10 +11,17 @@ function Navbar() {
   const [talentOpen, setTalentOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
+  const { user, signOut } = useAuth();
+
   const closeMenu = () => {
     setMobileOpen(false);
     setMediaOpen(false);
     setTalentOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.href = '/';
   };
 
   return (
@@ -21,7 +30,7 @@ function Navbar() {
         <div className="nav-container">
 
           <Link to="/" className="logo" onClick={closeMenu}>
-            <img
+            <ImageWithFallback
               src="https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo.png"
               alt="MyDreamConnect Logo"
             />
@@ -46,11 +55,11 @@ function Navbar() {
               <span className="nav-parent" onClick={() => setMediaOpen(!mediaOpen)}>
                 Media <span className="caret">▾</span>
               </span>
-             <ul className="dropdown">
-  <li><Link to="/media/photos" onClick={closeMenu}>Photos</Link></li>
-  <li><Link to="/media/videos" onClick={closeMenu}>Videos</Link></li>
-  <li><Link to="/media/flyers" onClick={closeMenu}>Flyers</Link></li>
-</ul>
+              <ul className="dropdown">
+                <li><Link to="/media/photos" onClick={closeMenu}>Photos</Link></li>
+                <li><Link to="/media/videos" onClick={closeMenu}>Videos</Link></li>
+                <li><Link to="/media/flyers" onClick={closeMenu}>Flyers</Link></li>
+              </ul>
             </li>
 
             <li className={`has-dropdown ${talentOpen ? 'open' : ''}`}>
@@ -77,11 +86,24 @@ function Navbar() {
               </button>
             </li>
 
-            <li className="take-course-li">
-              <Link to="/courses" className="take-course-btn" onClick={closeMenu}>
-                TAKE A COURSE
-              </Link>
-            </li>
+            {user ? (
+              <>
+                <li className="take-course-li">
+                  <Link to="/my-courses" className="take-course-btn" onClick={closeMenu}>
+                    MY COURSES
+                  </Link>
+                </li>
+                <li className="logout-li">
+                  <button onClick={handleSignOut} className="logout-btn">Log out</button>
+                </li>
+              </>
+            ) : (
+              <li className="take-course-li">
+                <Link to="/courses" className="take-course-btn" onClick={closeMenu}>
+                  TAKE A COURSE
+                </Link>
+              </li>
+            )}
 
           </ul>
 

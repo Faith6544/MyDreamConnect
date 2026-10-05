@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.admin-list-page {
+  min-height: 100vh;
+  background: #f5f7f5;
+  padding: 40px 30px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.admin-list-header {
+  max-width: 1000px;
+  margin: 0 auto 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.back-link {
+  font-size: 13px;
+  color: #0a4711;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.admin-list-header h1 {
+  font-size: 26px;
+  color: #0a4711;
+  font-weight: 700;
+  margin: 0;
+}
+
+.btn-new {
+  background: #0a4711;
+  color: #fff;
+  padding: 11px 22px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.btn-new:hover {
+  background: #d4a017;
+}
+
+.admin-table {
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  border-collapse: collapse;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.admin-table th {
+  background: #0a4711;
+  color: #fff;
+  text-align: left;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 14px;
+  color: #333;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit, .btn-delete {
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.btn-edit {
+  background: #eaf3eb;
+  color: #0a4711;
+}
+
+.btn-edit:hover {
+  background: #d0e5d3;
+}
+
+.btn-delete {
+  background: #fdecea;
+  color: #b81c00;
+}
+
+.btn-delete:hover {
+  background: #f9d5d0;
+}
+
+.admin-list-loading,
+.admin-list-empty {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  margin-top: 60px;
+}

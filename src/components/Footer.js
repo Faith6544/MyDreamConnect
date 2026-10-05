@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css'; // Create this CSS file
+import ImageWithFallback from '../components/ImageWithFallback';
 
 function Footer() {
   return (

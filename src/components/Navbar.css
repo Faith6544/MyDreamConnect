@@ -270,3 +270,25 @@
     padding: 4px 0;
   }
 }
+.logout-li {
+  display: flex;
+  align-items: center;
+}
+
+.logout-btn {
+  background: none;
+  border: 1px solid #0a4711;
+  color: #0a4711;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.logout-btn:hover {
+  background: #0a4711;
+  color: #fff;
+}

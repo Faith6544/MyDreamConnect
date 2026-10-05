@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './About.css';
 import Sidebar from '../components/Sidebar';
-
+import ImageWithFallback from '../components/ImageWithFallback';
 function About() {
   return (
     <div className="about-page">
@@ -76,10 +76,10 @@ function About() {
           </p>
 
           <figure className="about-sdg-image">
-            <img
-              src="https://mydreamconnect.org.ng/wp-content/uploads/2022/10/sdg-goals-1024x538.png"
-              alt=""
-            />
+            <ImageWithFallback
+  src="https://mydreamconnect.org.ng/wp-content/uploads/2022/10/sdg-goals-1024x538.png"
+  alt=""
+/>
           </figure>
 
           <p className="about-coach-cta">

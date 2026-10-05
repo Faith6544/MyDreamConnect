@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+.pa-page {
+  font-family: 'Poppins', sans-serif;
+  background: #fff;
+}
+
+.pa-banner {
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url('https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo-1024x817.png') center/cover;
+  padding: 70px 20px;
+  color: #fff;
+}
+
+.pa-breadcrumb {
+  font-size: 13px;
+  color: #ddd;
+  margin-bottom: 10px;
+}
+
+.pa-breadcrumb a { color: #d4a017; text-decoration: none; }
+.pa-breadcrumb a:hover { text-decoration: underline; }
+
+.pa-banner h1 { font-size: 32px; margin: 0 0 8px; }
+
+.pa-year {
+  font-size: 14px;
+  color: #d4a017;
+  font-weight: 600;
+  margin: 0;
+}
+
+.pa-content {
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+.pa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.pa-thumb {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  background: #f1f1f1;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.pa-thumb:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.pa-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pa-caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  color: #fff;
+  font-size: 12px;
+  padding: 20px 12px 10px;
+}
+
+.pa-empty, .pa-status {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+.pa-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  cursor: zoom-out;
+}
+
+.pa-lightbox img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  cursor: default;
+  border-radius: 8px;
+  user-select: none;
+}
+
+.pa-close {
+  position: absolute;
+  top: 20px; right: 25px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: none;
+  font-size: 32px;
+  line-height: 1;
+  width: 45px; height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+}
+.pa-close:hover { background: rgba(255,255,255,0.3); }
+
+.pa-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: none;
+  font-size: 42px;
+  line-height: 1;
+  width: 55px; height: 55px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.pa-nav:hover { background: rgba(255,255,255,0.3); }
+.pa-prev { left: 25px; }
+.pa-next { right: 25px; }
+
+.pa-lightbox-info {
+  position: absolute;
+  bottom: 25px;
+  left: 0; right: 0;
+  text-align: center;
+  color: #fff;
+  padding: 0 40px;
+}
+
+.pa-lightbox-info p {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.pa-lightbox-info span {
+  font-size: 12px;
+  color: #bbb;
+}
+
+@media (max-width: 768px) {
+  .pa-grid { grid-template-columns: repeat(2, 1fr); }
+  .pa-banner h1 { font-size: 22px; }
+  .pa-nav { width: 42px; height: 42px; font-size: 32px; }
+  .pa-prev { left: 10px; }
+  .pa-next { right: 10px; }
+}

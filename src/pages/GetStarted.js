@@ -1,40 +1,78 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './GetStarted.css';
 
 function GetStarted() {
-  const [mode, setMode] = useState('signin'); // 'signin' or 'signup'
+  const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     agree: false,
-    remember: false,
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { signIn, signUp } = useAuth();
+  const from = location.state?.from?.pathname || '/my-courses';
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value,
-    });
+    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`${mode} submitted:`, formData);
-    // Later: connect to WordPress or a real auth API.
-    alert(`${mode === 'signin' ? 'Signing in' : 'Creating account'}...`);
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      if (mode === 'signin') {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) {
+          setError(error.message);
+        } else {
+          navigate(from, { replace: true });
+        }
+      } else {
+        if (!formData.agree) {
+          setError('Please agree to the Terms and Privacy Policy.');
+          setLoading(false);
+          return;
+        }
+        if (formData.password.length < 6) {
+          setError('Password must be at least 6 characters.');
+          setLoading(false);
+          return;
+        }
+
+        const { error } = await signUp(formData.email, formData.password, formData.name);
+
+        if (error) {
+          setError(error.message);
+        } else {
+          setSuccess('Account created! You can now sign in.');
+          setMode('signin');
+          setFormData({ ...formData, password: '' });
+        }
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="auth-page">
-
-      {/* Container card */}
       <div className="auth-card">
 
-        {/* Logo */}
         <div className="auth-logo">
           <img
             src="https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo.png"
@@ -43,7 +81,6 @@ function GetStarted() {
           <span>MyDreamConnect</span>
         </div>
 
-        {/* Heading */}
         <h1 className="auth-title">
           {mode === 'signin' ? 'Welcome back' : 'Create your account'}
         </h1>
@@ -53,42 +90,11 @@ function GetStarted() {
             : 'Start learning, growing, and connecting today.'}
         </p>
 
-        {/* Social buttons */}
-     <div className="auth-socials">
-  <button type="button" className="social-btn">
-    <img
-      src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-      alt="Google"
-    />
-    <span>Google</span>
-  </button>
+        {error && <div className="auth-error">❌ {error}</div>}
+        {success && <div className="auth-success">✅ {success}</div>}
 
-  <button type="button" className="social-btn">
-    <img
-      src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
-      alt="Apple"
-    />
-    <span>Apple</span>
-  </button>
-
-  <button type="button" className="social-btn">
-    <img
-      src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"
-      alt="Microsoft"
-    />
-    <span>Microsoft</span>
-  </button>
-</div>
-
-        {/* Divider */}
-        <div className="auth-divider">
-          <span>{mode === 'signin' ? 'or continue with email' : 'or sign up with email'}</span>
-        </div>
-
-        {/* Form */}
         <form className="auth-form" onSubmit={handleSubmit}>
 
-          {/* Full name (only signup) */}
           {mode === 'signup' && (
             <div className="auth-field">
               <label>Full name</label>
@@ -101,12 +107,12 @@ function GetStarted() {
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
           )}
 
-          {/* Email */}
           <div className="auth-field">
             <label>Email address</label>
             <div className="auth-input-wrap">
@@ -118,11 +124,11 @@ function GetStarted() {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                disabled={loading}
               />
             </div>
           </div>
 
-          {/* Password */}
           <div className="auth-field">
             <label>Password</label>
             <div className="auth-input-wrap">
@@ -130,10 +136,11 @@ function GetStarted() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
-                placeholder={mode === 'signup' ? 'At least 8 characters' : '••••••••'}
+                placeholder={mode === 'signup' ? 'At least 6 characters' : '••••••••'}
                 value={formData.password}
                 onChange={handleChange}
                 required
+                disabled={loading}
               />
               <button
                 type="button"
@@ -146,21 +153,7 @@ function GetStarted() {
             </div>
           </div>
 
-          {/* Remember me / Terms */}
-          {mode === 'signin' ? (
-            <div className="auth-row">
-              <label className="auth-checkbox">
-                <input
-                  type="checkbox"
-                  name="remember"
-                  checked={formData.remember}
-                  onChange={handleChange}
-                />
-                <span>Remember me</span>
-              </label>
-              <a href="#" className="auth-link">Forgot password?</a>
-            </div>
-          ) : (
+          {mode === 'signup' && (
             <div className="auth-row">
               <label className="auth-checkbox">
                 <input
@@ -168,44 +161,32 @@ function GetStarted() {
                   name="agree"
                   checked={formData.agree}
                   onChange={handleChange}
-                  required
                 />
                 <span>
-                  I agree to the <a href="#" className="auth-link">Terms</a> and{' '}
-                  <a href="#" className="auth-link">Privacy Policy</a>
+                  I agree to the <Link to="/terms" className="auth-link">Terms</Link> and{' '}
+                  <Link to="/terms" className="auth-link">Privacy Policy</Link>
                 </span>
               </label>
             </div>
           )}
 
-          {/* Submit */}
-          <button type="submit" className="auth-submit">
-            {mode === 'signin' ? 'Sign In' : 'Create Account'}
+          <button type="submit" className="auth-submit" disabled={loading}>
+            {loading ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
           </button>
-
         </form>
 
-        {/* Switch mode */}
         <p className="auth-switch">
           {mode === 'signin' ? (
             <>
               Don't have an account?{' '}
-              <button
-                type="button"
-                className="auth-link-btn"
-                onClick={() => setMode('signup')}
-              >
+              <button type="button" className="auth-link-btn" onClick={() => { setMode('signup'); setError(''); setSuccess(''); }}>
                 Sign up
               </button>
             </>
           ) : (
             <>
               Already have an account?{' '}
-              <button
-                type="button"
-                className="auth-link-btn"
-                onClick={() => setMode('signin')}
-              >
+              <button type="button" className="auth-link-btn" onClick={() => { setMode('signin'); setError(''); setSuccess(''); }}>
                 Sign in
               </button>
             </>

@@ -288,3 +288,22 @@
     grid-template-columns: 1fr;
   }
 }
+.auth-error {
+  background: #fdecea;
+  color: #b81c00;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  margin-bottom: 18px;
+  border-left: 4px solid #e74c3c;
+}
+
+.auth-success {
+  background: #e8f5e9;
+  color: #0a4711;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  margin-bottom: 18px;
+  border-left: 4px solid #27ae60;
+}

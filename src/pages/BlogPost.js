@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './BlogPost.css';
 import Sidebar from '../components/Sidebar';
+import ImageWithFallback from '../components/ImageWithFallback';
+import { supabase } from '../lib/supabase';
+
 function BlogPost() {
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -11,48 +14,55 @@ function BlogPost() {
 
   // Fetch the single post
   useEffect(() => {
-fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts/${id}?_embed`)
-      .then(res => res.json())
-      .then(data => {
-        setPost(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error loading post:', err);
+    const fetchPost = async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error loading post:', error);
         setError('Could not load this post.');
-        setLoading(false);
-      });
+      } else {
+        setPost(data);
+      }
+      setLoading(false);
+    };
+
+    fetchPost();
   }, [id]);
 
   // Fetch related posts (latest 4, excluding this one)
   useEffect(() => {
-fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts?per_page=5&_embed`)
-      .then(res => res.json())
-      .then(data => {
-        const others = data.filter(p => String(p.id) !== String(id)).slice(0, 4);
-        setRelated(others);
-      })
-      .catch(err => console.error('Error loading related:', err));
+    const fetchRelated = async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .neq('id', id)
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (error) {
+        console.error('Error loading related:', error);
+      } else {
+        setRelated(data || []);
+      }
+    };
+
+    fetchRelated();
   }, [id]);
 
   if (loading) return <h2 className="bp-status">Loading post...</h2>;
   if (error) return <h2 className="bp-status">{error}</h2>;
   if (!post) return <h2 className="bp-status">Post not found.</h2>;
 
-  const featuredImage = post._embedded?.['wp:featuredmedia']?.[0]?.source_url
-    || 'https://via.placeholder.com/1200x600?text=No+Image';
-
-  const author = post._embedded?.author?.[0]?.name || 'MyDreamConnect';
-  const authorAvatar = post._embedded?.author?.[0]?.avatar_urls?.['96'];
-
-  const categories = post._embedded?.['wp:term']?.[0] || [];
-  const tags = post._embedded?.['wp:term']?.[1] || [];
-
-  const date = new Date(post.date).toLocaleDateString('en-US', {
+  const featuredImage = post.image_url || null;
+  const author = 'MyDreamConnect';
+  const date = new Date(post.created_at).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
-
-  const title = post.title?.rendered?.replace(/<[^>]+>/g, '') || '';
+  const title = post.title || 'Untitled';
 
   return (
     <div className="bp-page">
@@ -66,11 +76,6 @@ fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts?per_page=5&_embed`)
         <div className="bp-meta">
           <span>📅 {date}</span>
           <span>✍️ {author}</span>
-          {categories.length > 0 && (
-            <span>
-              📂 {categories.map(c => c.name).join(', ')}
-            </span>
-          )}
         </div>
       </section>
 
@@ -79,37 +84,23 @@ fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts?per_page=5&_embed`)
         {/* ============ LEFT: Content ============ */}
         <article className="bp-content">
 
-          {/* Featured image */}
           <figure className="bp-cover">
-            <img src={featuredImage} alt="" />
+            <ImageWithFallback src={featuredImage} alt="" />
           </figure>
 
           {/* Author card */}
           <div className="bp-author-card">
-            {authorAvatar && <img src={authorAvatar} alt="" />}
             <div>
               <small>Written by</small>
               <h4>{author}</h4>
             </div>
           </div>
 
-          {/* Content */}
-          <div
-            className="bp-body"
-            dangerouslySetInnerHTML={{ __html: post.content?.rendered || '' }}
-          />
+          {/* Content — plain text for now; use dangerouslySetInnerHTML if you store HTML */}
+          <div className="bp-body">
+            {post.content || ''}
+          </div>
 
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div className="bp-tags">
-              <strong>Tags:</strong>{' '}
-              {tags.map(t => (
-                <span className="bp-tag" key={t.id}>#{t.name}</span>
-              ))}
-            </div>
-          )}
-
-          {/* Back link */}
           <div className="bp-back">
             <Link to="/blog">← Back to all blog posts</Link>
           </div>
@@ -117,51 +108,7 @@ fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts?per_page=5&_embed`)
         </article>
 
         {/* ============ RIGHT: Sidebar ============ */}
-        <sidebar className="bp-sidebar">
-
-          <div className="widget">
-            <h3>Search</h3>
-            <form className="sidebar-search" onSubmit={(e) => e.preventDefault()}>
-              <input type="text" placeholder="" />
-              <button type="submit">Search</button>
-            </form>
-          </div>
-
-          <div className="widget">
-            <h3>Recent Posts</h3>
-            <ul className="widget-list">
-              {related.map(p => (
-                <li key={p.id}>
-                  <Link to={`/blog/${p.id}`}>
-                    {p.title?.rendered?.replace(/<[^>]+>/g, '')}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="widget">
-            <h3>Categories</h3>
-            <ul className="widget-list">
-              <li><Link to="/blog">Blogs</Link></li>
-              <li><Link to="/blog">Digital Information</Link></li>
-              <li><Link to="/blog">Health &amp; Wellness</Link></li>
-              <li><Link to="/blog">News &amp; Events</Link></li>
-              <li><Link to="/blog">OPPORTUNITIES FOR DEVELOPMENT</Link></li>
-              <li><Link to="/blog">Personal Development</Link></li>
-            </ul>
-          </div>
-
-          <div className="widget">
-            <h3>Subscribe</h3>
-            <form className="sidebar-subscribe" onSubmit={(e) => e.preventDefault()}>
-              <input type="text" placeholder="Enter your name" />
-              <input type="email" placeholder="Enter your email" />
-              <button type="submit">Subscribe</button>
-            </form>
-          </div>
-
-        </sidebar>
+        <Sidebar />
 
       </div>
 
@@ -171,15 +118,14 @@ fetch(`${process.env.REACT_APP_WP_API}/wp/v2/posts?per_page=5&_embed`)
           <h2>You May Also Like</h2>
           <div className="bp-related-grid">
             {related.map(p => {
-              const rImage = p._embedded?.['wp:featuredmedia']?.[0]?.source_url
-                || 'https://via.placeholder.com/600x400?text=No+Image';
-              const rDate = new Date(p.date).toLocaleDateString('en-US', {
+              const rImage = p.image_url || null;
+              const rDate = new Date(p.created_at).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric'
               });
-              const rTitle = p.title?.rendered?.replace(/<[^>]+>/g, '') || '';
+              const rTitle = p.title || 'Untitled';
               return (
                 <Link to={`/blog/${p.id}`} className="bp-related-card" key={p.id}>
-                  <img src={rImage} alt="" />
+                  <ImageWithFallback src={rImage} alt="" />
                   <div>
                     <small>{rDate}</small>
                     <h3>{rTitle}</h3>
