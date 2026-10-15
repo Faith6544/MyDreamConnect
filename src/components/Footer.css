@@ -1,10 +1,10 @@
- 
-
 /* ============================================
    FOOTER
    ============================================ */
 
 .site-footer {
+  position: relative;
+  z-index: 100;
   background: #0a1f0d;
   color: #cfd8cf;
   font-family: 'Poppins', sans-serif;
@@ -49,7 +49,7 @@
   max-width: 300px;
 }
 
-/* --- Socials (renamed) --- */
+/* --- Socials --- */
 .footer-socials {
   display: flex;
   gap: 8px;
@@ -182,7 +182,6 @@
     padding-bottom: 30px;
   }
 
-  /* Brand spans full width on top */
   .footer-brand {
     grid-column: 1 / -1;
     padding-bottom: 22px;
@@ -194,7 +193,6 @@
     max-width: 100%;
   }
 
-  /* Contact spans full width at bottom */
   .footer-contact {
     grid-column: 1 / -1;
     padding-top: 18px;
@@ -218,7 +216,6 @@
     padding-bottom: 22px;
   }
 
-  /* Brand block — compact */
   .footer-brand {
     padding-bottom: 16px;
     gap: 10px;
@@ -234,7 +231,6 @@
     line-height: 1.55;
   }
 
-  /* Smaller socials, tighter row */
   .footer-socials {
     gap: 6px;
     margin-top: 2px;
@@ -253,7 +249,6 @@
     height: 13px;
   }
 
-  /* Column headings */
   .footer-col h4 {
     font-size: 11px;
     letter-spacing: 1.2px;
@@ -269,7 +264,6 @@
     line-height: 1.45;
   }
 
-  /* Contact block */
   .footer-contact {
     padding-top: 14px;
   }
@@ -279,7 +273,6 @@
     gap: 7px;
   }
 
-  /* Bottom bar stacked */
   .footer-bottom {
     flex-direction: column;
     align-items: flex-start;
@@ -319,12 +312,7 @@
   .footer-col ul li {
     font-size: 11.5px;
   }
-.site-footer {
-  position: relative;
-  z-index: 100 !important;
-  background: #0a1f0d !important;
-  /* ...everything else you already have (padding, color, font-family, etc.) */
-}
+
   .footer-social-btn {
     width: 28px;
     height: 28px;

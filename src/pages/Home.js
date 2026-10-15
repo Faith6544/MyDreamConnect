@@ -42,7 +42,6 @@ const FALLBACK_TESTIMONIALS = [
 // TESTIMONIALS CAROUSEL — infinite auto-scroll
 // ============================================
 function TestimonialsCarousel({ testimonials }) {
-  // Duplicate the list for a seamless loop
   const items = [...testimonials, ...testimonials];
 
   return (
@@ -179,7 +178,7 @@ function Home() {
   return (
     <div className="home-page">
 
-      {/* FIXED BACKGROUND VIDEO */}
+      {/* FIXED BACKGROUND VIDEO — behind hero only */}
       <div className="home-bg" aria-hidden="true">
         <video
           className="home-bg-video"
@@ -256,35 +255,37 @@ function Home() {
         </div>
       </section>
 
-      {/* GREEN BAND — Stats + Support Our Mission */}
-      <section className="green-band">
-        <div className="green-band-inner">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <div className="stat-icon">{statIcons.courses}</div>
-              <h3>{stats.courses}+</h3>
-              <p>Courses</p>
-            </div>
-            <div className="stat-item">
-              <div className="stat-icon">{statIcons.students}</div>
-              <h3>{stats.students}+</h3>
-              <p>Students Enrolled</p>
-            </div>
-            <div className="stat-item">
-              <div className="stat-icon">{statIcons.instructors}</div>
-              <h3>{stats.instructors}+</h3>
-              <p>Course Instructors</p>
-            </div>
-            <div className="stat-item">
-              <div className="stat-icon">{statIcons.programs}</div>
-              <h3>{stats.programs}</h3>
-              <p>Flagship Programs</p>
-            </div>
-          </div>
+      {/* MISSION SECTION — Stats + Support split layout */}
+      <section className="mission-section">
+        <div className="mission-container">
 
-          <div className="green-band-divider" />
+          {/* LEFT — content */}
+          <div className="mission-content">
+            <div className="stats-row">
+              <div className="stat-item">
+                <div className="stat-icon">{statIcons.courses}</div>
+                <h3>{stats.courses}+</h3>
+                <p>Courses</p>
+              </div>
+              <div className="stat-item">
+                <div className="stat-icon">{statIcons.students}</div>
+                <h3>{stats.students}+</h3>
+                <p>Students Enrolled</p>
+              </div>
+              <div className="stat-item">
+                <div className="stat-icon">{statIcons.instructors}</div>
+                <h3>{stats.instructors}+</h3>
+                <p>Instructors</p>
+              </div>
+              <div className="stat-item">
+                <div className="stat-icon">{statIcons.programs}</div>
+                <h3>{stats.programs}</h3>
+                <p>Programs</p>
+              </div>
+            </div>
 
-          <div className="support-block">
+            <div className="mission-divider" />
+
             <h2>Support Our Mission</h2>
             <p>
               MyDreamConnect is the social impact platform of MVC Communications
@@ -292,10 +293,25 @@ function Home() {
               learning, mentorship and guidance. With a mission to bridge the gap
               between formal education and real-world professional skills.
             </p>
-            <a href="https://bit.ly/support-mydreamconnect" target="_blank" rel="noreferrer" className="btn-donate">
+
+            <a
+              href="https://bit.ly/support-mydreamconnect"
+              target="_blank"
+              rel="noreferrer"
+              className="btn-donate"
+            >
               Donate Now
             </a>
           </div>
+
+          {/* RIGHT — photo */}
+          <div className="mission-image">
+            <img
+              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/do.png"
+              alt="MyDreamConnect classroom"
+            />
+          </div>
+
         </div>
       </section>
 
