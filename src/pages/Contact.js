@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { checkSpam, logSubmission } from '../lib/spamGuard';
 import './Contact.css';
 
 const ACCESS_KEY = '7ccbf4db-5413-4d7f-8537-2ee111f3832f';
@@ -9,8 +11,9 @@ function Contact() {
     email: '',
     subject: '',
     message: '',
+    website: '',
   });
-  const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'success' | 'error'
+  const [status, setStatus] = useState('idle');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,7 +23,35 @@ function Contact() {
     e.preventDefault();
     setStatus('sending');
 
+    // Spam check (honeypot + rate limit)
+    const spam = await checkSpam({
+      honeypot: formData.website,
+      email: formData.email,
+      formType: 'contact',
+    });
+
+    if (!spam.allowed) {
+      // Fake success — don't reveal the block
+      setStatus('success');
+      setFormData({ name: '', email: '', subject: '', message: '', website: '' });
+      setTimeout(() => setStatus('idle'), 6000);
+      return;
+    }
+
     try {
+      const { error: dbError } = await supabase
+        .from('contact_messages')
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        }]);
+
+      if (dbError) console.error('Supabase save failed:', dbError);
+
+      await logSubmission({ email: formData.email, formType: 'contact' });
+
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
@@ -42,7 +73,7 @@ function Contact() {
 
       if (result.success) {
         setStatus('success');
-        setFormData({ name: '', email: '', subject: '', message: '' });
+        setFormData({ name: '', email: '', subject: '', message: '', website: '' });
         setTimeout(() => setStatus('idle'), 6000);
       } else {
         setStatus('error');
@@ -58,22 +89,18 @@ function Contact() {
   return (
     <div className="contact-page">
 
-      {/* Banner */}
       <section className="contact-banner">
         <h1>Contact Us</h1>
         <p>Home / Contact</p>
       </section>
 
-      {/* Intro */}
       <section className="contact-intro">
         <h2>Get In Touch</h2>
         <p>We would love to hear from you. Reach out for partnerships, questions, or feedback.</p>
       </section>
 
-      {/* Two-column layout */}
       <section className="contact-layout">
 
-        {/* Contact Info */}
         <div className="contact-info">
           <h3>Contact Information</h3>
 
@@ -116,7 +143,6 @@ function Contact() {
           </div>
         </div>
 
-        {/* Contact Form */}
         <div className="contact-form-wrapper">
           <h3>Send Us a Message</h3>
 
@@ -133,6 +159,21 @@ function Contact() {
           )}
 
           <form className="contact-form" onSubmit={handleSubmit}>
+
+            {/* Honeypot — hidden from humans, bots fill it */}
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input
+                type="text"
+                id="website"
+                name="website"
+                tabIndex="-1"
+                autoComplete="off"
+                value={formData.website}
+                onChange={handleChange}
+              />
+            </div>
+
             <div className="form-group">
               <label htmlFor="name">Your Name</label>
               <input
@@ -197,7 +238,6 @@ function Contact() {
 
       </section>
 
-      {/* Map */}
       <section className="contact-map">
         <iframe
           title="MyDreamConnect Location"

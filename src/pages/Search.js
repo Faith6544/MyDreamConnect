@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import './Search.css';
 
 function Search() {
@@ -16,31 +17,26 @@ function Search() {
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    const runSearch = async () => {
+      setLoading(true);
+      setError(null);
 
-    fetch(`${process.env.REACT_APP_WP_API}/wp/v2/search?search=${encodeURIComponent(query)}&per_page=20&_embed`)
-      .then(res => res.json())
-      .then(data => {
-        setResults(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Search error:', err);
-        setError('Could not run search. Please try again.');
-        setLoading(false);
+      const { data, error } = await supabase.rpc('search_everything', {
+        search_term: query.trim(),
+        max_results: 50,
       });
+
+      if (error) {
+        console.error('Search error:', error);
+        setError('Could not run search. Please try again.');
+      } else {
+        setResults(data || []);
+      }
+      setLoading(false);
+    };
+
+    runSearch();
   }, [query]);
-
-  const stripHtml = (html = '') => html.replace(/<[^>]+>/g, '');
-
-  // Map WP search types to frontend routes
-  const getResultLink = (item) => {
-    if (item.subtype === 'post') return `/blog/${item.id}`;
-    if (item.subtype === 'page') return `/${item.slug}`;
-    if (item.subtype === 'lp_course') return `/courses/${item.id}`;
-    return '#';
-  };
 
   return (
     <div className="search-page">
@@ -62,36 +58,37 @@ function Search() {
 
         {error && <p className="search-status error">{error}</p>}
 
-        {!loading && !error && query && results.length === 0 && (
-          <p className="search-status">
-            No results found for "{query}". Try a different keyword.
-          </p>
-        )}
-
         {!loading && !error && !query && (
           <p className="search-status">
             Type something in the search box to get started.
           </p>
         )}
 
-        {!loading && results.length > 0 && (
-          <div className="search-list">
-            {results.map(item => {
-              const title = stripHtml(item.title || 'Untitled');
-              const type = item.subtype || item.type || 'content';
-              return (
+        {!loading && !error && query && results.length > 0 && (
+          <>
+            <p className="search-count">
+              {results.length} result{results.length !== 1 ? 's' : ''} found
+            </p>
+            <div className="search-list">
+              {results.map(item => (
                 <Link
-                  to={getResultLink(item)}
+                  to={item.result_url}
                   className="search-result"
-                  key={`${item.id}-${item.subtype}`}
+                  key={`${item.result_type}-${item.result_id}`}
                 >
-                  <span className="search-result-type">{type}</span>
-                  <h3>{title}</h3>
-                  <span className="search-result-url">{item.url}</span>
+                  <span className={`search-result-type type-${item.result_type}`}>
+                    {item.result_type}
+                  </span>
+                  <div className="search-result-body">
+                    <h3>{item.result_title || 'Untitled'}</h3>
+                    {item.match_quality !== 'fallback' && item.result_subtitle && (
+                      <p>{item.result_subtitle.substring(0, 140)}</p>
+                    )}
+                  </div>
                 </Link>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          </>
         )}
 
       </section>

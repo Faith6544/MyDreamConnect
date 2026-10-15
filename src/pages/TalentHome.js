@@ -134,7 +134,7 @@ function TalentHome() {
 
       <section className="talent-cta">
         <ImageWithFallback
-          src="https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo.png"
+          src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png"
           alt="MyDreamConnect"
           className="cta-logo"
         />

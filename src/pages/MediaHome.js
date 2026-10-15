@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './MediaHome.css';
-import ImageWithFallback from '../components/ImageWithFallback';
 function MediaHome() {
   return (
     <div className="mh-page">

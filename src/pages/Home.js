@@ -111,7 +111,7 @@ function Home() {
       <section className="about-section">
         <div className="about-container">
           <div className="about-image">
-            <ImageWithFallback src="https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo-1024x817.png" alt="" />
+            <ImageWithFallback src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png" alt="" />
           </div>
           <div className="about-text">
             <h2>We are a group of socially responsible young people;</h2>

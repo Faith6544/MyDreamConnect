@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 import { supabase } from '../lib/supabase';
-
+import { checkSpam, logSubmission } from '../lib/spamGuard';
 const ACCESS_KEY = '7ccbf4db-5413-4d7f-8537-2ee111f3832f';
 
 function SearchForm() {
@@ -207,42 +207,70 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
     setSubscribeData({ ...subscribeData, [e.target.name]: e.target.value });
   };
 
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    setSubscribeStatus('sending');
+const handleSubscribe = async (e) => {
+  e.preventDefault();
+  setSubscribeStatus('sending');
 
-    try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          access_key: ACCESS_KEY,
-          subject: 'New Newsletter Subscriber - MyDreamConnect',
-          from_name: 'MyDreamConnect Website',
-          name: subscribeData.name,
-          email: subscribeData.email,
-        }),
-      });
+  const cleanEmail = subscribeData.email.trim().toLowerCase();
 
-      const result = await response.json();
+  // Spam check
+  const spam = await checkSpam({
+    honeypot: subscribeData.website,
+    email: cleanEmail,
+    formType: 'subscribe',
+  });
 
-      if (result.success) {
-        setSubscribeStatus('success');
-        setSubscribeData({ name: '', email: '' });
-        setTimeout(() => setSubscribeStatus('idle'), 6000);
-      } else {
-        setSubscribeStatus('error');
-        setTimeout(() => setSubscribeStatus('idle'), 6000);
-      }
-    } catch (err) {
-      console.error('Subscribe error:', err);
-      setSubscribeStatus('error');
-      setTimeout(() => setSubscribeStatus('idle'), 6000);
-    }
-  };
+  if (!spam.allowed) {
+    setSubscribeStatus('success');
+    setSubscribeData({ name: '', email: '', website: '' });
+    setTimeout(() => setSubscribeStatus('idle'), 6000);
+    return;
+  }
+
+  // Check if already subscribed
+  const { data: existing } = await supabase
+    .from('subscribers')
+    .select('id')
+    .eq('email', cleanEmail)
+    .maybeSingle();
+
+  if (existing) {
+    setSubscribeStatus('already');
+    setTimeout(() => setSubscribeStatus('idle'), 6000);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('subscribers')
+    .insert([{
+      email: cleanEmail,
+      name: subscribeData.name.trim() || null,
+    }]);
+
+  if (error) {
+    console.error('Subscribe error:', error);
+    setSubscribeStatus('error');
+  } else {
+    setSubscribeStatus('success');
+    setSubscribeData({ name: '', email: '', website: '' });
+
+    await logSubmission({ email: cleanEmail, formType: 'subscribe' });
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: ACCESS_KEY,
+        subject: 'New Newsletter Subscriber - MyDreamConnect',
+        from_name: 'MyDreamConnect Website',
+        name: subscribeData.name,
+        email: cleanEmail,
+      }),
+    }).catch(() => {});
+  }
+
+  setTimeout(() => setSubscribeStatus('idle'), 6000);
+};
 
   return (
     <aside className="sidebar">
@@ -308,8 +336,25 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
               ❌ Something went wrong. Try again.
             </div>
           )}
+          {subscribeStatus === 'already' && (
+  <div className="sidebar-msg already">
+    ℹ️ You're already subscribed!
+  </div>
+)}
 
           <form className="sidebar-subscribe" onSubmit={handleSubscribe}>
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
+  <label htmlFor="subscribe-website">Website</label>
+  <input
+    type="text"
+    id="subscribe-website"
+    name="website"
+    tabIndex="-1"
+    autoComplete="off"
+    value={subscribeData.website}
+    onChange={handleSubscribeChange}
+  />
+</div>
             <input
               type="text"
               name="name"

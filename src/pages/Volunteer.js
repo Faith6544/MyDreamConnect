@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { checkSpam, logSubmission } from '../lib/spamGuard';
 import './Volunteer.css';
 
 const ACCESS_KEY = '7ccbf4db-5413-4d7f-8537-2ee111f3832f';
@@ -12,6 +14,7 @@ function Volunteer() {
     skills: '',
     availability: '',
     message: '',
+    website: '',
   });
   const [status, setStatus] = useState('idle');
 
@@ -23,7 +26,39 @@ function Volunteer() {
     e.preventDefault();
     setStatus('sending');
 
+    const spam = await checkSpam({
+      honeypot: formData.website,
+      email: formData.email,
+      formType: 'volunteer',
+    });
+
+    if (!spam.allowed) {
+      setStatus('success');
+      setFormData({
+        name: '', email: '', phone: '', city: '',
+        skills: '', availability: '', message: '', website: '',
+      });
+      setTimeout(() => setStatus('idle'), 6000);
+      return;
+    }
+
     try {
+      const { error: dbError } = await supabase
+        .from('volunteer_applications')
+        .insert([{
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          city: formData.city,
+          skills: formData.skills,
+          availability: formData.availability,
+          message: formData.message,
+        }]);
+
+      if (dbError) console.error('Supabase save failed:', dbError);
+
+      await logSubmission({ email: formData.email, formType: 'volunteer' });
+
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
@@ -50,7 +85,7 @@ function Volunteer() {
         setStatus('success');
         setFormData({
           name: '', email: '', phone: '', city: '',
-          skills: '', availability: '', message: '',
+          skills: '', availability: '', message: '', website: '',
         });
         setTimeout(() => setStatus('idle'), 6000);
       } else {
@@ -84,7 +119,6 @@ function Volunteer() {
 
       <section className="volunteer-layout">
 
-        {/* Left: Form */}
         <div className="volunteer-form-wrap">
           <h3>Volunteer Application</h3>
 
@@ -101,6 +135,19 @@ function Volunteer() {
           )}
 
           <form className="volunteer-form" onSubmit={handleSubmit}>
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input
+                type="text"
+                id="website"
+                name="website"
+                tabIndex="-1"
+                autoComplete="off"
+                value={formData.website}
+                onChange={handleChange}
+              />
+            </div>
 
             <div className="form-row">
               <div className="form-group">
@@ -205,7 +252,6 @@ function Volunteer() {
           </form>
         </div>
 
-        {/* Right: Benefits */}
         <div className="volunteer-benefits">
           <h3>Why Volunteer?</h3>
 

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { checkSpam, logSubmission } from '../lib/spamGuard';
 import './Partnership.css';
 
 const ACCESS_KEY = '7ccbf4db-5413-4d7f-8537-2ee111f3832f';
@@ -11,6 +13,7 @@ function Partnership() {
     phone: '',
     type: '',
     message: '',
+    website: '',
   });
   const [status, setStatus] = useState('idle');
 
@@ -22,7 +25,37 @@ function Partnership() {
     e.preventDefault();
     setStatus('sending');
 
+    const spam = await checkSpam({
+      honeypot: formData.website,
+      email: formData.email,
+      formType: 'partnership',
+    });
+
+    if (!spam.allowed) {
+      setStatus('success');
+      setFormData({
+        orgName: '', contactPerson: '', email: '', phone: '', type: '', message: '', website: '',
+      });
+      setTimeout(() => setStatus('idle'), 6000);
+      return;
+    }
+
     try {
+      const { error: dbError } = await supabase
+        .from('partnership_enquiries')
+        .insert([{
+          org_name: formData.orgName,
+          contact_person: formData.contactPerson,
+          email: formData.email,
+          phone: formData.phone,
+          type: formData.type,
+          message: formData.message,
+        }]);
+
+      if (dbError) console.error('Supabase save failed:', dbError);
+
+      await logSubmission({ email: formData.email, formType: 'partnership' });
+
       const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
@@ -47,7 +80,7 @@ function Partnership() {
       if (result.success) {
         setStatus('success');
         setFormData({
-          orgName: '', contactPerson: '', email: '', phone: '', type: '', message: '',
+          orgName: '', contactPerson: '', email: '', phone: '', type: '', message: '', website: '',
         });
         setTimeout(() => setStatus('idle'), 6000);
       } else {
@@ -81,7 +114,6 @@ function Partnership() {
 
       <section className="ps-layout">
 
-        {/* Form */}
         <div className="ps-form-wrap">
           <h3>Partnership Enquiry</h3>
 
@@ -98,6 +130,19 @@ function Partnership() {
           )}
 
           <form className="ps-form" onSubmit={handleSubmit}>
+
+            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input
+                type="text"
+                id="website"
+                name="website"
+                tabIndex="-1"
+                autoComplete="off"
+                value={formData.website}
+                onChange={handleChange}
+              />
+            </div>
 
             <div className="ps-row">
               <div className="ps-group">
@@ -146,7 +191,6 @@ function Partnership() {
           </form>
         </div>
 
-        {/* Why partner */}
         <div className="ps-why">
           <h3>Why Partner With Us</h3>
 

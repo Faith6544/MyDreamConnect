@@ -117,7 +117,7 @@ function MyCourses() {
                       )}
 
                       <span className="mycourse-cta">
-                        {percent === 100 ? '✅ Completed' : percent > 0 ? 'Continue →' : 'Start Course →'}
+                        {percent === 100 ? '🎓 View Certificate →' : percent > 0 ? 'Continue →' : 'Start Course →'}
                       </span>
                     </div>
                   </Link>

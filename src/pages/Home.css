@@ -19,11 +19,8 @@
 .hero::before {
   content: '';
   position: absolute;
-  inset: -5%; /* slightly larger than container so zoom doesn't show edges */
-background-image: url('https://mydreamconnect.org.ng/wp-content/uploads/2024/04/Life-Skills-4-TYPES-Final-800x568-1-500x300.png');  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  animation: kenburns 20s ease-in-out infinite alternate;
+  inset: 0;
+  background: linear-gradient(135deg, #0a4711 0%, #0d5c17 100%);
   z-index: 1;
 }
 
@@ -577,6 +574,28 @@ background-image: url('https://mydreamconnect.org.ng/wp-content/uploads/2024/04/
 @media (max-width: 768px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .stat-item h3 {
+    font-size: 26px;
+  }
+}
+@media (max-width: 768px) {
+  .hero {
+    min-height: 60vh;
+  }
+  .hero-overlay {
+    padding: 60px 20px;
+  }
+  .programs-section {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .program-card {
+    padding: 35px 25px;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
   .stat-item h3 {
     font-size: 26px;

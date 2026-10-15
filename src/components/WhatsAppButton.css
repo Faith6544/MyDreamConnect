@@ -4,7 +4,16 @@
   right: 30px;
   z-index: 998;
 }
-
+@media (max-width: 640px) {
+  .whatsapp-btn,
+  [class*="whatsapp"] {
+    width: 48px;
+    height: 48px;
+    bottom: 20px;
+    right: 20px;
+    font-size: 22px;
+  }
+}
 /* Floating round button */
 .wa-button {
   width: 56px;

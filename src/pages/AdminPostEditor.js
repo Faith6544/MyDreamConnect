@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminPostEditor.css';
 import ImageUpload from '../components/ImageUpload';
+
 function AdminPostEditor() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -13,7 +14,9 @@ function AdminPostEditor() {
     excerpt: '',
     content: '',
     image_url: '',
+    category_id: null,
   });
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -26,6 +29,14 @@ function AdminPostEditor() {
         return;
       }
 
+      // Load categories (always)
+      const { data: catData } = await supabase
+        .from('post_categories')
+        .select('*')
+        .order('order_index', { ascending: true });
+      setCategories(catData || []);
+
+      // Load post if editing
       if (isEdit) {
         const { data, error } = await supabase
           .from('posts')
@@ -41,8 +52,11 @@ function AdminPostEditor() {
             excerpt: data.excerpt || '',
             content: data.content || '',
             image_url: data.image_url || '',
+            category_id: data.category_id || null,
           });
         }
+        setLoading(false);
+      } else {
         setLoading(false);
       }
     };
@@ -51,7 +65,11 @@ function AdminPostEditor() {
   }, [id, isEdit, navigate]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    let value = e.target.value;
+    if (e.target.name === 'category_id') {
+      value = value === '' ? null : Number(value);
+    }
+    setFormData({ ...formData, [e.target.name]: value });
   };
 
   const handleSubmit = async (e) => {
@@ -97,11 +115,38 @@ function AdminPostEditor() {
       <form onSubmit={handleSubmit} className="admin-editor-form">
         {error && <div className="admin-error">❌ {error}</div>}
 
+        <div className="admin-field">
+          <label>Title *</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            disabled={saving}
+          />
+        </div>
+
+        <div className="admin-field">
+          <label>Category</label>
+          <select
+            name="category_id"
+            value={formData.category_id || ''}
+            onChange={handleChange}
+            disabled={saving}
+          >
+            <option value="">— Uncategorized —</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
         <ImageUpload
-  label="Featured Image"
-  value={formData.image_url}
-  onChange={(url) => setFormData({ ...formData, image_url: url })}
-/>
+          label="Featured Image"
+          value={formData.image_url}
+          onChange={(url) => setFormData({ ...formData, image_url: url })}
+        />
 
         <div className="admin-field">
           <label>Excerpt (short summary)</label>
@@ -110,18 +155,6 @@ function AdminPostEditor() {
             value={formData.excerpt}
             onChange={handleChange}
             rows="3"
-            disabled={saving}
-          />
-        </div>
-
-        <div className="admin-field">
-          <label>Image URL</label>
-          <input
-            type="text"
-            name="image_url"
-            value={formData.image_url}
-            onChange={handleChange}
-            placeholder="https://..."
             disabled={saving}
           />
         </div>

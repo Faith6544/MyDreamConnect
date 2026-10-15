@@ -9,6 +9,7 @@ function BlogPost() {
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [related, setRelated] = useState([]);
+  const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -33,7 +34,7 @@ function BlogPost() {
     fetchPost();
   }, [id]);
 
-  // Fetch related posts (latest 4, excluding this one)
+  // Fetch related posts
   useEffect(() => {
     const fetchRelated = async () => {
       const { data, error } = await supabase
@@ -53,6 +54,24 @@ function BlogPost() {
     fetchRelated();
   }, [id]);
 
+  // Fetch tags for this post
+  useEffect(() => {
+    const fetchTags = async () => {
+      const { data, error } = await supabase
+        .from('post_tag_links')
+        .select('post_tags(name)')
+        .eq('post_id', id);
+
+      if (error) {
+        console.error('Error loading tags:', error);
+      } else {
+        setTags((data || []).map(l => l.post_tags).filter(Boolean));
+      }
+    };
+
+    fetchTags();
+  }, [id]);
+
   if (loading) return <h2 className="bp-status">Loading post...</h2>;
   if (error) return <h2 className="bp-status">{error}</h2>;
   if (!post) return <h2 className="bp-status">Post not found.</h2>;
@@ -67,7 +86,6 @@ function BlogPost() {
   return (
     <div className="bp-page">
 
-      {/* Banner */}
       <section className="bp-banner">
         <p className="bp-breadcrumb">
           <Link to="/">Home</Link> / <Link to="/blog">Blog</Link> / {title}
@@ -81,14 +99,12 @@ function BlogPost() {
 
       <div className="bp-layout">
 
-        {/* ============ LEFT: Content ============ */}
         <article className="bp-content">
 
           <figure className="bp-cover">
             <ImageWithFallback src={featuredImage} alt="" />
           </figure>
 
-          {/* Author card */}
           <div className="bp-author-card">
             <div>
               <small>Written by</small>
@@ -96,10 +112,18 @@ function BlogPost() {
             </div>
           </div>
 
-          {/* Content — plain text for now; use dangerouslySetInnerHTML if you store HTML */}
           <div className="bp-body">
             {post.content || ''}
           </div>
+
+          {tags.length > 0 && (
+            <div className="bp-tags">
+              <strong>Tags:</strong>{' '}
+              {tags.map(t => (
+                <span className="bp-tag" key={t.name}>#{t.name}</span>
+              ))}
+            </div>
+          )}
 
           <div className="bp-back">
             <Link to="/blog">← Back to all blog posts</Link>
@@ -107,12 +131,10 @@ function BlogPost() {
 
         </article>
 
-        {/* ============ RIGHT: Sidebar ============ */}
         <Sidebar />
 
       </div>
 
-      {/* ============ RELATED POSTS ============ */}
       {related.length > 0 && (
         <section className="bp-related">
           <h2>You May Also Like</h2>

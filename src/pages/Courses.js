@@ -11,31 +11,39 @@ const formatPrice = (course) => {
 
 function Courses() {
   const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  const [filterCategory, setFilterCategory] = useState('all');
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      const { data, error } = await supabase
+    const fetchAll = async () => {
+      const { data: coursesData } = await supabase
         .from('courses')
-        .select('*')
+        .select('*, categories(name, slug)')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Courses fetch error:', error);
-      } else {
-        setCourses(data || []);
-      }
+      const { data: catsData } = await supabase
+        .from('categories')
+        .select('*')
+        .order('order_index', { ascending: true });
+
+      setCourses(coursesData || []);
+      setCategories(catsData || []);
       setLoading(false);
     };
 
-    fetchCourses();
+    fetchAll();
   }, []);
 
-  const filteredCourses = courses.filter(c =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCourses = courses.filter(c => {
+    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCat =
+      filterCategory === 'all' ||
+      String(c.category_id) === String(filterCategory);
+    return matchesSearch && matchesCat;
+  });
 
   const sortedCourses = [...filteredCourses].sort((a, b) => {
     if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
@@ -64,7 +72,22 @@ function Courses() {
           <span className="search-icon">🔍</span>
         </div>
 
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+          className="sort-select"
+        >
+          <option value="all">All Categories</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="sort-select"
+        >
           <option value="newest">Newly published</option>
           <option value="oldest">Oldest first</option>
           <option value="price-low">Price: Low to High</option>
@@ -82,7 +105,9 @@ function Courses() {
             </div>
 
             <div className="course-content">
-              <div className="course-categories">General</div>
+              <div className="course-categories">
+                {course.categories?.name || 'General'}
+              </div>
               <h3 className="course-title">{course.name}</h3>
               <p className="course-excerpt">
                 {course.excerpt

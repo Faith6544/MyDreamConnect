@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminCourseEditor.css';
 import ImageUpload from '../components/ImageUpload';
+
 function AdminCourseEditor() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -16,7 +17,9 @@ function AdminCourseEditor() {
     price: 0,
     duration: '',
     level: '',
+    category_id: null,
   });
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -26,6 +29,14 @@ function AdminCourseEditor() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate('/admin'); return; }
 
+      // Load categories (always)
+      const { data: catData } = await supabase
+        .from('categories')
+        .select('*')
+        .order('order_index', { ascending: true });
+      setCategories(catData || []);
+
+      // Load course if editing
       if (isEdit) {
         const { data, error } = await supabase
           .from('courses')
@@ -33,8 +44,9 @@ function AdminCourseEditor() {
           .eq('id', id)
           .single();
 
-        if (error) setError('Could not load course: ' + error.message);
-        else if (data) {
+        if (error) {
+          setError('Could not load course: ' + error.message);
+        } else if (data) {
           setFormData({
             name: data.name || '',
             excerpt: data.excerpt || '',
@@ -43,8 +55,11 @@ function AdminCourseEditor() {
             price: data.price || 0,
             duration: data.duration || '',
             level: data.level || '',
+            category_id: data.category_id || null,
           });
         }
+        setLoading(false);
+      } else {
         setLoading(false);
       }
     };
@@ -52,7 +67,10 @@ function AdminCourseEditor() {
   }, [id, isEdit, navigate]);
 
   const handleChange = (e) => {
-    const value = e.target.name === 'price' ? Number(e.target.value) : e.target.value;
+    let value = e.target.value;
+    if (e.target.name === 'price' || e.target.name === 'category_id') {
+      value = value === '' ? null : Number(value);
+    }
     setFormData({ ...formData, [e.target.name]: value });
   };
 
@@ -86,40 +104,93 @@ function AdminCourseEditor() {
       <form onSubmit={handleSubmit} className="admin-editor-form">
         {error && <div className="admin-error">❌ {error}</div>}
 
+        <div className="admin-field">
+          <label>Course Name *</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            disabled={saving}
+          />
+        </div>
+
+        <div className="admin-field">
+          <label>Category</label>
+          <select
+            name="category_id"
+            value={formData.category_id || ''}
+            onChange={handleChange}
+            disabled={saving}
+          >
+            <option value="">— Uncategorized —</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
         <ImageUpload
-  label="Course Image"
-  value={formData.image_url}
-  onChange={(url) => setFormData({ ...formData, image_url: url })}
-/>
+          label="Course Image"
+          value={formData.image_url}
+          onChange={(url) => setFormData({ ...formData, image_url: url })}
+        />
 
         <div className="admin-field">
           <label>Excerpt (short summary)</label>
-          <textarea name="excerpt" value={formData.excerpt} onChange={handleChange} rows="3" disabled={saving} />
+          <textarea
+            name="excerpt"
+            value={formData.excerpt}
+            onChange={handleChange}
+            rows="3"
+            disabled={saving}
+          />
         </div>
 
         <div className="admin-field">
           <label>Full Content</label>
-          <textarea name="content" value={formData.content} onChange={handleChange} rows="8" disabled={saving} />
-        </div>
-
-        <div className="admin-field">
-          <label>Image URL</label>
-          <input type="text" name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://..." disabled={saving} />
+          <textarea
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            rows="8"
+            disabled={saving}
+          />
         </div>
 
         <div className="admin-field">
           <label>Price (₦) — use 0 for Free</label>
-          <input type="number" name="price" value={formData.price} onChange={handleChange} min="0" disabled={saving} />
+          <input
+            type="number"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            min="0"
+            disabled={saving}
+          />
         </div>
 
         <div className="admin-field">
           <label>Duration (e.g. "10 Weeks")</label>
-          <input type="text" name="duration" value={formData.duration} onChange={handleChange} disabled={saving} />
+          <input
+            type="text"
+            name="duration"
+            value={formData.duration}
+            onChange={handleChange}
+            disabled={saving}
+          />
         </div>
 
         <div className="admin-field">
           <label>Level (e.g. "Beginner", "All Levels")</label>
-          <input type="text" name="level" value={formData.level} onChange={handleChange} disabled={saving} />
+          <input
+            type="text"
+            name="level"
+            value={formData.level}
+            onChange={handleChange}
+            disabled={saving}
+          />
         </div>
 
         <div className="admin-editor-actions">

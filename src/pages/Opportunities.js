@@ -37,7 +37,7 @@ function Opportunities() {
         <article className="opps-content">
           <figure className="opps-featured">
             <ImageWithFallback
-              src="https://mydreamconnect.org.ng/wp-content/uploads/2023/10/images-13.jpeg"
+              src={null}
               alt="Opportunities for Development"
             />
           </figure>

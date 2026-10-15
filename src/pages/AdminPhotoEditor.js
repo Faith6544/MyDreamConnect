@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminPhotoEditor.css';
 import ImageUpload from '../components/ImageUpload';
+
 function AdminPhotoEditor() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -22,6 +23,8 @@ function AdminPhotoEditor() {
         const { data, error } = await supabase.from('photos').select('*').eq('id', id).single();
         if (error) setError('Could not load album: ' + error.message);
         else if (data) setFormData({ title: data.title || '', cover_url: data.cover_url || '' });
+        setLoading(false);
+      } else {
         setLoading(false);
       }
     };
@@ -63,11 +66,11 @@ function AdminPhotoEditor() {
           <input type="text" name="title" value={formData.title} onChange={handleChange} required disabled={saving} />
         </div>
 
-       <ImageUpload
-  label="Album Cover"
-  value={formData.cover_url}
-  onChange={(url) => setFormData({ ...formData, cover_url: url })}
-/>
+        <ImageUpload
+          label="Album Cover"
+          value={formData.cover_url}
+          onChange={(url) => setFormData({ ...formData, cover_url: url })}
+        />
 
         <div className="admin-editor-actions">
           <Link to="/admin/photos" className="btn-cancel">Cancel</Link>

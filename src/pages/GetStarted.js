@@ -75,7 +75,7 @@ function GetStarted() {
 
         <div className="auth-logo">
           <img
-            src="https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo.png"
+            src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png"
             alt="MyDreamConnect"
           />
           <span>MyDreamConnect</span>

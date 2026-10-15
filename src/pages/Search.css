@@ -32,13 +32,19 @@
 .search-query-line {
   font-size: 15px;
   color: #666;
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   padding-bottom: 15px;
   border-bottom: 1px solid #eee;
 }
 
 .search-query-line strong {
   color: #0a4711;
+}
+
+.search-count {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 20px;
 }
 
 .search-status {
@@ -55,12 +61,14 @@
 .search-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .search-result {
-  display: block;
-  padding: 20px 25px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 18px 22px;
   background: #fbfbfb;
   border: 1px solid #f1f1f1;
   border-left: 4px solid #d4a017;
@@ -78,31 +86,44 @@
 
 .search-result-type {
   display: inline-block;
-  background: #eaf3eb;
-  color: #0a4711;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 20px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 8px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #fff;
+  background: #666;
 }
 
-.search-result h3 {
-  font-size: 17px;
+.search-result-type.type-course { background: #0a4711; }
+.search-result-type.type-post { background: #d4a017; }
+.search-result-type.type-job { background: #0984e3; }
+.search-result-type.type-opportunity { background: #8e44ad; }
+.search-result-type.type-talent { background: #e84393; }
+.search-result-type.type-flyer { background: #27ae60; }
+
+.search-result-body {
+  flex: 1;
+}
+
+.search-result-body h3 {
+  font-size: 16px;
   color: #333;
   font-weight: 700;
   margin: 0 0 6px;
   line-height: 1.4;
 }
 
-.search-result:hover h3 {
+.search-result:hover .search-result-body h3 {
   color: #0a4711;
 }
 
-.search-result-url {
-  font-size: 12px;
-  color: #999;
-  word-break: break-all;
+.search-result-body p {
+  font-size: 13.5px;
+  color: #777;
+  line-height: 1.6;
+  margin: 0;
 }

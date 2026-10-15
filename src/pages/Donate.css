@@ -7,8 +7,7 @@
 
 /* Banner */
 .donate-banner {
-  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-    url('https://mydreamconnect.org.ng/wp-content/uploads/2022/10/cropped-mdc-logo-1024x817.png') center/cover;
+  background: linear-gradient(135deg, #0a4711 0%, #0d5c17 100%);
   padding: 80px 20px;
   color: #fff;
 }

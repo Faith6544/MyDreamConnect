@@ -343,3 +343,82 @@
     width: 100%;
   }
 }
+.mcp-certificate {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 30px;
+  background: linear-gradient(135deg, #0a4711 0%, #0d5c17 100%);
+  color: #fff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  box-shadow: 0 10px 30px rgba(10, 71, 17, 0.2);
+  flex-wrap: wrap;
+}
+
+.mcp-cert-icon {
+  font-size: 48px;
+  flex-shrink: 0;
+}
+
+.mcp-cert-text {
+  flex: 1;
+  min-width: 220px;
+}
+
+.mcp-cert-text h3 {
+  font-size: 18px;
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+
+.mcp-cert-text p {
+  font-size: 14px;
+  color: #cfd8cf;
+  margin: 0;
+}
+
+.mcp-cert-btn {
+  background: #d4a017;
+  color: #fff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  white-space: nowrap;
+}
+
+.mcp-cert-btn:hover {
+  background: #b88a0f;
+  transform: translateY(-2px);
+}
+@media (max-width: 900px) {
+  .mcp-layout {
+    grid-template-columns: 1fr;
+  }
+  .mcp-sidebar {
+    position: static;
+    max-height: none;
+  }
+  .mcp-lesson-head h2 {
+    font-size: 20px;
+  }
+  .mcp-actions {
+    flex-direction: column;
+  }
+  .mcp-nav-btn, .mcp-complete-btn {
+    width: 100%;
+  }
+  .mcp-certificate {
+    flex-direction: column;
+    text-align: center;
+  }
+  .mcp-cert-btn {
+    width: 100%;
+  }
+}

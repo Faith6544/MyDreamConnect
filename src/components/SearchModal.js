@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './SearchModal.css';
 import { supabase } from '../lib/supabase';
+import './SearchModal.css';
 
 function SearchModal({ onClose }) {
   const [query, setQuery] = useState('');
-  const [allWords, setAllWords] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [searching, setSearching] = useState(false);
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -27,39 +27,8 @@ function SearchModal({ onClose }) {
     };
   }, [onClose]);
 
-  // Load word dictionary — posts only for now
   useEffect(() => {
-    const loadWords = async () => {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('title');
-
-      if (error) {
-        console.error('Search dictionary error:', error);
-        return;
-      }
-
-      const words = new Set();
-      const collect = (text) => {
-        if (!text) return;
-        text
-          .toLowerCase()
-          .split(/[\s\-_,.;:!?()[\]{}"'/\\|]+/)
-          .forEach(w => {
-            const clean = w.replace(/[^a-z0-9]/g, '');
-            if (clean.length >= 3) words.add(clean);
-          });
-      };
-
-      (data || []).forEach(p => collect(p.title));
-      setAllWords(Array.from(words).sort());
-    };
-
-    loadWords();
-  }, []);
-
-  useEffect(() => {
-    const trimmed = query.trim().toLowerCase();
+    const trimmed = query.trim();
 
     if (trimmed.length < 2) {
       setSuggestions([]);
@@ -67,19 +36,26 @@ function SearchModal({ onClose }) {
       return;
     }
 
-    const matches = allWords
-      .filter(w => w.startsWith(trimmed) || w.includes(trimmed))
-      .sort((a, b) => {
-        const aStarts = a.startsWith(trimmed) ? 0 : 1;
-        const bStarts = b.startsWith(trimmed) ? 0 : 1;
-        if (aStarts !== bStarts) return aStarts - bStarts;
-        return a.localeCompare(b);
-      })
-      .slice(0, 10);
+    setSearching(true);
 
-    setSuggestions(matches);
-    setActiveIndex(-1);
-  }, [query, allWords]);
+    const timeoutId = setTimeout(async () => {
+      const { data, error } = await supabase.rpc('search_everything', {
+        search_term: trimmed,
+        max_results: 10,
+      });
+
+      if (error) {
+        console.error('Search error:', error);
+        setSuggestions([]);
+      } else {
+        setSuggestions(data || []);
+      }
+      setSearching(false);
+      setActiveIndex(-1);
+    }, 150);
+
+    return () => clearTimeout(timeoutId);
+  }, [query]);
 
   const commitSearch = (value) => {
     if (!value.trim()) return;
@@ -89,14 +65,7 @@ function SearchModal({ onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const finalTerm = activeIndex >= 0 && suggestions[activeIndex]
-      ? suggestions[activeIndex]
-      : query;
-    commitSearch(finalTerm);
-  };
-
-  const handleSuggestionClick = (word) => {
-    commitSearch(word);
+    commitSearch(query);
   };
 
   const handleKeyDown = (e) => {
@@ -108,6 +77,10 @@ function SearchModal({ onClose }) {
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setActiveIndex(i => (i - 1 + suggestions.length) % suggestions.length);
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      onClose();
+      navigate(suggestions[activeIndex].result_url);
     }
   };
 
@@ -124,7 +97,7 @@ function SearchModal({ onClose }) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search..."
+            placeholder="Search courses, blog, jobs, opportunities..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -132,38 +105,37 @@ function SearchModal({ onClose }) {
           />
         </form>
 
-        {hasQuery && suggestions.length > 0 && (
-          <ul className="sm-suggestions">
-            {suggestions.map((word, i) => {
-              const idx = word.indexOf(query.trim().toLowerCase());
-              const before = word.slice(0, idx);
-              const match = word.slice(idx, idx + query.trim().length);
-              const after = word.slice(idx + query.trim().length);
-
-              return (
-                <li
-                  key={word}
-                  className={i === activeIndex ? 'active' : ''}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleSuggestionClick(word);
-                  }}
-                  onMouseEnter={() => setActiveIndex(i)}
-                >
-                  <span className="sm-suggestion-icon">🔍</span>
-                  <span className="sm-suggestion-word">
-                    {before}
-                    <strong>{match}</strong>
-                    {after}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+        {hasQuery && searching && suggestions.length === 0 && (
+          <p className="sm-hint">Searching...</p>
         )}
 
-        {hasQuery && suggestions.length === 0 && (
-          <p className="sm-hint">No suggestions for "{query}"</p>
+        {hasQuery && !searching && suggestions.length > 0 && (
+          <ul className="sm-suggestions">
+            {suggestions.map((item, i) => (
+              <li
+                key={`${item.result_type}-${item.result_id}`}
+                className={i === activeIndex ? 'active' : ''}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  onClose();
+                  navigate(item.result_url);
+                }}
+                onMouseEnter={() => setActiveIndex(i)}
+              >
+                <span className={`sm-type sm-type-${item.result_type}`}>
+                  {item.result_type}
+                </span>
+                <span className="sm-suggestion-word">
+                  {item.result_title}
+                  {item.match_quality !== 'fallback' && item.result_subtitle && (
+                    <span className="sm-suggestion-sub">
+                      {' — '}{item.result_subtitle.substring(0, 60)}
+                    </span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
         )}
 
       </div>

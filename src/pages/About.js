@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import './About.css';
 import Sidebar from '../components/Sidebar';
 import ImageWithFallback from '../components/ImageWithFallback';
+
 function About() {
   return (
     <div className="about-page">
 
-      {/* Banner */}
       <section className="about-banner">
         <h1>About Us</h1>
         <p>Home / About Us</p>
@@ -15,7 +15,6 @@ function About() {
 
       <div className="about-layout">
 
-        {/* === MAIN CONTENT === */}
         <article className="about-content">
 
           <p>
@@ -77,9 +76,9 @@ function About() {
 
           <figure className="about-sdg-image">
             <ImageWithFallback
-  src="https://mydreamconnect.org.ng/wp-content/uploads/2022/10/sdg-goals-1024x538.png"
-  alt=""
-/>
+              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/sdg-goals.png"
+              alt="Sustainable Development Goals"
+            />
           </figure>
 
           <p className="about-coach-cta">
@@ -88,7 +87,6 @@ function About() {
 
         </article>
 
-        {/* === SIDEBAR (LIVE) === */}
         <Sidebar />
 
       </div>

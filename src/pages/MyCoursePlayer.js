@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { downloadCertificate } from '../lib/certificate';
 import './MyCoursePlayer.css';
 
 function MyCoursePlayer() {
@@ -12,6 +13,7 @@ function MyCoursePlayer() {
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
   const [completedIds, setCompletedIds] = useState(new Set());
+  const [certificate, setCertificate] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -54,7 +56,34 @@ function MyCoursePlayer() {
         .eq('course_id', id)
         .eq('user_id', user.id);
 
-      setCompletedIds(new Set((progressData || []).map(p => p.lesson_id)));
+      const completedList = (progressData || []).map(p => p.lesson_id);
+      setCompletedIds(new Set(completedList));
+
+      // Check for 100% completion → load or create certificate
+      const allIds = (lessonsData || []).map(l => l.id);
+      const isComplete =
+        allIds.length > 0 &&
+        allIds.every(lid => completedList.includes(lid));
+
+      if (isComplete) {
+        const { data: certData } = await supabase
+          .from('certificates')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('course_id', id)
+          .maybeSingle();
+
+        if (certData) {
+          setCertificate(certData);
+        } else {
+          const { data: newCert } = await supabase
+            .from('certificates')
+            .insert([{ user_id: user.id, course_id: Number(id) }])
+            .select()
+            .single();
+          setCertificate(newCert);
+        }
+      }
 
       setLoading(false);
     };
@@ -69,6 +98,7 @@ function MyCoursePlayer() {
     setError(null);
 
     const isDone = completedIds.has(lessonId);
+    const next = new Set(completedIds);
 
     if (isDone) {
       const { error } = await supabase
@@ -80,9 +110,10 @@ function MyCoursePlayer() {
       if (error) {
         setError(error.message);
       } else {
-        const next = new Set(completedIds);
         next.delete(lessonId);
         setCompletedIds(next);
+        // If they un-complete, remove certificate locally
+        if (certificate) setCertificate(null);
       }
     } else {
       const { error } = await supabase
@@ -96,13 +127,50 @@ function MyCoursePlayer() {
       if (error) {
         setError(error.message);
       } else {
-        const next = new Set(completedIds);
         next.add(lessonId);
         setCompletedIds(next);
+
+        // If this marks the course 100% complete, create certificate
+        const allIds = lessons.map(l => l.id);
+        const nowComplete = allIds.every(lid => next.has(lid));
+
+        if (nowComplete && !certificate) {
+          const { data: existing } = await supabase
+            .from('certificates')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('course_id', id)
+            .maybeSingle();
+
+          if (existing) {
+            setCertificate(existing);
+          } else {
+            const { data: newCert } = await supabase
+              .from('certificates')
+              .insert([{ user_id: user.id, course_id: Number(id) }])
+              .select()
+              .single();
+            setCertificate(newCert);
+          }
+        }
       }
     }
 
     setSaving(false);
+  };
+
+  const handleDownloadCertificate = () => {
+    downloadCertificate({
+      studentName:
+        user?.user_metadata?.full_name ||
+        user?.email?.split('@')[0] ||
+        'Student',
+      courseName: course.name,
+      issuedDate: new Date(certificate?.issued_at || Date.now()).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric',
+      }),
+      certificateId: certificate?.id || 'PENDING',
+    });
   };
 
   if (loading) return <h2 className="mcp-status">Loading course...</h2>;
@@ -141,6 +209,19 @@ function MyCoursePlayer() {
           </span>
         </div>
       </header>
+
+      {certificate && (
+        <div className="mcp-certificate">
+          <div className="mcp-cert-icon">🎓</div>
+          <div className="mcp-cert-text">
+            <h3>Congratulations! You completed this course.</h3>
+            <p>Your certificate of completion is ready to download.</p>
+          </div>
+          <button className="mcp-cert-btn" onClick={handleDownloadCertificate}>
+            ⬇ Download Certificate
+          </button>
+        </div>
+      )}
 
       <div className="mcp-layout">
 

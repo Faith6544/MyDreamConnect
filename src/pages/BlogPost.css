@@ -415,3 +415,17 @@
     gap: 12px;
   }
 }
+@media (max-width: 900px) {
+  .bp-layout {
+    grid-template-columns: 1fr;
+  }
+  .bp-related-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .bp-banner h1 {
+    font-size: 22px;
+  }
+  .bp-body {
+    font-size: 15px;
+  }
+}

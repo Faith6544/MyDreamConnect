@@ -21,12 +21,26 @@ function AdminLogin() {
     });
 
     if (error) {
-      setError(error.message);
-      setStatus('idle');
-    } else {
-      setStatus('success');
-      navigate('/admin/dashboard');
-    }
+  setError(error.message);
+  setStatus('idle');
+  return;
+}
+
+// Check if they're an admin
+const { data: { user } } = await supabase.auth.getUser();
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('role')
+  .eq('id', user.id)
+  .maybeSingle();
+
+setStatus('success');
+
+if (profile?.role === 'admin') {
+  navigate('/admin/dashboard');
+} else {
+  navigate('/my-courses');
+}
   };
 
   return (

@@ -26,24 +26,22 @@ function AdminDashboard() {
       }
       setUser(user);
 
-      // Count stats in parallel
-      const [
-        { count: students },
-        { count: courses },
-        { count: enrollments },
-        { count: posts },
-        { count: lessons },
-        { count: photos },
-      ] = await Promise.all([
-        supabase.from('enrollments').select('*', { count: 'exact', head: true }).then(r => ({ count: null })), // placeholder, we count unique below
-        supabase.from('courses').select('*', { count: 'exact', head: true }),
-        supabase.from('enrollments').select('*', { count: 'exact', head: true }),
-        supabase.from('posts').select('*', { count: 'exact', head: true }),
-        supabase.from('lessons').select('*', { count: 'exact', head: true }),
-        supabase.from('album_photos').select('*', { count: 'exact', head: true }),
-      ]);
+      // -------- Counts --------
+     const [
+  { count: courses },
+  { count: enrollments },
+  { count: posts },
+  { count: lessons },
+  { count: photos },
+] = await Promise.all([
+  supabase.from('courses').select('*', { count: 'exact', head: true }),
+  supabase.from('enrollments').select('*', { count: 'exact', head: true }),
+  supabase.from('posts').select('*', { count: 'exact', head: true }),
+  supabase.from('lessons').select('*', { count: 'exact', head: true }),
+  supabase.from('album_photos').select('*', { count: 'exact', head: true }),
+]);
 
-      // Unique students — distinct user_id count
+      // Unique students
       const { data: enrollData } = await supabase
         .from('enrollments')
         .select('user_id');
@@ -55,23 +53,28 @@ function AdminDashboard() {
         enrollments: enrollments || 0,
         posts: posts || 0,
         lessons: lessons || 0,
-        photos: photos || 0,
+        photos: 0,
       });
 
-      // Recent enrollments (last 5)
+      // -------- Recent Enrollments --------
       const { data: recent } = await supabase
         .from('enrollments')
-        .select(`
-          id,
-          enrolled_at,
-          user_id,
-          courses:courses(name)
-        `)
+        .select('id, enrolled_at, user_id, course_id')
         .order('enrolled_at', { ascending: false })
         .limit(5);
 
-      // Fetch user emails for these
       if (recent && recent.length > 0) {
+        // Fetch course names for the recent enrollments
+        const courseIds = [...new Set(recent.map(r => r.course_id))];
+        const { data: recentCourses } = await supabase
+          .from('courses')
+          .select('id, name')
+          .in('id', courseIds);
+
+        const courseMap = {};
+        (recentCourses || []).forEach(c => { courseMap[c.id] = c; });
+
+        // Fetch profiles for the users
         const userIds = [...new Set(recent.map(r => r.user_id))];
         const { data: profiles } = await supabase
           .from('profiles')
@@ -81,10 +84,13 @@ function AdminDashboard() {
         const profileMap = {};
         (profiles || []).forEach(p => { profileMap[p.id] = p; });
 
+        // Merge everything
         const enriched = recent.map(r => ({
           ...r,
+          courses: courseMap[r.course_id] || null,
           user: profileMap[r.user_id] || null,
         }));
+
         setRecentEnrollments(enriched);
       }
 
@@ -115,6 +121,14 @@ function AdminDashboard() {
     { label: 'Instructors', path: '/admin/instructors', icon: '👨‍🏫' },
     { label: 'Enrollments', path: '/admin/enrollments', icon: '📋' },
     { label: 'Testimonials', path: '/admin/testimonials', icon: '💬' },
+    { label: 'Users', path: '/admin/users', icon: '👥' },
+    { label: 'Blog Categories', path: '/admin/post-categories', icon: '🏷' },
+    { label: 'Subscribers', path: '/admin/subscribers', icon: '📧' },
+    { label: 'Categories', path: '/admin/categories', icon: '🏷' },
+    { label: 'Contact Messages', path: '/admin/messages', icon: '📬' },
+{ label: 'Partnerships', path: '/admin/partnerships', icon: '🤝' },
+{ label: 'Blog Tags', path: '/admin/post-tags', icon: '🔖' },
+{ label: 'Volunteers', path: '/admin/volunteers', icon: '🙋' },
   ];
 
   return (
@@ -164,13 +178,7 @@ function AdminDashboard() {
             <p>Lessons</p>
           </div>
         </div>
-        <div className="admin-stat-card">
-          <span className="admin-stat-icon">🖼</span>
-          <div>
-            <h3>{stats.photos}</h3>
-            <p>Album Photos</p>
-          </div>
-        </div>
+        
       </section>
 
       {/* RECENT ENROLLMENTS */}
