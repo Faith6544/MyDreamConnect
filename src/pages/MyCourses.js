@@ -14,24 +14,37 @@ function MyCourses() {
     const fetchEnrollments = async () => {
       if (!user) return;
 
-      const { data, error } = await supabase
+      // Get enrollments
+      const { data: enrollData, error } = await supabase
         .from('enrollments')
-        .select(`
-          id,
-          enrolled_at,
-          course_id,
-          courses:courses(*)
-        `)
+        .select('id, enrolled_at, course_id')
         .eq('user_id', user.id)
         .order('enrolled_at', { ascending: false });
 
-      if (error || !data) {
+      if (error || !enrollData) {
         setLoading(false);
         return;
       }
 
+      if (enrollData.length === 0) {
+        setEnrollments([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch courses separately
+      const courseIds = [...new Set(enrollData.map(e => e.course_id))];
+      const { data: coursesData } = await supabase
+        .from('courses')
+        .select('*')
+        .in('id', courseIds);
+
+      const courseMap = {};
+      (coursesData || []).forEach(c => { courseMap[c.id] = c; });
+
+      // Attach courses + fetch lesson counts
       const enriched = await Promise.all(
-        data.map(async (enr) => {
+        enrollData.map(async (enr) => {
           const courseId = enr.course_id;
 
           const { count: totalLessons } = await supabase
@@ -47,6 +60,7 @@ function MyCourses() {
 
           return {
             ...enr,
+            courses: courseMap[courseId] || null,
             totalLessons: totalLessons || 0,
             completedLessons: completedLessons || 0,
           };

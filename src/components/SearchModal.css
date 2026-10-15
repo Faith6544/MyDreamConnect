@@ -159,3 +159,6 @@
   text-align: left;
   border-bottom: 1px solid #f1f1f1;
 }
+.sm-type { font-size: 11px; text-transform: uppercase; background: #eee; padding: 2px 6px; border-radius: 4px; margin-right: 8px; } /* small tag before the title */
+.sm-dim { opacity: 0.6; transition: opacity 0.15s; } /* old list fades while new results load */
+.sm-suggestion-word strong { font-weight: 700; } /* the letters the user typed */

@@ -3,12 +3,28 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './SearchModal.css';
 
+// bolds the part of the title the user has typed so far
+function highlight(text, typed) {
+  if (!text) return '';
+  const start = text.toLowerCase().indexOf(typed.toLowerCase());
+  if (start === -1) return text;
+  const end = start + typed.length;
+  return (
+    <>
+      {text.slice(0, start)}
+      <strong>{text.slice(start, end)}</strong>
+      {text.slice(end)}
+    </>
+  );
+}
+
 function SearchModal({ onClose }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const [searching, setSearching] = useState(false);
+  const [status, setStatus] = useState('idle');
   const inputRef = useRef(null);
+  const cache = useRef({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,10 +49,21 @@ function SearchModal({ onClose }) {
     if (trimmed.length < 2) {
       setSuggestions([]);
       setActiveIndex(-1);
+      setStatus('idle');
       return;
     }
 
-    setSearching(true);
+    const key = trimmed.toLowerCase();
+
+    if (cache.current[key]) {
+      setSuggestions(cache.current[key]);
+      setActiveIndex(-1);
+      setStatus('done');
+      return;
+    }
+
+    let cancelled = false;
+    setStatus('loading');
 
     const timeoutId = setTimeout(async () => {
       const { data, error } = await supabase.rpc('search_everything', {
@@ -44,17 +71,24 @@ function SearchModal({ onClose }) {
         max_results: 10,
       });
 
+      if (cancelled) return;
+
       if (error) {
         console.error('Search error:', error);
         setSuggestions([]);
+        setStatus('error');
       } else {
+        cache.current[key] = data || [];
         setSuggestions(data || []);
+        setStatus('done');
       }
-      setSearching(false);
       setActiveIndex(-1);
     }, 150);
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [query]);
 
   const commitSearch = (value) => {
@@ -84,7 +118,8 @@ function SearchModal({ onClose }) {
     }
   };
 
-  const hasQuery = query.trim().length >= 2;
+  const typed = query.trim();
+  const hasQuery = typed.length >= 2;
 
   return (
     <div className="sm-overlay" onClick={onClose}>
@@ -102,17 +137,25 @@ function SearchModal({ onClose }) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             autoComplete="off"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={suggestions.length > 0}
+            aria-controls="sm-suggestion-list"
+            aria-activedescendant={activeIndex >= 0 ? `sm-option-${activeIndex}` : undefined}
           />
         </form>
 
-        {hasQuery && searching && suggestions.length === 0 && (
-          <p className="sm-hint">Searching...</p>
-        )}
-
-        {hasQuery && !searching && suggestions.length > 0 && (
-          <ul className="sm-suggestions">
+        {hasQuery && suggestions.length > 0 && (
+          <ul
+            id="sm-suggestion-list"
+            role="listbox"
+            className={`sm-suggestions ${status === 'loading' ? 'sm-dim' : ''}`}
+          >
             {suggestions.map((item, i) => (
               <li
+                id={`sm-option-${i}`}
+                role="option"
+                aria-selected={i === activeIndex}
                 key={`${item.result_type}-${item.result_id}`}
                 className={i === activeIndex ? 'active' : ''}
                 onMouseDown={(e) => {
@@ -122,11 +165,8 @@ function SearchModal({ onClose }) {
                 }}
                 onMouseEnter={() => setActiveIndex(i)}
               >
-                <span className={`sm-type sm-type-${item.result_type}`}>
-                  {item.result_type}
-                </span>
                 <span className="sm-suggestion-word">
-                  {item.result_title}
+                  {highlight(item.result_title, typed)}
                   {item.match_quality !== 'fallback' && item.result_subtitle && (
                     <span className="sm-suggestion-sub">
                       {' — '}{item.result_subtitle.substring(0, 60)}
@@ -136,6 +176,18 @@ function SearchModal({ onClose }) {
               </li>
             ))}
           </ul>
+        )}
+
+        {hasQuery && status === 'loading' && suggestions.length === 0 && (
+          <p className="sm-hint">Searching...</p>
+        )}
+
+        {hasQuery && status === 'done' && suggestions.length === 0 && (
+          <p className="sm-hint">Nothing found for "{typed}". Try another word.</p>
+        )}
+
+        {hasQuery && status === 'error' && (
+          <p className="sm-hint">Search is not working right now. Please try again.</p>
         )}
 
       </div>

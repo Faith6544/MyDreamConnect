@@ -12,9 +12,22 @@ function AdminDashboard() {
     enrollments: 0,
     posts: 0,
     lessons: 0,
-    photos: 0,
   });
   const [recentEnrollments, setRecentEnrollments] = useState([]);
+  const [recentActivity, setRecentActivity] = useState({
+    messages: [],
+    volunteers: [],
+    partnerships: [],
+    enrollments: [],
+    subscribers: [],
+  });
+  const [newCounts, setNewCounts] = useState({
+    messages: 0,
+    volunteers: 0,
+    partnerships: 0,
+    enrollments: 0,
+    subscribers: 0,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,19 +40,17 @@ function AdminDashboard() {
       setUser(user);
 
       // -------- Counts --------
-     const [
-  { count: courses },
-  { count: enrollments },
-  { count: posts },
-  { count: lessons },
-  { count: photos },
-] = await Promise.all([
-  supabase.from('courses').select('*', { count: 'exact', head: true }),
-  supabase.from('enrollments').select('*', { count: 'exact', head: true }),
-  supabase.from('posts').select('*', { count: 'exact', head: true }),
-  supabase.from('lessons').select('*', { count: 'exact', head: true }),
-  supabase.from('album_photos').select('*', { count: 'exact', head: true }),
-]);
+      const [
+        { count: courses },
+        { count: enrollments },
+        { count: posts },
+        { count: lessons },
+      ] = await Promise.all([
+        supabase.from('courses').select('*', { count: 'exact', head: true }),
+        supabase.from('enrollments').select('*', { count: 'exact', head: true }),
+        supabase.from('posts').select('*', { count: 'exact', head: true }),
+        supabase.from('lessons').select('*', { count: 'exact', head: true }),
+      ]);
 
       // Unique students
       const { data: enrollData } = await supabase
@@ -53,10 +64,9 @@ function AdminDashboard() {
         enrollments: enrollments || 0,
         posts: posts || 0,
         lessons: lessons || 0,
-        photos: 0,
       });
 
-      // -------- Recent Enrollments --------
+      // -------- Recent Enrollments (with names) --------
       const { data: recent } = await supabase
         .from('enrollments')
         .select('id, enrolled_at, user_id, course_id')
@@ -64,7 +74,6 @@ function AdminDashboard() {
         .limit(5);
 
       if (recent && recent.length > 0) {
-        // Fetch course names for the recent enrollments
         const courseIds = [...new Set(recent.map(r => r.course_id))];
         const { data: recentCourses } = await supabase
           .from('courses')
@@ -74,7 +83,6 @@ function AdminDashboard() {
         const courseMap = {};
         (recentCourses || []).forEach(c => { courseMap[c.id] = c; });
 
-        // Fetch profiles for the users
         const userIds = [...new Set(recent.map(r => r.user_id))];
         const { data: profiles } = await supabase
           .from('profiles')
@@ -84,7 +92,6 @@ function AdminDashboard() {
         const profileMap = {};
         (profiles || []).forEach(p => { profileMap[p.id] = p; });
 
-        // Merge everything
         const enriched = recent.map(r => ({
           ...r,
           courses: courseMap[r.course_id] || null,
@@ -93,6 +100,47 @@ function AdminDashboard() {
 
         setRecentEnrollments(enriched);
       }
+
+      // -------- Recent Activity --------
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+      const [
+        { data: recentMessages },
+        { data: recentVolunteers },
+        { data: recentPartnerships },
+        { data: recentSubs },
+        { count: newMessagesCount },
+        { count: newVolunteersCount },
+        { count: newPartnershipsCount },
+        { count: newEnrollmentsCount },
+        { count: newSubscribersCount },
+      ] = await Promise.all([
+        supabase.from('contact_messages').select('*').order('created_at', { ascending: false }).limit(5),
+        supabase.from('volunteer_applications').select('*').order('created_at', { ascending: false }).limit(5),
+        supabase.from('partnership_enquiries').select('*').order('created_at', { ascending: false }).limit(5),
+        supabase.from('subscribers').select('*').order('subscribed_at', { ascending: false }).limit(5),
+        supabase.from('contact_messages').select('*', { count: 'exact', head: true }).gte('created_at', yesterday),
+        supabase.from('volunteer_applications').select('*', { count: 'exact', head: true }).gte('created_at', yesterday),
+        supabase.from('partnership_enquiries').select('*', { count: 'exact', head: true }).gte('created_at', yesterday),
+        supabase.from('enrollments').select('*', { count: 'exact', head: true }).gte('enrolled_at', yesterday),
+        supabase.from('subscribers').select('*', { count: 'exact', head: true }).gte('subscribed_at', yesterday),
+      ]);
+
+      setRecentActivity({
+        messages: recentMessages || [],
+        volunteers: recentVolunteers || [],
+        partnerships: recentPartnerships || [],
+        enrollments: recent || [],
+        subscribers: recentSubs || [],
+      });
+
+      setNewCounts({
+        messages: newMessagesCount || 0,
+        volunteers: newVolunteersCount || 0,
+        partnerships: newPartnershipsCount || 0,
+        enrollments: newEnrollmentsCount || 0,
+        subscribers: newSubscribersCount || 0,
+      });
 
       setLoading(false);
     };
@@ -126,9 +174,9 @@ function AdminDashboard() {
     { label: 'Subscribers', path: '/admin/subscribers', icon: '📧' },
     { label: 'Categories', path: '/admin/categories', icon: '🏷' },
     { label: 'Contact Messages', path: '/admin/messages', icon: '📬' },
-{ label: 'Partnerships', path: '/admin/partnerships', icon: '🤝' },
-{ label: 'Blog Tags', path: '/admin/post-tags', icon: '🔖' },
-{ label: 'Volunteers', path: '/admin/volunteers', icon: '🙋' },
+    { label: 'Partnerships', path: '/admin/partnerships', icon: '🤝' },
+    { label: 'Blog Tags', path: '/admin/post-tags', icon: '🔖' },
+    { label: 'Volunteers', path: '/admin/volunteers', icon: '🙋' },
   ];
 
   return (
@@ -178,7 +226,6 @@ function AdminDashboard() {
             <p>Lessons</p>
           </div>
         </div>
-        
       </section>
 
       {/* RECENT ENROLLMENTS */}
@@ -204,6 +251,145 @@ function AdminDashboard() {
           </div>
         </section>
       )}
+
+      {/* RECENT ACTIVITY */}
+      <section className="admin-activity">
+        <h2 className="admin-activity-heading">Recent Activity</h2>
+
+        <div className="admin-activity-grid">
+
+          {/* Messages */}
+          <div className="admin-activity-card">
+            <div className="admin-activity-head">
+              <span className="admin-activity-icon">📬</span>
+              <h3>Contact Messages</h3>
+              {newCounts.messages > 0 && (
+                <span className="admin-activity-badge">{newCounts.messages} new</span>
+              )}
+            </div>
+            {recentActivity.messages.length === 0 ? (
+              <p className="admin-activity-empty">No messages yet.</p>
+            ) : (
+              <ul className="admin-activity-list">
+                {recentActivity.messages.map(m => (
+                  <li key={m.id}>
+                    <strong>{m.name}</strong>
+                    <span className="admin-activity-time">
+                      {new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link to="/admin/messages" className="admin-activity-more">View all →</Link>
+          </div>
+
+          {/* Volunteers */}
+          <div className="admin-activity-card">
+            <div className="admin-activity-head">
+              <span className="admin-activity-icon">🙋</span>
+              <h3>Volunteers</h3>
+              {newCounts.volunteers > 0 && (
+                <span className="admin-activity-badge">{newCounts.volunteers} new</span>
+              )}
+            </div>
+            {recentActivity.volunteers.length === 0 ? (
+              <p className="admin-activity-empty">No applications yet.</p>
+            ) : (
+              <ul className="admin-activity-list">
+                {recentActivity.volunteers.map(v => (
+                  <li key={v.id}>
+                    <strong>{v.name}</strong>
+                    <span className="admin-activity-time">
+                      {new Date(v.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link to="/admin/volunteers" className="admin-activity-more">View all →</Link>
+          </div>
+
+          {/* Partnerships */}
+          <div className="admin-activity-card">
+            <div className="admin-activity-head">
+              <span className="admin-activity-icon">🤝</span>
+              <h3>Partnerships</h3>
+              {newCounts.partnerships > 0 && (
+                <span className="admin-activity-badge">{newCounts.partnerships} new</span>
+              )}
+            </div>
+            {recentActivity.partnerships.length === 0 ? (
+              <p className="admin-activity-empty">No enquiries yet.</p>
+            ) : (
+              <ul className="admin-activity-list">
+                {recentActivity.partnerships.map(p => (
+                  <li key={p.id}>
+                    <strong>{p.org_name}</strong>
+                    <span className="admin-activity-time">
+                      {new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link to="/admin/partnerships" className="admin-activity-more">View all →</Link>
+          </div>
+
+          {/* Enrollments */}
+          <div className="admin-activity-card">
+            <div className="admin-activity-head">
+              <span className="admin-activity-icon">📋</span>
+              <h3>Enrollments</h3>
+              {newCounts.enrollments > 0 && (
+                <span className="admin-activity-badge">{newCounts.enrollments} new</span>
+              )}
+            </div>
+            {recentActivity.enrollments.length === 0 ? (
+              <p className="admin-activity-empty">No enrollments yet.</p>
+            ) : (
+              <ul className="admin-activity-list">
+                {recentActivity.enrollments.map(e => (
+                  <li key={e.id}>
+                    <strong>New enrollment</strong>
+                    <span className="admin-activity-time">
+                      {new Date(e.enrolled_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link to="/admin/enrollments" className="admin-activity-more">View all →</Link>
+          </div>
+
+          {/* Subscribers */}
+          <div className="admin-activity-card">
+            <div className="admin-activity-head">
+              <span className="admin-activity-icon">📧</span>
+              <h3>Subscribers</h3>
+              {newCounts.subscribers > 0 && (
+                <span className="admin-activity-badge">{newCounts.subscribers} new</span>
+              )}
+            </div>
+            {recentActivity.subscribers.length === 0 ? (
+              <p className="admin-activity-empty">No subscribers yet.</p>
+            ) : (
+              <ul className="admin-activity-list">
+                {recentActivity.subscribers.map(s => (
+                  <li key={s.id}>
+                    <strong>{s.name || s.email}</strong>
+                    <span className="admin-activity-time">
+                      {new Date(s.subscribed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Link to="/admin/subscribers" className="admin-activity-more">View all →</Link>
+          </div>
+
+        </div>
+      </section>
 
       {/* NAVIGATION CARDS */}
       <h2 className="admin-section-title">Manage Content</h2>

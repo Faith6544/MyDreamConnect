@@ -83,7 +83,7 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
   border-left-color: #0a4711;
 }
-
+.search-result-type { font-size: 11px; text-transform: uppercase; background: #eee; padding: 2px 6px; border-radius: 4px; } /* tag above each result title */
 .search-result-type {
   display: inline-block;
   font-size: 10px;

@@ -14,20 +14,27 @@ function Search() {
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
+      setError(null);
+      setLoading(false);
       return;
     }
+
+    let cancelled = false;
 
     const runSearch = async () => {
       setLoading(true);
       setError(null);
 
-      const { data, error } = await supabase.rpc('search_everything', {
+      const { data, error: rpcError } = await supabase.rpc('search_everything', {
         search_term: query.trim(),
         max_results: 50,
       });
 
-      if (error) {
-        console.error('Search error:', error);
+      if (cancelled) return;
+
+      if (rpcError) {
+        console.error('Search error:', rpcError);
+        setResults([]);
         setError('Could not run search. Please try again.');
       } else {
         setResults(data || []);
@@ -36,6 +43,10 @@ function Search() {
     };
 
     runSearch();
+
+    return () => {
+      cancelled = true;
+    };
   }, [query]);
 
   return (
@@ -64,6 +75,12 @@ function Search() {
           </p>
         )}
 
+        {!loading && !error && query && results.length === 0 && (
+          <p className="search-status">
+            No results for "{query}". Try another word or check the spelling.
+          </p>
+        )}
+
         {!loading && !error && query && results.length > 0 && (
           <>
             <p className="search-count">
@@ -76,9 +93,6 @@ function Search() {
                   className="search-result"
                   key={`${item.result_type}-${item.result_id}`}
                 >
-                  <span className={`search-result-type type-${item.result_type}`}>
-                    {item.result_type}
-                  </span>
                   <div className="search-result-body">
                     <h3>{item.result_title || 'Untitled'}</h3>
                     {item.match_quality !== 'fallback' && item.result_subtitle && (
