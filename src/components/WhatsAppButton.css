@@ -153,3 +153,39 @@
     width: 280px;
   }
 }
+/* ============ WHATSAPP BUTTON ============ */
+
+.wa-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+  color: #fff;
+  text-decoration: none;
+  z-index: 9999;
+}
+
+.wa-button:hover {
+  background: #1ebe5a;
+  transform: scale(1.05);
+  box-shadow: 0 10px 28px rgba(37, 211, 102, 0.55);
+}
+
+@media (max-width: 640px) {
+  .wa-button {
+    width: 52px;
+    height: 52px;
+    bottom: 20px;
+    right: 20px;
+  }
+}

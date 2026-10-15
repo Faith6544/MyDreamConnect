@@ -1,38 +1,164 @@
-.App {
-  text-align: center;
+/* ============================================
+   GLOBAL FONT SYSTEM
+   Inter — single font, all weights
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+/* ============================================
+   EVERYTHING — Inter by default
+   ============================================ */
+
+html,
+body,
+button,
+input,
+textarea,
+select,
+main,
+aside,
+section,
+article,
+footer,
+header,
+div,
+span,
+p,
+a,
+li,
+label,
+small {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* ============================================
+   BODY — comfortable reading
+   ============================================ */
+
+body {
+  font-size: 15.5px;
+  line-height: 1.65;
+  letter-spacing: -0.005em;
+  color: #1a1a1a;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+p {
+  line-height: 1.7;
+  letter-spacing: -0.005em;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* ============================================
+   HEADINGS — Inter with tight tracking
+   This is the SIWES Companion signature move.
+   ============================================ */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+[class*="heading"],
+[class*="-title"],
+[class*="banner"] h1,
+[class*="banner"] h2,
+.hero h1,
+.hero h4 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1a1a1a;
 }
 
-.App-link {
-  color: #61dafb;
+/* Hero and h1 — biggest impact */
+h1,
+.hero h1 {
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+h2 {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+h4 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================
+   BUTTONS — Inter semi-bold
+   ============================================ */
+
+button,
+[class*="btn"],
+[class*="-submit"],
+[class*="cta-btn"],
+a[class*="btn"],
+a[class*="-btn"] {
+  font-family: 'Inter', sans-serif !important;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+/* ============================================
+   NAVBAR — Inter
+   ============================================ */
+
+nav a,
+.nav-links a,
+.nav-parent,
+[class*="nav-"] a {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* ============================================
+   STATS / NUMBERS — Inter extra bold
+   ============================================ */
+
+[class*="stat"] h3,
+[class*="-price"],
+.cd-price {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+/* ============================================
+   FORM LABELS — Inter medium
+   ============================================ */
+
+label,
+[class*="-field"] label,
+.form-group label,
+.ps-group label,
+.auth-field label {
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+/* ============================================
+   SMALL UI TEXT — Inter
+   ============================================ */
+
+small,
+[class*="-date"],
+[class*="-meta"],
+[class*="-time"],
+[class*="-subtitle"],
+[class*="-hint"] {
+  font-family: 'Inter', sans-serif !important;
+  letter-spacing: 0.005em;
 }

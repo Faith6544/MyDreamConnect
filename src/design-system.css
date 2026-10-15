@@ -1,0 +1,315 @@
+/* ============================================================
+   MYDREAMCONNECT DESIGN SYSTEM
+   One source of truth for color, spacing, type, radii, shadows.
+   Import once, use everywhere.
+   ============================================================ */
+
+:root {
+  /* ---------- COLORS ---------- */
+  /* Brand */
+  --mdc-green:        #0a4711;
+  --mdc-green-dark:   #063009;
+  --mdc-green-soft:   #eaf3eb;
+  --mdc-green-tint:   #f4f8f4;
+  --mdc-gold:         #d4a017;
+  --mdc-gold-dark:    #b88a0f;
+  --mdc-gold-soft:    #fef9e7;
+
+  /* Neutrals */
+  --mdc-bg:           #ffffff;
+  --mdc-bg-alt:       #f9f9f8;
+  --mdc-ink:          #1a1a1a;
+  --mdc-ink-soft:     #4a4a4a;
+  --mdc-muted:        #6b6b6b;
+  --mdc-muted-light:  #9a9a9a;
+  --mdc-border:       #ececec;
+  --mdc-border-soft:  #f4f4f4;
+
+  /* Status */
+  --mdc-success:      #27ae60;
+  --mdc-success-bg:   #e8f5e9;
+  --mdc-error:        #c0392b;
+  --mdc-error-bg:     #fdecea;
+
+  /* ---------- SPACING (8px scale) ---------- */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  40px;
+  --sp-8:  48px;
+  --sp-10: 64px;
+  --sp-12: 80px;
+  --sp-14: 100px;
+
+  /* ---------- RADII ---------- */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  20px;
+  --r-2xl: 24px;
+  --r-full: 999px;
+
+  /* ---------- SHADOWS (subtle) ---------- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.08);
+
+  /* ---------- TYPOGRAPHY ---------- */
+  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Font sizes — strict scale */
+  --fs-display: 56px;   /* hero */
+  --fs-h1:      44px;
+  --fs-h2:      32px;
+  --fs-h3:      22px;
+  --fs-h4:      18px;
+  --fs-body:    16px;
+  --fs-sm:      14px;
+  --fs-xs:      13px;
+  --fs-2xs:     11.5px;
+}
+
+/* ============================================================
+   GLOBAL RESETS
+   ============================================================ */
+
+html,
+body {
+  font-family: var(--font-body);
+  color: var(--mdc-ink);
+  background: var(--mdc-bg);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--mdc-ink);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+h1 { font-size: var(--fs-h1);     font-weight: 800; letter-spacing: -0.03em; }
+h2 { font-size: var(--fs-h2);     font-weight: 700; }
+h3 { font-size: var(--fs-h3);     font-weight: 700; }
+h4 { font-size: var(--fs-h4);     font-weight: 600; }
+
+p {
+  font-family: var(--font-body);
+  color: var(--mdc-muted);
+  line-height: 1.7;
+  margin: 0 0 var(--sp-4);
+}
+
+a {
+  color: var(--mdc-green);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--mdc-gold);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.mdc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: 14px 28px;
+  font-family: var(--font-heading);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  text-decoration: none;
+  min-height: 48px;
+}
+
+.mdc-btn-primary {
+  background: var(--mdc-green);
+  color: #ffffff;
+}
+
+.mdc-btn-primary:hover {
+  background: var(--mdc-green-dark);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.mdc-btn-gold {
+  background: var(--mdc-gold);
+  color: #ffffff;
+}
+
+.mdc-btn-gold:hover {
+  background: var(--mdc-gold-dark);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.mdc-btn-outline {
+  background: transparent;
+  color: var(--mdc-green);
+  border: 1.5px solid var(--mdc-green);
+}
+
+.mdc-btn-outline:hover {
+  background: var(--mdc-green);
+  color: #ffffff;
+}
+
+/* ============================================================
+   SECTION WRAPPERS
+   ============================================================ */
+
+.mdc-section {
+  padding: var(--sp-14) var(--sp-5);
+}
+
+.mdc-section-alt {
+  background: var(--mdc-bg-alt);
+}
+
+.mdc-section-green {
+  background: var(--mdc-green);
+  color: #ffffff;
+}
+
+.mdc-section-green h1,
+.mdc-section-green h2,
+.mdc-section-green h3,
+.mdc-section-green h4,
+.mdc-section-green p {
+  color: #ffffff;
+}
+
+.mdc-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.mdc-card {
+  background: var(--mdc-bg);
+  border: 1px solid var(--mdc-border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.mdc-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
+}
+
+/* ============================================================
+   SECTION HEADINGS
+   ============================================================ */
+
+.mdc-section-heading {
+  text-align: center;
+  margin-bottom: var(--sp-10);
+}
+
+.mdc-section-heading .mdc-eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--mdc-gold);
+  margin-bottom: var(--sp-3);
+}
+
+.mdc-section-heading h2 {
+  font-size: var(--fs-h2);
+  color: var(--mdc-ink);
+  margin: 0 auto var(--sp-4);
+  max-width: 640px;
+}
+
+.mdc-section-heading p {
+  font-size: var(--fs-body);
+  color: var(--mdc-muted);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   ICON BOX (matches the reference site)
+   ============================================================ */
+
+.mdc-icon-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-lg);
+  background: var(--mdc-green-soft);
+  color: var(--mdc-green);
+  flex-shrink: 0;
+}
+
+.mdc-icon-box svg {
+  width: 22px;
+  height: 22px;
+}
+
+.mdc-icon-box-gold {
+  background: var(--mdc-gold-soft);
+  color: var(--mdc-gold);
+}
+
+/* ============================================================
+   EMOJI KILL
+   The single biggest "AI-generated" signal. Remove on sight.
+   ============================================================ */
+
+/* Prevent decorative emoji from rendering as the main visual */
+[class*="-icon"]:not(svg):not([class*="icon-box"]):not([class*="icon-btn"]) {
+  font-family: var(--font-body);
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --fs-display: 32px;
+    --fs-h1: 28px;
+    --fs-h2: 24px;
+    --fs-h3: 19px;
+    --fs-h4: 16px;
+    --fs-body: 15px;
+  }
+
+  .mdc-section {
+    padding: var(--sp-10) var(--sp-4);
+  }
+}
