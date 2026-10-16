@@ -21,10 +21,9 @@ function Donate() {
   const finalAmount = customAmount || amount;
 
   const handleDonate = (e) => {
-    e.preventDefault();
-    // In production, this will open Paystack/Flutterwave checkout.
-    alert(`Donating ₦${Number(finalAmount).toLocaleString()} ${frequency === 'once' ? 'one time' : 'monthly'}.\n\nPaystack/Flutterwave integration goes here.`);
-  };
+  e.preventDefault();
+  window.open('https://bit.ly/support-mydreamconnect', '_blank', 'noopener'); // real donation link, until Paystack is added
+};
 
   return (
     <div className="donate-page">

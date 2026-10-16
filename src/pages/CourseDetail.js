@@ -36,11 +36,12 @@ function CourseDetail() {
       setCourse(courseData);
 
       const { data: lessonsData } = await supabase
-        .from('lessons')
-        .select('*')
+        .from('lesson_outline') // titles and order only, full lessons are for enrolled students
+        .select('id, title, order_index')
         .eq('course_id', id)
         .order('order_index', { ascending: true });
-      setLessons(lessonsData || []);
+
+      setLessons(lessonsData || []); // <-- was missing, so lessons never appeared
 
       if (user) {
         const { data: enrollment } = await supabase
@@ -160,7 +161,9 @@ function CourseDetail() {
               <>
                 <button
                   className="cd-buy-btn"
-                  onClick={() => navigate('/get-started', { state: { from: { pathname: `/courses/${id}` } } })}
+                  onClick={() =>
+                    navigate('/get-started', { state: { from: { pathname: `/courses/${id}` } } })
+                  }
                 >
                   Sign in to Enroll
                 </button>

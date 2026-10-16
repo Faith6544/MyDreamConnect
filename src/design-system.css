@@ -2,6 +2,7 @@
    MYDREAMCONNECT DESIGN SYSTEM
    One source of truth for color, spacing, type, radii, shadows.
    Import once, use everywhere.
+   (Note: font-family is handled ONLY in fonts.css.)
    ============================================================ */
 
 :root {
@@ -30,6 +31,8 @@
   --mdc-success-bg:   #e8f5e9;
   --mdc-error:        #c0392b;
   --mdc-error-bg:     #fdecea;
+  --mdc-warning:      #f0b400;
+  --mdc-warning-bg:   #fff8e1;
 
   /* ---------- SPACING (8px scale) ---------- */
   --sp-1:  4px;
@@ -52,18 +55,18 @@
   --r-2xl: 24px;
   --r-full: 999px;
 
-  /* ---------- SHADOWS (subtle) ---------- */
+  /* ---------- SHADOWS ---------- */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.08);
 
-  /* ---------- TYPOGRAPHY ---------- */
+  /* ---------- TYPOGRAPHY TOKENS ---------- */
+  /* (font-family application lives in fonts.css) */
   --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Font sizes — strict scale */
-  --fs-display: 56px;   /* hero */
+  --fs-display: 56px;
   --fs-h1:      44px;
   --fs-h2:      32px;
   --fs-h3:      22px;
@@ -72,38 +75,43 @@
   --fs-sm:      14px;
   --fs-xs:      13px;
   --fs-2xs:     11.5px;
+
+  /* ---------- Z-INDEX ---------- */
+  --z-below:    -1;
+  --z-base:      0;
+  --z-content:   10;
+  --z-navbar:    100;
+  --z-dropdown:  200;
+  --z-overlay:   500;
+  --z-modal:     1000;
+  --z-toast:     1500;
 }
 
 /* ============================================================
-   GLOBAL RESETS
+   GLOBAL ELEMENT BASELINE (no font-family here)
    ============================================================ */
 
 html,
 body {
-  font-family: var(--font-body);
   color: var(--mdc-ink);
   background: var(--mdc-bg);
   font-size: var(--fs-body);
   line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
   color: var(--mdc-ink);
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin: 0;
 }
 
-h1 { font-size: var(--fs-h1);     font-weight: 800; letter-spacing: -0.03em; }
-h2 { font-size: var(--fs-h2);     font-weight: 700; }
-h3 { font-size: var(--fs-h3);     font-weight: 700; }
-h4 { font-size: var(--fs-h4);     font-weight: 600; }
+h1 { font-size: var(--fs-h1); font-weight: 800; letter-spacing: -0.03em; }
+h2 { font-size: var(--fs-h2); font-weight: 700; }
+h3 { font-size: var(--fs-h3); font-weight: 700; }
+h4 { font-size: var(--fs-h4); font-weight: 600; }
 
 p {
-  font-family: var(--font-body);
   color: var(--mdc-muted);
   line-height: 1.7;
   margin: 0 0 var(--sp-4);
@@ -260,7 +268,7 @@ a:hover {
 }
 
 /* ============================================================
-   ICON BOX (matches the reference site)
+   ICON BOX
    ============================================================ */
 
 .mdc-icon-box {
@@ -283,16 +291,6 @@ a:hover {
 .mdc-icon-box-gold {
   background: var(--mdc-gold-soft);
   color: var(--mdc-gold);
-}
-
-/* ============================================================
-   EMOJI KILL
-   The single biggest "AI-generated" signal. Remove on sight.
-   ============================================================ */
-
-/* Prevent decorative emoji from rendering as the main visual */
-[class*="-icon"]:not(svg):not([class*="icon-box"]):not([class*="icon-btn"]) {
-  font-family: var(--font-body);
 }
 
 /* ============================================================

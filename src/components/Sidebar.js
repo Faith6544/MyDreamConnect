@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 import { supabase } from '../lib/supabase';
 import { checkSpam, logSubmission } from '../lib/spamGuard';
+
 const ACCESS_KEY = '7ccbf4db-5413-4d7f-8537-2ee111f3832f';
 
 function SearchForm() {
@@ -26,12 +27,12 @@ function SearchForm() {
         text
           .toLowerCase()
           .split(/[\s\-_,.;:!?()[\]{}"'/\\|]+/)
-          .forEach(w => {
+          .forEach((w) => {
             const clean = w.replace(/[^a-z0-9]/g, '');
             if (clean.length >= 3) words.add(clean);
           });
       };
-      (data || []).forEach(p => collect(p.title));
+      (data || []).forEach((p) => collect(p.title));
       setAllWords(Array.from(words).sort());
     };
     loadWords();
@@ -48,7 +49,7 @@ function SearchForm() {
     }
 
     const matches = allWords
-      .filter(w => w.startsWith(trimmed) || w.includes(trimmed))
+      .filter((w) => w.startsWith(trimmed) || w.includes(trimmed))
       .sort((a, b) => {
         const aStarts = a.startsWith(trimmed) ? 0 : 1;
         const bStarts = b.startsWith(trimmed) ? 0 : 1;
@@ -70,9 +71,10 @@ function SearchForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const finalTerm = activeIndex >= 0 && suggestions[activeIndex]
-      ? suggestions[activeIndex]
-      : term;
+    const finalTerm =
+      activeIndex >= 0 && suggestions[activeIndex]
+        ? suggestions[activeIndex]
+        : term;
     commitSearch(finalTerm);
   };
 
@@ -97,10 +99,10 @@ function SearchForm() {
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setActiveIndex(i => (i + 1) % suggestions.length);
+      setActiveIndex((i) => (i + 1) % suggestions.length);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setActiveIndex(i => (i - 1 + suggestions.length) % suggestions.length);
+      setActiveIndex((i) => (i - 1 + suggestions.length) % suggestions.length);
     } else if (e.key === 'Escape') {
       setShowDropdown(false);
       setActiveIndex(-1);
@@ -113,6 +115,7 @@ function SearchForm() {
         <input
           type="text"
           placeholder=""
+          aria-label="Search the blog"
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           onFocus={handleFocus}
@@ -161,7 +164,11 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
   const [archives, setArchives] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [subscribeData, setSubscribeData] = useState({ name: '', email: '' });
+  const [subscribeData, setSubscribeData] = useState({
+    name: '',
+    email: '',
+    website: '',
+  });
   const [subscribeStatus, setSubscribeStatus] = useState('idle');
 
   useEffect(() => {
@@ -169,8 +176,7 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
       const { data, error } = await supabase
         .from('posts')
         .select('id, title, created_at')
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Sidebar fetch error:', error);
@@ -182,16 +188,16 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
       setPosts(safePosts.slice(0, 5));
 
       const monthNames = [
-        'January','February','March','April','May','June',
-        'July','August','September','October','November','December'
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December',
       ];
       const archiveMap = {};
-      safePosts.forEach(p => {
+      safePosts.forEach((p) => {
         const d = new Date(p.created_at);
         const key = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
         archiveMap[key] = (archiveMap[key] || 0) + 1;
       });
-      const archiveList = Object.keys(archiveMap).map(k => ({
+      const archiveList = Object.keys(archiveMap).map((k) => ({
         label: k,
         count: archiveMap[k],
       }));
@@ -207,74 +213,64 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
     setSubscribeData({ ...subscribeData, [e.target.name]: e.target.value });
   };
 
-const handleSubscribe = async (e) => {
-  e.preventDefault();
-  setSubscribeStatus('sending');
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    setSubscribeStatus('sending');
 
-  const cleanEmail = subscribeData.email.trim().toLowerCase();
+    const cleanEmail = subscribeData.email.trim().toLowerCase();
+    const cleanName = subscribeData.name.trim();
 
-  // Spam check
-  const spam = await checkSpam({
-    honeypot: subscribeData.website,
-    email: cleanEmail,
-    formType: 'subscribe',
-  });
-
-  if (!spam.allowed) {
-    setSubscribeStatus('success');
-    setSubscribeData({ name: '', email: '', website: '' });
-    setTimeout(() => setSubscribeStatus('idle'), 6000);
-    return;
-  }
-
-  // Check if already subscribed
-  const { data: existing } = await supabase
-    .from('subscribers')
-    .select('id')
-    .eq('email', cleanEmail)
-    .maybeSingle();
-
-  if (existing) {
-    setSubscribeStatus('already');
-    setTimeout(() => setSubscribeStatus('idle'), 6000);
-    return;
-  }
-
-  const { error } = await supabase
-    .from('subscribers')
-    .insert([{
+    const spam = await checkSpam({
+      honeypot: subscribeData.website,
       email: cleanEmail,
-      name: subscribeData.name.trim() || null,
-    }]);
+      formType: 'subscribe',
+    });
 
-  if (error) {
-    console.error('Subscribe error:', error);
-    setSubscribeStatus('error');
-  } else {
-    setSubscribeStatus('success');
-    setSubscribeData({ name: '', email: '', website: '' });
+    if (!spam.allowed) {
+      setSubscribeStatus('success');
+      setSubscribeData({ name: '', email: '', website: '' });
+      setTimeout(() => setSubscribeStatus('idle'), 6000);
+      return;
+    }
 
-    await logSubmission({ email: cleanEmail, formType: 'subscribe' });
+    const { error } = await supabase
+      .from('subscribers')
+      .insert([{ email: cleanEmail, name: cleanName || null }]);
 
-    fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        access_key: ACCESS_KEY,
-        subject: 'New Newsletter Subscriber - MyDreamConnect',
-        from_name: 'MyDreamConnect Website',
-        name: subscribeData.name,
-        email: cleanEmail,
-      }),
-    }).catch(() => {});
-  }
+    if (error) {
+      if (error.code === '23505') {
+        setSubscribeStatus('already');
+      } else {
+        console.error('Subscribe error:', error);
+        setSubscribeStatus('error');
+      }
+    } else {
+      setSubscribeStatus('success');
+      setSubscribeData({ name: '', email: '', website: '' });
 
-  setTimeout(() => setSubscribeStatus('idle'), 6000);
-};
+      await logSubmission({ email: cleanEmail, formType: 'subscribe' });
+
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: ACCESS_KEY,
+          subject: 'New Newsletter Subscriber - MyDreamConnect',
+          from_name: 'MyDreamConnect Website',
+          name: cleanName,
+          email: cleanEmail,
+        }),
+      }).catch(() => {});
+    }
+
+    setTimeout(() => setSubscribeStatus('idle'), 6000);
+  };
 
   return (
     <aside className="sidebar">
-
       <div className="widget">
         <h3>Search</h3>
         <SearchForm />
@@ -288,7 +284,7 @@ const handleSubscribe = async (e) => {
           <p className="widget-loading">No posts yet.</p>
         ) : (
           <ul className="widget-list">
-            {posts.map(p => (
+            {posts.map((p) => (
               <li key={p.id}>
                 <Link to={`/blog/${p.id}`}>{p.title || 'Untitled'}</Link>
               </li>
@@ -314,7 +310,9 @@ const handleSubscribe = async (e) => {
           <ul className="widget-list">
             {archives.map((a, i) => (
               <li key={i}>
-                <Link to="/blog">{a.label} ({a.count})</Link>
+                <Link to="/blog">
+                  {a.label} ({a.count})
+                </Link>
               </li>
             ))}
           </ul>
@@ -336,25 +334,30 @@ const handleSubscribe = async (e) => {
               ❌ Something went wrong. Try again.
             </div>
           )}
+
           {subscribeStatus === 'already' && (
-  <div className="sidebar-msg already">
-    ℹ️ You're already subscribed!
-  </div>
-)}
+            <div className="sidebar-msg already">
+              ℹ️ You're already subscribed!
+            </div>
+          )}
 
           <form className="sidebar-subscribe" onSubmit={handleSubscribe}>
-            <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }} aria-hidden="true">
-  <label htmlFor="subscribe-website">Website</label>
-  <input
-    type="text"
-    id="subscribe-website"
-    name="website"
-    tabIndex="-1"
-    autoComplete="off"
-    value={subscribeData.website}
-    onChange={handleSubscribeChange}
-  />
-</div>
+            <div
+              style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}
+              aria-hidden="true"
+            >
+              <label htmlFor="subscribe-website">Website</label>
+              <input
+                type="text"
+                id="subscribe-website"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={subscribeData.website}
+                onChange={handleSubscribeChange}
+              />
+            </div>
+
             <input
               type="text"
               name="name"
@@ -379,7 +382,6 @@ const handleSubscribe = async (e) => {
           </form>
         </div>
       )}
-
     </aside>
   );
 }

@@ -1,26 +1,18 @@
 import { supabase } from './supabase';
 
-/**
- * Checks if a submission is likely spam.
- * Returns { allowed: true } or { allowed: false, reason: '...' }.
- */
 export async function checkSpam({ honeypot, email, formType }) {
-  // Layer 1: Honeypot — if the hidden field has a value, it's a bot.
+  // Layer 1: honeypot, a hidden field that real people never fill
   if (honeypot && honeypot.trim() !== '') {
     return { allowed: false, reason: 'honeypot' };
   }
 
-  // Layer 2: Rate limit — max 3 submissions per email per hour.
+  // Layer 2: max 3 submissions per email per hour, counted inside the database
   if (email) {
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { data: count, error } = await supabase.rpc('recent_submission_count', {
+      p_email: email,
+    });
 
-    const { count, error } = await supabase
-      .from('form_submissions')
-      .select('*', { count: 'exact', head: true })
-      .eq('email', email.toLowerCase().trim())
-      .gte('submitted_at', oneHourAgo);
-
-    if (!error && count !== null && count >= 3) {
+    if (!error && typeof count === 'number' && count >= 3) {
       return { allowed: false, reason: 'rate_limit' };
     }
   }
@@ -28,14 +20,13 @@ export async function checkSpam({ honeypot, email, formType }) {
   return { allowed: true };
 }
 
-/**
- * Log a successful submission for rate limiting.
- * Silent on failure — we don't want to block the user.
- */
 export async function logSubmission({ email, formType }) {
   if (!email) return;
-  await supabase
-    .from('form_submissions')
-    .insert([{ email: email.toLowerCase().trim(), form_type: formType }])
-    .catch(() => {});
+  try {
+    await supabase
+      .from('form_submissions')
+      .insert([{ email: email.toLowerCase().trim(), form_type: formType }]);
+  } catch (err) {
+    console.error('Could not log submission:', err); // never block the visitor because of logging
+  }
 }

@@ -1,164 +1,110 @@
 /* ============================================
-   GLOBAL FONT SYSTEM
-   Inter — single font, all weights
+   APP-LEVEL LAYOUT
+   Fonts are handled ONLY in fonts.css.
+   Design tokens live in design-system.css.
+   This file = app shell, layout, and nothing else.
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
-/* ============================================
-   EVERYTHING — Inter by default
-   ============================================ */
-
-html,
-body,
-button,
-input,
-textarea,
-select,
-main,
-aside,
-section,
-article,
-footer,
-header,
-div,
-span,
-p,
-a,
-li,
-label,
-small {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-/* ============================================
-   BODY — comfortable reading
-   ============================================ */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: #ffffff;
+  color: #1a1a1a;
+}
 
 body {
   font-size: 15.5px;
   line-height: 1.65;
   letter-spacing: -0.005em;
-  color: #1a1a1a;
 }
 
 p {
   line-height: 1.7;
   letter-spacing: -0.005em;
+  margin: 0 0 16px;
+}
+
+#root,
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pages sit between navbar and footer */
+main,
+.page-wrapper {
+  flex: 1;
+}
+
+/* Kill the default outline-then-reappear jump on links/buttons */
+a,
+button {
+  outline-offset: 3px;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #d4a017;
+  outline-offset: 3px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
 }
 
 /* ============================================
-   HEADINGS — Inter with tight tracking
-   This is the SIWES Companion signature move.
+   UTILITY CLASSES
    ============================================ */
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-[class*="heading"],
-[class*="-title"],
-[class*="banner"] h1,
-[class*="banner"] h2,
-.hero h1,
-.hero h4 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  letter-spacing: -0.03em;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #1a1a1a;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-/* Hero and h1 — biggest impact */
-h1,
-.hero h1 {
-  font-weight: 800;
-  letter-spacing: -0.04em;
-}
+.text-center { text-align: center; }
+.text-left   { text-align: left; }
+.text-right  { text-align: right; }
 
-h2 {
-  font-weight: 700;
-  letter-spacing: -0.03em;
-}
-
-h3 {
-  font-weight: 700;
-  letter-spacing: -0.025em;
-}
-
-h4 {
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
+.mt-0  { margin-top: 0; }
+.mb-0  { margin-bottom: 0; }
+.mb-1  { margin-bottom: 8px; }
+.mb-2  { margin-bottom: 16px; }
+.mb-3  { margin-bottom: 24px; }
+.mb-4  { margin-bottom: 32px; }
 
 /* ============================================
-   BUTTONS — Inter semi-bold
+   RESPONSIVE
    ============================================ */
 
-button,
-[class*="btn"],
-[class*="-submit"],
-[class*="cta-btn"],
-a[class*="btn"],
-a[class*="-btn"] {
-  font-family: 'Inter', sans-serif !important;
-  letter-spacing: -0.01em;
-  font-weight: 600;
-}
-
-/* ============================================
-   NAVBAR — Inter
-   ============================================ */
-
-nav a,
-.nav-links a,
-.nav-parent,
-[class*="nav-"] a {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-
-/* ============================================
-   STATS / NUMBERS — Inter extra bold
-   ============================================ */
-
-[class*="stat"] h3,
-[class*="-price"],
-.cd-price {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-}
-
-/* ============================================
-   FORM LABELS — Inter medium
-   ============================================ */
-
-label,
-[class*="-field"] label,
-.form-group label,
-.ps-group label,
-.auth-field label {
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 500;
-  letter-spacing: 0.005em;
-}
-
-/* ============================================
-   SMALL UI TEXT — Inter
-   ============================================ */
-
-small,
-[class*="-date"],
-[class*="-meta"],
-[class*="-time"],
-[class*="-subtitle"],
-[class*="-hint"] {
-  font-family: 'Inter', sans-serif !important;
-  letter-spacing: 0.005em;
+@media (max-width: 768px) {
+  body {
+    font-size: 15px;
+  }
 }
