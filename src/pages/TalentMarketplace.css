@@ -1,287 +1,219 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-.tm-page {
+.talent-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
+  color: #333;
+  min-height: 100vh;
 }
 
-/* Banner */
-.tm-banner {
-  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-    url('https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png') center/cover;
-  padding: 80px 20px;
+.talent-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+.talent-main-title {
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  color: #111;
+  margin-bottom: 40px;
+}
+
+.talent-controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  align-items: center;
+}
+
+.talent-search-wrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 20px;
+  color: #888;
+  font-size: 16px;
+}
+
+.talent-search-input {
+  width: 100%;
+  padding: 15px 20px 15px 50px;
+  font-size: 15px;
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid #e2e2e2;
+  border-radius: 50px;
+  outline: none;
+}
+
+.talent-search-input:focus {
+  border-color: #0a4711;
+}
+
+/* Simple Dropdown Button */
+.talent-sort-btn {
+  padding: 15px 25px;
+  font-size: 15px;
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid #e2e2e2;
+  border-radius: 50px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+}
+
+.talent-sort-btn:hover {
+  background: #f9f9f9;
+}
+
+.talent-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
+}
+
+.talent-cat-btn {
+  padding: 8px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.talent-cat-btn:hover {
+  color: #0a4711;
+}
+
+.talent-cat-btn.active {
+  background: #0a4711;
   color: #fff;
 }
 
-.tm-banner h1 {
-  font-size: 40px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.tm-banner p {
-  font-size: 14px;
-  color: #ddd;
-  margin: 0;
-}
-
-/* Tabs */
-.tm-tabs {
-  max-width: 1200px;
-  margin: 40px auto 0;
-  padding: 0 20px;
-  display: flex;
-  gap: 10px;
-  border-bottom: 2px solid #eee;
-}
-
-.tm-tab {
-  background: none;
+.talent-divider {
   border: none;
-  padding: 14px 28px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: #777;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  position: relative;
-  transition: color 0.3s;
+  border-top: 1px solid #f0f0f0;
+  margin-bottom: 40px;
 }
 
-.tm-tab:hover {
-  color: #d4a017;
+.talent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
-.tm-tab.active {
-  color: #333;
+.talent-card {
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  padding: 25px;
+  background: #fff;
 }
 
-.tm-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
+.talent-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.talent-profile-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.talent-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.talent-avatar img {
   width: 100%;
-  height: 3px;
+  height: 100%;
+  object-fit: cover;
+}
+
+.talent-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 4px 0;
+}
+
+.talent-role {
+  font-size: 14px;
+  color: #777;
+  display: block;
+}
+
+.talent-view-btn {
+  background: #0a4711;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.talent-view-btn:hover {
   background: #d4a017;
 }
 
-/* Section */
-.tm-section {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 50px 20px;
-}
-
-.tm-intro {
-  text-align: center;
-  margin-bottom: 50px;
-}
-
-.tm-intro h2 {
-  font-size: 30px;
-  color: #333;
-  margin-bottom: 10px;
-  font-weight: 700;
-}
-
-.tm-intro p {
-  color: #666;
-  font-size: 15px;
-}
-
-/* === JOBS === */
-.jobs-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.job-card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-left: 5px solid #d4a017;
-  padding: 25px 30px;
-  border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.job-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.1);
-}
-
-.job-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.job-header h3 {
-  font-size: 20px;
-  color: #0a4711;
-  margin: 0;
-  font-weight: 700;
-}
-
-.job-type {
-  background: #e8f5e9;
-  color: #0a4711;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 20px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.job-type.internship {
-  background: #fff3e0;
-  color: #e65100;
-}
-
-.job-type.contract {
-  background: #ede7f6;
-  color: #5e35b1;
-}
-
-.job-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 15px;
-}
-
-.job-description {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.7;
-  margin-bottom: 15px;
-}
-
-.btn-apply {
-  display: inline-block;
-  color: #d4a017;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-  transition: color 0.3s;
-}
-
-.btn-apply:hover {
-  color: #b88a0f;
-}
-
-/* === OPPORTUNITIES === */
-.opps-grid {
+.talent-portfolio-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
 }
 
-.opp-card {
-  background: #fff;
-  border: 1px solid #eee;
-  border-top: 5px solid #0a4711;
+.talent-portfolio-item {
+  aspect-ratio: 1 / 1;
+  background: #f8f9fa;
   border-radius: 8px;
-  padding: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  transition: transform 0.3s, box-shadow 0.3s;
   display: flex;
-  flex-direction: column;
-}
-
-.opp-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-}
-
-.opp-category {
-  display: inline-block;
-  background: #fef9e7;
-  color: #d4a017;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 12px;
-  border-radius: 20px;
-  margin-bottom: 15px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  align-self: flex-start;
-}
-
-.opp-card h3 {
-  font-size: 19px;
-  color: #333;
-  margin-bottom: 8px;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.opp-org {
-  font-size: 13px;
-  color: #888;
-  margin-bottom: 15px;
-}
-
-.opp-desc {
-  font-size: 14px;
-  color: #666;
-  line-height: 1.7;
-  margin-bottom: 20px;
-  flex-grow: 1;
-}
-
-.opp-footer {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
-  flex-wrap: wrap;
-  gap: 10px;
+  justify-content: center;
+  border: 1px solid #eee;
 }
 
-.opp-deadline {
-  font-size: 12px;
-  color: #e82a04;
-  font-weight: 600;
+.placeholder-icon {
+  font-size: 24px;
+  opacity: 0.3;
 }
 
-.btn-learn {
-  color: #0a4711;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: color 0.3s;
+.talent-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
 }
 
-.btn-learn:hover {
-  color: #d4a017;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
-  .opps-grid {
-    grid-template-columns: 1fr;
+  .talent-controls {
+    flex-direction: column;
   }
-  .tm-banner h1 {
-    font-size: 32px;
-  }
-  .tm-tab {
-    padding: 12px 18px;
-    font-size: 13px;
-  }
-  .job-header {
+  .talent-card-header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 15px;
+  }
+  .talent-portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

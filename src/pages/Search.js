@@ -6,106 +6,86 @@ import './Search.css';
 function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
-
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      setError(null);
-      setLoading(false);
-      return;
-    }
+    if (!query.trim()) return;
 
-    let cancelled = false;
-
-    const runSearch = async () => {
+    const runAISearch = async () => {
       setLoading(true);
-      setError(null);
+      setErrorMsg('');
+      try {
+        // 1. Use raw fetch exactly like the working Node script
+        const response = await fetch('https://kzdqbqnyytgovlngfvwr.supabase.co/functions/v1/generate-embedding', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // We pass your Anon Key here for browser security
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6ZHFicW55eXRnb3ZsbmdmdndyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5NTM5MDYsImV4cCI6MjEwNjUyOTkwNn0.mZRkjzbwW8eBAWWJs6O23AxjiskF2m3iH9LjZy1zreM',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6ZHFicW55eXRnb3ZsbmdmdndyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5NTM5MDYsImV4cCI6MjEwNjUyOTkwNn0.mZRkjzbwW8eBAWWJs6O23AxjiskF2m3iH9LjZy1zreM'
+          },
+          body: JSON.stringify({ text: query })
+        });
 
-      const { data, error: rpcError } = await supabase.rpc('search_everything', {
-        search_term: query.trim(),
-        max_results: 50,
-      });
+        if (!response.ok) {
+          throw new Error(`Edge Function failed: ${response.status}`);
+        }
 
-      if (cancelled) return;
+        const data = await response.json();
 
-      if (rpcError) {
-        console.error('Search error:', rpcError);
-        setResults([]);
-        setError('Could not run search. Please try again.');
-      } else {
-        setResults(data || []);
+        if (!data.embedding) throw new Error("No embedding returned");
+
+        // 2. Search the database
+        const { data: dbResults, error: dbError } = await supabase.rpc('match_documents', {
+          query_embedding: data.embedding,
+          match_threshold: 0.5, 
+          match_count: 20
+        });
+
+        if (dbError) throw dbError;
+
+        setResults(dbResults || []);
+      } catch (err) {
+        console.error("AI Search failed:", err);
+        setErrorMsg(err.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    runSearch();
-
-    return () => {
-      cancelled = true;
-    };
+    runAISearch();
   }, [query]);
 
   return (
     <div className="search-page">
+      <div className="search-container">
+        <h1 className="search-title">AI Search Results</h1>
+        {query && <p className="search-subtitle">Showing results for: <strong>"{query}"</strong></p>}
 
-      <section className="search-banner">
-        <h1>Search Results</h1>
-        <p>Home / Search</p>
-      </section>
+        <section className="search-content">
+          {loading && <p className="search-status">Asking the AI...</p>}
+          {errorMsg && <p className="search-status" style={{ color: 'red' }}>Error: {errorMsg}</p>}
+          
+          {!loading && !errorMsg && query && results.length === 0 && (
+            <p className="search-status">No results found for "{query}".</p>
+          )}
 
-      <section className="search-content">
-
-        {query && (
-          <p className="search-query-line">
-            Search results for: <strong>"{query}"</strong>
-          </p>
-        )}
-
-        {loading && <p className="search-status">Searching...</p>}
-
-        {error && <p className="search-status error">{error}</p>}
-
-        {!loading && !error && !query && (
-          <p className="search-status">
-            Type something in the search box to get started.
-          </p>
-        )}
-
-        {!loading && !error && query && results.length === 0 && (
-          <p className="search-status">
-            No results for "{query}". Try another word or check the spelling.
-          </p>
-        )}
-
-        {!loading && !error && query && results.length > 0 && (
-          <>
-            <p className="search-count">
-              {results.length} result{results.length !== 1 ? 's' : ''} found
-            </p>
+          {!loading && !errorMsg && query && results.length > 0 && (
             <div className="search-list">
-              {results.map(item => (
-                <Link
-                  to={item.result_url}
-                  className="search-result"
-                  key={`${item.result_type}-${item.result_id}`}
-                >
+              {results.map((item, index) => (
+                <Link to={item.url} className="search-result" key={index}>
                   <div className="search-result-body">
-                    <h3>{item.result_title || 'Untitled'}</h3>
-                    {item.match_quality !== 'fallback' && item.result_subtitle && (
-                      <p>{item.result_subtitle.substring(0, 140)}</p>
-                    )}
+                    <h3>{item.title}</h3>
+                    <p>...{item.content.substring(0, 120)}...</p>
                   </div>
                 </Link>
               ))}
             </div>
-          </>
-        )}
-
-      </section>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

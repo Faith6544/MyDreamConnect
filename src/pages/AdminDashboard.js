@@ -3,6 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminDashboard.css';
 
+// Helper function to safely format dates
+const formatSafeDate = (dateString) => {
+  if (!dateString) return 'Recently';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'Recently';
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
 function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -181,226 +189,226 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dashboard">
-      <header className="admin-header">
-        <h1>Admin Dashboard</h1>
-        <div className="admin-user">
-          <span>{user?.email}</span>
-          <button onClick={handleLogout}>Log out</button>
-        </div>
-      </header>
+      <div className="admin-container">
+        
+        <header className="admin-header">
+          <h1>Admin Dashboard</h1>
+          <div className="admin-user">
+            <span>{user?.email}</span>
+            <button onClick={handleLogout}>Log out</button>
+          </div>
+        </header>
 
-      {/* STATS */}
-      <section className="admin-stats">
-        <div className="admin-stat-card">
-          <span className="admin-stat-icon">👥</span>
-          <div>
-            <h3>{stats.students}</h3>
-            <p>Students Enrolled</p>
+        {/* STATS */}
+        <section className="admin-stats">
+          <div className="admin-stat-card">
+            <span className="admin-stat-icon">👥</span>
+            <div>
+              <h3>{stats.students}</h3>
+              <p>Students Enrolled</p>
+            </div>
           </div>
-        </div>
-        <div className="admin-stat-card">
-          <span className="admin-stat-icon">📚</span>
-          <div>
-            <h3>{stats.courses}</h3>
-            <p>Courses</p>
+          <div className="admin-stat-card">
+            <span className="admin-stat-icon">📚</span>
+            <div>
+              <h3>{stats.courses}</h3>
+              <p>Courses</p>
+            </div>
           </div>
-        </div>
-        <div className="admin-stat-card">
-          <span className="admin-stat-icon">📋</span>
-          <div>
-            <h3>{stats.enrollments}</h3>
-            <p>Total Enrollments</p>
+          <div className="admin-stat-card">
+            <span className="admin-stat-icon">📋</span>
+            <div>
+              <h3>{stats.enrollments}</h3>
+              <p>Total Enrollments</p>
+            </div>
           </div>
-        </div>
-        <div className="admin-stat-card">
-          <span className="admin-stat-icon">✍️</span>
-          <div>
-            <h3>{stats.posts}</h3>
-            <p>Blog Posts</p>
+          <div className="admin-stat-card">
+            <span className="admin-stat-icon">✍️</span>
+            <div>
+              <h3>{stats.posts}</h3>
+              <p>Blog Posts</p>
+            </div>
           </div>
-        </div>
-        <div className="admin-stat-card">
-          <span className="admin-stat-icon">📖</span>
-          <div>
-            <h3>{stats.lessons}</h3>
-            <p>Lessons</p>
-          </div>
-        </div>
-      </section>
-
-      {/* RECENT ENROLLMENTS */}
-      {recentEnrollments.length > 0 && (
-        <section className="admin-recent">
-          <h2>Recent Enrollments</h2>
-          <div className="admin-recent-list">
-            {recentEnrollments.map(enr => (
-              <div key={enr.id} className="admin-recent-item">
-                <div className="admin-recent-dot" />
-                <div className="admin-recent-text">
-                  <strong>{enr.user?.full_name || enr.user?.email || 'A student'}</strong>
-                  {' enrolled in '}
-                  <strong>{enr.courses?.name || 'a course'}</strong>
-                </div>
-                <span className="admin-recent-time">
-                  {new Date(enr.enrolled_at).toLocaleDateString('en-US', {
-                    month: 'short', day: 'numeric'
-                  })}
-                </span>
-              </div>
-            ))}
+          <div className="admin-stat-card">
+            <span className="admin-stat-icon">📖</span>
+            <div>
+              <h3>{stats.lessons}</h3>
+              <p>Lessons</p>
+            </div>
           </div>
         </section>
-      )}
 
-      {/* RECENT ACTIVITY */}
-      <section className="admin-activity">
-        <h2 className="admin-activity-heading">Recent Activity</h2>
-
-        <div className="admin-activity-grid">
-
-          {/* Messages */}
-          <div className="admin-activity-card">
-            <div className="admin-activity-head">
-              <span className="admin-activity-icon">📬</span>
-              <h3>Contact Messages</h3>
-              {newCounts.messages > 0 && (
-                <span className="admin-activity-badge">{newCounts.messages} new</span>
-              )}
+        {/* RECENT ENROLLMENTS */}
+        {recentEnrollments.length > 0 && (
+          <section className="admin-recent">
+            <h2>Recent Enrollments</h2>
+            <div className="admin-recent-list">
+              {recentEnrollments.map(enr => (
+                <div key={enr.id} className="admin-recent-item">
+                  <div className="admin-recent-dot" />
+                  <div className="admin-recent-text">
+                    <strong>{enr.user?.full_name || enr.user?.email || 'A student'}</strong>
+                    {' enrolled in '}
+                    <strong>{enr.courses?.name || 'a course'}</strong>
+                  </div>
+                  <span className="admin-recent-time">
+                    {formatSafeDate(enr.enrolled_at)}
+                  </span>
+                </div>
+              ))}
             </div>
-            {recentActivity.messages.length === 0 ? (
-              <p className="admin-activity-empty">No messages yet.</p>
-            ) : (
-              <ul className="admin-activity-list">
-                {recentActivity.messages.map(m => (
-                  <li key={m.id}>
-                    <strong>{m.name}</strong>
-                    <span className="admin-activity-time">
-                      {new Date(m.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link to="/admin/messages" className="admin-activity-more">View all →</Link>
-          </div>
+          </section>
+        )}
 
-          {/* Volunteers */}
-          <div className="admin-activity-card">
-            <div className="admin-activity-head">
-              <span className="admin-activity-icon">🙋</span>
-              <h3>Volunteers</h3>
-              {newCounts.volunteers > 0 && (
-                <span className="admin-activity-badge">{newCounts.volunteers} new</span>
+        {/* RECENT ACTIVITY */}
+        <section className="admin-activity">
+          <h2 className="admin-section-title">Recent Activity</h2>
+
+          <div className="admin-activity-grid">
+            {/* Messages */}
+            <div className="admin-activity-card">
+              <div className="admin-activity-head">
+                <span className="admin-activity-icon">📬</span>
+                <h3>Contact Messages</h3>
+                {newCounts.messages > 0 && (
+                  <span className="admin-activity-badge">{newCounts.messages} new</span>
+                )}
+              </div>
+              {recentActivity.messages.length === 0 ? (
+                <p className="admin-activity-empty">No messages yet.</p>
+              ) : (
+                <ul className="admin-activity-list">
+                  {recentActivity.messages.map(m => (
+                    <li key={m.id}>
+                      <strong>{m.name}</strong>
+                      <span className="admin-activity-time">
+                        {formatSafeDate(m.created_at)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               )}
+              <Link to="/admin/messages" className="admin-activity-more">View all →</Link>
             </div>
-            {recentActivity.volunteers.length === 0 ? (
-              <p className="admin-activity-empty">No applications yet.</p>
-            ) : (
-              <ul className="admin-activity-list">
-                {recentActivity.volunteers.map(v => (
-                  <li key={v.id}>
-                    <strong>{v.name}</strong>
-                    <span className="admin-activity-time">
-                      {new Date(v.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link to="/admin/volunteers" className="admin-activity-more">View all →</Link>
-          </div>
 
-          {/* Partnerships */}
-          <div className="admin-activity-card">
-            <div className="admin-activity-head">
-              <span className="admin-activity-icon">🤝</span>
-              <h3>Partnerships</h3>
-              {newCounts.partnerships > 0 && (
-                <span className="admin-activity-badge">{newCounts.partnerships} new</span>
+            {/* Volunteers */}
+            <div className="admin-activity-card">
+              <div className="admin-activity-head">
+                <span className="admin-activity-icon">🙋</span>
+                <h3>Volunteers</h3>
+                {newCounts.volunteers > 0 && (
+                  <span className="admin-activity-badge">{newCounts.volunteers} new</span>
+                )}
+              </div>
+              {recentActivity.volunteers.length === 0 ? (
+                <p className="admin-activity-empty">No applications yet.</p>
+              ) : (
+                <ul className="admin-activity-list">
+                  {recentActivity.volunteers.map(v => (
+                    <li key={v.id}>
+                      <strong>{v.name}</strong>
+                      <span className="admin-activity-time">
+                        {formatSafeDate(v.created_at)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               )}
+              <Link to="/admin/volunteers" className="admin-activity-more">View all →</Link>
             </div>
-            {recentActivity.partnerships.length === 0 ? (
-              <p className="admin-activity-empty">No enquiries yet.</p>
-            ) : (
-              <ul className="admin-activity-list">
-                {recentActivity.partnerships.map(p => (
-                  <li key={p.id}>
-                    <strong>{p.org_name}</strong>
-                    <span className="admin-activity-time">
-                      {new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link to="/admin/partnerships" className="admin-activity-more">View all →</Link>
-          </div>
 
-          {/* Enrollments */}
-          <div className="admin-activity-card">
-            <div className="admin-activity-head">
-              <span className="admin-activity-icon">📋</span>
-              <h3>Enrollments</h3>
-              {newCounts.enrollments > 0 && (
-                <span className="admin-activity-badge">{newCounts.enrollments} new</span>
+            {/* Partnerships */}
+            <div className="admin-activity-card">
+              <div className="admin-activity-head">
+                <span className="admin-activity-icon">🤝</span>
+                <h3>Partnerships</h3>
+                {newCounts.partnerships > 0 && (
+                  <span className="admin-activity-badge">{newCounts.partnerships} new</span>
+                )}
+              </div>
+              {recentActivity.partnerships.length === 0 ? (
+                <p className="admin-activity-empty">No enquiries yet.</p>
+              ) : (
+                <ul className="admin-activity-list">
+                  {recentActivity.partnerships.map(p => (
+                    <li key={p.id}>
+                      <strong>{p.org_name}</strong>
+                      <span className="admin-activity-time">
+                        {formatSafeDate(p.created_at)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               )}
+              <Link to="/admin/partnerships" className="admin-activity-more">View all →</Link>
             </div>
-            {recentActivity.enrollments.length === 0 ? (
-              <p className="admin-activity-empty">No enrollments yet.</p>
-            ) : (
-              <ul className="admin-activity-list">
-                {recentActivity.enrollments.map(e => (
-                  <li key={e.id}>
-                    <strong>New enrollment</strong>
-                    <span className="admin-activity-time">
-                      {new Date(e.enrolled_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link to="/admin/enrollments" className="admin-activity-more">View all →</Link>
-          </div>
 
-          {/* Subscribers */}
-          <div className="admin-activity-card">
-            <div className="admin-activity-head">
-              <span className="admin-activity-icon">📧</span>
-              <h3>Subscribers</h3>
-              {newCounts.subscribers > 0 && (
-                <span className="admin-activity-badge">{newCounts.subscribers} new</span>
+            {/* Enrollments */}
+            <div className="admin-activity-card">
+              <div className="admin-activity-head">
+                <span className="admin-activity-icon">📋</span>
+                <h3>Enrollments</h3>
+                {newCounts.enrollments > 0 && (
+                  <span className="admin-activity-badge">{newCounts.enrollments} new</span>
+                )}
+              </div>
+              {recentActivity.enrollments.length === 0 ? (
+                <p className="admin-activity-empty">No enrollments yet.</p>
+              ) : (
+                <ul className="admin-activity-list">
+                  {recentActivity.enrollments.map(e => (
+                    <li key={e.id}>
+                      <strong>New enrollment</strong>
+                      <span className="admin-activity-time">
+                        {formatSafeDate(e.enrolled_at)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               )}
+              <Link to="/admin/enrollments" className="admin-activity-more">View all →</Link>
             </div>
-            {recentActivity.subscribers.length === 0 ? (
-              <p className="admin-activity-empty">No subscribers yet.</p>
-            ) : (
-              <ul className="admin-activity-list">
-                {recentActivity.subscribers.map(s => (
-                  <li key={s.id}>
-                    <strong>{s.name || s.email}</strong>
-                    <span className="admin-activity-time">
-                      {new Date(s.subscribed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link to="/admin/subscribers" className="admin-activity-more">View all →</Link>
-          </div>
 
+            {/* Subscribers */}
+            <div className="admin-activity-card">
+              <div className="admin-activity-head">
+                <span className="admin-activity-icon">📧</span>
+                <h3>Subscribers</h3>
+                {newCounts.subscribers > 0 && (
+                  <span className="admin-activity-badge">{newCounts.subscribers} new</span>
+                )}
+              </div>
+              {recentActivity.subscribers.length === 0 ? (
+                <p className="admin-activity-empty">No subscribers yet.</p>
+              ) : (
+                <ul className="admin-activity-list">
+                  {recentActivity.subscribers.map(s => (
+                    <li key={s.id}>
+                      <strong>{s.name || s.email}</strong>
+                      <span className="admin-activity-time">
+                        {formatSafeDate(s.subscribed_at)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Link to="/admin/subscribers" className="admin-activity-more">View all →</Link>
+            </div>
+          </div>
+        </section>
+
+        {/* NAVIGATION CARDS */}
+        <h2 className="admin-section-title">Manage Content</h2>
+        <div className="admin-grid">
+          {sections.map(s => (
+            <Link to={s.path} key={s.path} className="admin-card">
+              <span className="admin-icon">{s.icon}</span>
+              <h3>{s.label}</h3>
+              <span className="admin-manage">Manage →</span>
+            </Link>
+          ))}
         </div>
-      </section>
 
-      {/* NAVIGATION CARDS */}
-      <h2 className="admin-section-title">Manage Content</h2>
-      <div className="admin-grid">
-        {sections.map(s => (
-          <Link to={s.path} key={s.path} className="admin-card">
-            <span className="admin-icon">{s.icon}</span>
-            <h3>{s.label}</h3>
-            <span className="admin-manage">Manage →</span>
-          </Link>
-        ))}
       </div>
     </div>
   );

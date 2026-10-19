@@ -1,126 +1,111 @@
- 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 .donate-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
+  color: #64686d;
 }
 
-/* Banner */
-.donate-banner {
-  background: linear-gradient(135deg, #0a4711 0%, #0d5c17 100%);
-  padding: 80px 20px;
-  color: #fff;
-}
-
-.donate-banner h1 {
-  font-size: 40px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.donate-banner p {
-  font-size: 14px;
-  color: #ddd;
-  margin: 0;
-}
-
-/* Intro */
-.donate-intro {
-  max-width: 800px;
-  margin: 60px auto 40px;
+/* Container matching Jobs/Contact */
+.donate-container {
+  max-width: 1100px;
+  margin: 60px auto;
   padding: 0 20px;
-  text-align: center;
 }
 
-.donate-intro h2 {
+/* Clean Underlined Title */
+.donate-title {
   font-size: 32px;
-  color: #0a4711;
-  margin-bottom: 15px;
   font-weight: 700;
+  color: #333;
+  margin: 0 0 15px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eaeaea; 
 }
 
-.donate-intro p {
-  font-size: 16px;
+.donate-subtitle {
+  font-size: 15px;
   color: #666;
   line-height: 1.8;
+  margin-bottom: 40px;
+  max-width: 800px;
 }
 
 /* Layout */
 .donate-layout {
-  max-width: 1100px;
-  margin: 0 auto 60px;
-  padding: 0 20px;
   display: grid;
   grid-template-columns: 1.2fr 1fr;
-  gap: 50px;
+  gap: 40px;
   align-items: start;
 }
 
-/* Form */
+/* Form Card */
 .donate-form-wrap {
-  background: #fbfbfb;
-  padding: 40px;
-  border-radius: 10px;
-  border: 1px solid #f1f1f1;
+  background: #fff;
+  padding: 35px;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
 
 .donate-form-wrap h3 {
-  font-size: 22px;
-  color: #0a4711;
+  font-size: 20px;
+  color: #111;
   margin-bottom: 25px;
-  font-weight: 700;
-  padding-bottom: 15px;
-  border-bottom: 3px solid #d4a017;
-  display: inline-block;
+  font-weight: 600;
 }
 
 .frequency-toggle {
   display: flex;
-  gap: 0;
-  margin-bottom: 25px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  overflow: hidden;
+  gap: 5px;
+  margin-bottom: 30px;
+  background: #f1f1f1;
+  padding: 5px;
+  border-radius: 50px;
   width: fit-content;
 }
 
 .freq-btn {
-  padding: 12px 26px;
+  padding: 10px 24px;
   border: none;
-  background: #fff;
+  background: transparent;
+  border-radius: 50px;
   font-family: 'Poppins', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: #666;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.2s;
 }
 
 .freq-btn.active {
-  background: #0a4711;
-  color: #fff;
+  background: #fff;
+  color: #0a4711;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .donate-label {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #333;
   margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .amount-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 25px;
 }
 
 .amount-btn {
   padding: 14px 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #e2e2e2;
   background: #fff;
-  border-radius: 6px;
+  border-radius: 8px;
   font-family: 'Poppins', sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -130,7 +115,8 @@
 }
 
 .amount-btn:hover {
-  border-color: #d4a017;
+  border-color: #0a4711;
+  background: #f0fdf4;
 }
 
 .amount-btn.active {
@@ -142,11 +128,16 @@
 .custom-amount {
   display: flex;
   align-items: center;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
   padding: 0 16px;
   background: #fff;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
+  transition: border-color 0.3s;
+}
+
+.custom-amount:focus-within {
+  border-color: #0a4711;
 }
 
 .custom-amount span {
@@ -172,12 +163,10 @@
   background: #0a4711;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 50px;
   font-family: 'Poppins', sans-serif;
   font-size: 16px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
 }
@@ -194,67 +183,68 @@
   text-align: center;
 }
 
-/* Why section */
+/* Why Section */
+.donate-why {
+  padding-top: 10px;
+}
+
 .donate-why h3 {
-  font-size: 22px;
-  color: #0a4711;
+  font-size: 20px;
+  color: #111;
   margin-bottom: 25px;
-  font-weight: 700;
-  padding-bottom: 15px;
-  border-bottom: 3px solid #d4a017;
-  display: inline-block;
+  font-weight: 600;
 }
 
 .why-item {
   display: flex;
   gap: 18px;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   align-items: flex-start;
 }
 
 .why-icon {
-  font-size: 24px;
+  font-size: 22px;
   flex-shrink: 0;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fef9e7;
-  border-radius: 50%;
+  background: #f0fdf4; /* Soft green background */
+  border-radius: 12px;
 }
 
 .why-item h4 {
   font-size: 15px;
   color: #333;
   margin: 0 0 5px 0;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .why-item p {
   font-size: 13.5px;
   color: #666;
-  line-height: 1.7;
+  line-height: 1.6;
   margin: 0;
 }
 
 .donate-alt {
-  background: #fef9e7;
+  background: #f9fafb;
   padding: 20px;
-  border-radius: 8px;
-  border-left: 4px solid #d4a017;
-  margin-top: 30px;
+  border-radius: 10px;
+  border: 1px solid #eaeaea;
+  margin-top: 20px;
 }
 
 .donate-alt p {
   font-size: 14px;
   color: #666;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
 }
 
 .donate-alt a {
   color: #0a4711;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 14px;
   text-decoration: none;
 }
@@ -265,22 +255,25 @@
 
 /* Closing */
 .donate-closing {
-  background: #0a4711;
-  color: #fff;
+  background: #f9fafb;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  color: #333;
   text-align: center;
-  padding: 70px 20px;
+  padding: 50px 20px;
+  margin-top: 60px;
 }
 
 .donate-closing h2 {
-  font-size: 30px;
-  color: #d4a017;
-  margin-bottom: 15px;
+  font-size: 24px;
+  color: #0a4711;
+  margin-bottom: 10px;
   font-weight: 700;
 }
 
 .donate-closing p {
   font-size: 15px;
-  color: #eaeaea;
+  color: #666;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -291,14 +284,11 @@
     grid-template-columns: 1fr;
     gap: 40px;
   }
-  .donate-banner h1 {
-    font-size: 32px;
-  }
-  .donate-intro h2 {
-    font-size: 24px;
+  .donate-title {
+    font-size: 26px;
   }
   .donate-form-wrap {
-    padding: 30px 25px;
+    padding: 25px;
   }
 }
 

@@ -3,53 +3,49 @@
 .videos-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
+  color: #64686d;
 }
 
-.videos-banner {
-  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-    url('https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png') center/cover;
-  padding: 80px 20px;
-  color: #fff;
-}
-
-.videos-banner h1 {
-  font-size: 40px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.videos-banner p {
-  font-size: 14px;
-  color: #ddd;
-  margin: 0;
-}
-
-.videos-section {
+/* Container matching Jobs/Contact/Flyers */
+.videos-container {
   max-width: 1200px;
-  margin: 60px auto 80px;
+  margin: 60px auto;
   padding: 0 20px;
 }
 
-.videos-section-title {
-  font-size: 24px;
-  color: #333;
+/* Clean Underlined Title */
+.videos-title {
+  font-size: 32px;
   font-weight: 700;
-  margin: 0 0 8px 0;
-  text-align: center;
+  color: #333;
+  margin: 0 0 10px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eaeaea; 
+}
+
+.videos-subtitle {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+/* Videos Section */
+.videos-section {
+  width: 100%;
 }
 
 .video-count {
-  text-align: center;
+  text-align: left;
   font-size: 13px;
   color: #888;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   font-style: italic;
 }
 
 .videos-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
+  gap: 30px;
 }
 
 .video-item {
@@ -57,15 +53,16 @@
   flex-direction: column;
 }
 
+/* 16:9 Aspect Ratio Wrapper for YouTube Iframes */
 .video-wrapper {
   position: relative;
   width: 100%;
   padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
-  border-radius: 6px;
-  background: #000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  background: #f1f1f1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .video-wrapper iframe {
@@ -73,6 +70,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  border: none;
 }
 
 .video-duration {
@@ -84,23 +82,29 @@
   font-size: 12px;
   font-weight: 600;
   padding: 3px 8px;
-  border-radius: 3px;
+  border-radius: 4px;
   z-index: 2;
 }
 
 .video-title {
-  font-size: 15px;
+  font-size: 16px;
   color: #333;
   font-weight: 600;
-  margin: 12px 0 0 0;
+  margin: 15px 0 0 0;
   line-height: 1.4;
+  transition: color 0.2s;
 }
 
-@media (max-width: 640px) {
+.video-item:hover .video-title {
+  color: #0a4711;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .videos-title {
+    font-size: 26px;
+  }
   .videos-grid {
     grid-template-columns: 1fr;
-  }
-  .videos-banner h1 {
-    font-size: 32px;
   }
 }

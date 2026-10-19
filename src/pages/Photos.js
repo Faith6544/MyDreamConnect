@@ -38,39 +38,39 @@ function Photos() {
 
   return (
     <div className="photos-page">
-      <section className="photos-banner">
-        <h1>Photos</h1>
-        <p>Home / Media / Photos</p>
-      </section>
+      <div className="photos-container">
+        
+        {/* CLEAN UNDERLINED TITLE */}
+        <h1 className="photos-title">Photos</h1>
+        <p className="photos-subtitle">My Dream Connect Event Albums</p>
 
-      <section className="photos-section">
-        <h2 className="photos-section-title">My Dream Connect Event Albums</h2>
-
-        {loading ? (
-          <p style={{ textAlign: 'center', padding: '40px' }}>Loading...</p>
-        ) : years.length === 0 ? (
-          <p style={{ textAlign: 'center', padding: '40px' }}>No albums yet.</p>
-        ) : (
-          years.map(year => (
-            <div key={year} className="year-group">
-              <h3 className="year-heading">{year}</h3>
-              <div className="albums-grid">
-                {grouped[year].map(album => (
-                  <Link to={`/media/photos/${album.id}`} className="album-card" key={album.id}>
-                    <div className="album-image">
-                      <ImageWithFallback src={album.cover_url} alt={album.title} />
-                      <div className="album-overlay">
-                        <span>View Album</span>
+        <section className="photos-section">
+          {loading ? (
+            <p style={{ textAlign: 'center', padding: '40px' }}>Loading...</p>
+          ) : years.length === 0 ? (
+            <p style={{ textAlign: 'center', padding: '40px' }}>No albums yet.</p>
+          ) : (
+            years.map(year => (
+              <div key={year} className="year-group">
+                <h3 className="year-heading">{year}</h3>
+                <div className="albums-grid">
+                  {grouped[year].map(album => (
+                    <Link to={`/media/photos/${album.id}`} className="album-card" key={album.id}>
+                      <div className="album-image">
+                        <ImageWithFallback src={album.cover_url} alt={album.title} />
+                        <div className="album-overlay">
+                          <span>View Album</span>
+                        </div>
                       </div>
-                    </div>
-                    <h4 className="album-title">{album.title}</h4>
-                  </Link>
-                ))}
+                      <h4 className="album-title">{album.title}</h4>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
-        )}
-      </section>
+            ))
+          )}
+        </section>
+      </div>
     </div>
   );
 }

@@ -1,58 +1,45 @@
- 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 .ps-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
+  color: #64686d;
 }
 
-.ps-banner {
-  background: #0a4711;
-  padding: 80px 20px;
-  color: #fff;
-}
-
-.ps-banner h1 {
-  font-size: 40px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.ps-banner p {
-  font-size: 14px;
-  color: #cfd8cf;
-  margin: 0;
-}
-
-.ps-intro {
-  max-width: 800px;
-  margin: 60px auto 40px;
+/* Container matching Jobs/Contact/Flyers */
+.ps-container {
+  max-width: 1200px;
+  margin: 60px auto;
   padding: 0 20px;
-  text-align: center;
 }
 
-.ps-intro h2 {
+/* Clean Underlined Title */
+.ps-title {
   font-size: 32px;
-  color: #0a4711;
-  margin-bottom: 15px;
   font-weight: 700;
+  color: #333;
+  margin: 0 0 20px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eaeaea; 
 }
 
-.ps-intro p {
-  font-size: 16px;
+.ps-intro-text {
+  font-size: 15px;
   color: #666;
   line-height: 1.8;
+  margin-bottom: 40px;
+  max-width: 800px;
 }
 
+/* --- TWO COLUMN LAYOUT --- */
 .ps-layout {
-  max-width: 1150px;
-  margin: 0 auto 80px;
-  padding: 0 20px;
   display: grid;
   grid-template-columns: 1.4fr 1fr;
   gap: 50px;
   align-items: start;
 }
 
+/* Form Wrapper */
 .ps-form-wrap {
   background: #fbfbfb;
   padding: 40px;
@@ -155,6 +142,17 @@
   margin-bottom: 15px;
 }
 
+.form-error {
+  background: #fdecea;
+  color: #b81c00;
+  padding: 15px 20px;
+  border-radius: 6px;
+  border-left: 4px solid #e74c3c;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+/* --- RIGHT SIDE: WHY PARTNER --- */
 .ps-why h3 {
   font-size: 22px;
   color: #0a4711;
@@ -223,6 +221,7 @@
   color: #d4a017;
 }
 
+/* --- RESPONSIVE --- */
 @media (max-width: 900px) {
   .ps-layout {
     grid-template-columns: 1fr;
@@ -234,19 +233,7 @@
   .ps-form-wrap {
     padding: 30px 25px;
   }
-  .ps-banner h1 {
-    font-size: 28px;
+  .ps-title {
+    font-size: 26px;
   }
-  .ps-intro h2 {
-    font-size: 24px;
-  }
-}
-.form-error {
-  background: #fdecea;
-  color: #b81c00;
-  padding: 15px 20px;
-  border-radius: 6px;
-  border-left: 4px solid #e74c3c;
-  font-size: 14px;
-  margin-bottom: 15px;
 }

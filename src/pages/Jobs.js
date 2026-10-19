@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // Imported Link
 import './Jobs.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
@@ -27,13 +28,15 @@ function Jobs() {
 
   return (
     <div className="jobs-page">
-      <section className="jobs-banner">
-        <h1>Job Openings</h1>
-        <p>Home / Talent Marketplace / Jobs</p>
-      </section>
+      <div className="jobs-container">
+        
+        {/* Clean Underlined Title */}
+        <h1 className="jobs-title">Job Openings</h1>
+        
+        <p className="jobs-intro-text">
+          Explore current opportunities and join our team to make a difference.
+        </p>
 
-      <section className="jobs-section">
-        <h2 className="jobs-section-title">Job Openings Archive</h2>
         {loading ? (
           <p style={{ textAlign: 'center', padding: '40px' }}>Loading...</p>
         ) : jobs.length === 0 ? (
@@ -41,7 +44,8 @@ function Jobs() {
         ) : (
           <div className="jobs-grid">
             {jobs.map(job => (
-              <div className="job-card" key={job.id}>
+              /* Wrapped in a Link so you can click it */
+              <Link to={`/jobs/${job.id}`} className="job-card" key={job.id}>
                 <div className="job-image">
                   <ImageWithFallback src={job.image_url} alt={job.title} />
                 </div>
@@ -53,12 +57,17 @@ function Jobs() {
                   </span>
                   <h3 className="job-title">{job.title}</h3>
                   <p className="job-excerpt">{job.description}</p>
+                  
+                  {/* The Apply Button */}
+                  <div className="job-apply-btn">
+                    View & Apply →
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 }

@@ -61,7 +61,7 @@ import AdminVideosList from './pages/AdminVideosList';
 import AdminVideoEditor from './pages/AdminVideoEditor';
 import AdminFlyersList from './pages/AdminFlyersList';
 import AdminFlyerEditor from './pages/AdminFlyerEditor';
-
+import ScrollToTop from './components/ScrollToTop';
 import AdminJobsList from './pages/AdminJobsList';
 import AdminJobEditor from './pages/AdminJobEditor';
 import AdminOpportunitiesList from './pages/AdminOpportunitiesList';
@@ -85,6 +85,9 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        {/* ✅ ScrollToTop is now safely inside the Router */}
+        <ScrollToTop />
+        
         <Navbar />
 
         <Routes>

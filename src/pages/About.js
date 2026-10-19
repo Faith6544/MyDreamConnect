@@ -8,9 +8,32 @@ function About() {
   return (
     <div className="about-page">
 
-      <section className="about-banner">
-        <h1>About Us</h1>
-        <p>Home / About Us</p>
+            <section className="about-banner">
+        {/* The Video */}
+        <video 
+          className="about-bg-video" 
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+        >
+          <source 
+            src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/about.mp4" 
+            type="video/mp4" 
+          />
+        </video>
+        
+        {/* The Massive Watermark Logo */}
+        <img 
+          src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png" 
+          alt="Watermark Logo" 
+          className="about-bg-logo" 
+        />
+
+        {/* The Overlay and Text */}
+        <div className="about-banner-overlay">
+          <h1>About Us</h1>
+        </div>
       </section>
 
       <div className="about-layout">

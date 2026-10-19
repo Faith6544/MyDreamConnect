@@ -1,68 +1,60 @@
- 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 .fl-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
+  color: #64686d;
 }
 
-/* Banner */
-.fl-banner {
-  background: #0a4711;
-  padding: 70px 20px;
-  color: #fff;
-}
-
-.fl-banner h1 {
-  font-size: 40px;
-  font-weight: 700;
-  margin: 0 0 8px;
-}
-
-.fl-banner p {
-  font-size: 14px;
-  color: #cfd8cf;
-  margin: 0;
-}
-
-/* Intro */
-.fl-intro {
-  max-width: 750px;
-  margin: 60px auto 30px;
+/* Two-column layout matching the About Us page */
+.fl-layout {
+  max-width: 1200px;
+  margin: 60px auto;
   padding: 0 20px;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr 340px; /* Content takes remaining space, Sidebar is 340px */
+  gap: 40px;
+  align-items: start;
 }
 
-.fl-intro h2 {
-  font-size: 30px;
-  color: #0a4711;
-  margin-bottom: 15px;
+/* The underlined title */
+.fl-title {
+  font-size: 32px;
+  color: #333;
   font-weight: 700;
+  margin: 0 0 30px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eaeaea; /* The underline effect */
+}
+
+/* Intro text */
+.fl-intro {
+  margin-bottom: 30px;
 }
 
 .fl-intro p {
   font-size: 15px;
   color: #666;
   line-height: 1.8;
+  margin: 0;
 }
 
 /* Category pills */
 .fl-pills {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 10px;
-  padding: 20px;
   margin-bottom: 40px;
 }
 
 .fl-pill {
-  padding: 10px 22px;
+  padding: 8px 18px;
   border-radius: 25px;
   background: #fff;
   border: 1px solid #ddd;
   color: #666;
   font-family: 'Poppins', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -81,12 +73,10 @@
 
 /* Flyer grid */
 .fl-grid {
-  max-width: 1200px;
-  margin: 0 auto 80px;
-  padding: 0 20px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr); /* Changed to 2 columns to fit sidebar */
   gap: 25px;
+  margin-bottom: 60px;
 }
 
 .fl-card {
@@ -117,32 +107,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.fl-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  text-align: center;
-  color: #0a4711;
-}
-
-.fl-placeholder span {
-  font-size: 48px;
-  margin-bottom: 10px;
-}
-
-.fl-placeholder p {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #0a4711;
-  margin: 0;
-  line-height: 1.4;
-  max-width: 80%;
 }
 
 .fl-body {
@@ -201,36 +165,39 @@
 
 .fl-empty {
   text-align: center;
-  padding: 60px 20px;
+  padding: 40px 20px;
   color: #888;
+  background: #f9f9f9;
+  border-radius: 8px;
 }
 
-/* CTA */
+/* Custom Flyer CTA */
 .fl-cta {
   background: #f9f9f9;
   text-align: center;
-  padding: 70px 20px;
-  border-top: 1px solid #eee;
+  padding: 40px 20px;
+  border-radius: 10px;
+  border: 1px solid #eee;
 }
 
 .fl-cta h2 {
-  font-size: 28px;
+  font-size: 24px;
   color: #0a4711;
-  margin-bottom: 15px;
+  margin: 0 0 10px 0;
   font-weight: 700;
 }
 
 .fl-cta p {
-  font-size: 15px;
+  font-size: 14px;
   color: #666;
-  margin-bottom: 25px;
+  margin: 0 0 20px 0;
 }
 
 .fl-cta-btn {
   display: inline-block;
   background: #d4a017;
   color: #fff;
-  padding: 14px 36px;
+  padding: 12px 30px;
   border-radius: 6px;
   text-decoration: none;
   font-size: 14px;
@@ -247,19 +214,16 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .fl-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .fl-layout {
+    grid-template-columns: 1fr; /* Stacks sidebar underneath on smaller screens */
   }
 }
 
 @media (max-width: 640px) {
   .fl-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Single column on mobile */
   }
-  .fl-banner h1 {
-    font-size: 28px;
-  }
-  .fl-intro h2 {
-    font-size: 24px;
+  .fl-title {
+    font-size: 26px;
   }
 }

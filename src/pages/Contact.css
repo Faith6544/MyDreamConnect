@@ -3,57 +3,39 @@
 .contact-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
+  color: #64686d;
 }
 
-/* Banner */
-.contact-banner {
-  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-    url('https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png') center/cover;
-  padding: 80px 20px;
-  color: #fff;
-}
-
-.contact-banner h1 {
-  font-size: 40px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.contact-banner p {
-  font-size: 14px;
-  color: #ddd;
-  margin: 0;
-}
-
-/* Intro */
-.contact-intro {
-  max-width: 700px;
-  margin: 60px auto 30px;
+/* Container to match other clean pages */
+.contact-container {
+  max-width: 1200px;
+  margin: 60px auto;
   padding: 0 20px;
-  text-align: center;
 }
 
-.contact-intro h2 {
+/* The clean underlined title */
+.contact-title {
   font-size: 32px;
   color: #333;
-  margin-bottom: 12px;
   font-weight: 700;
+  margin: 0 0 20px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eaeaea;
 }
 
-.contact-intro p {
-  color: #666;
+.contact-subtitle {
   font-size: 15px;
-  line-height: 1.7;
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 40px;
 }
 
 /* Two-column layout */
 .contact-layout {
-  max-width: 1200px;
-  margin: 40px auto 80px;
-  padding: 0 20px;
   display: grid;
   grid-template-columns: 1fr 1.3fr;
   gap: 50px;
+  margin-bottom: 60px;
 }
 
 /* Contact Info */
@@ -215,11 +197,23 @@
   margin-bottom: 15px;
 }
 
+.form-error {
+  background: #fdecea;
+  color: #b81c00;
+  padding: 15px 20px;
+  border-radius: 6px;
+  border-left: 4px solid #e74c3c;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
 /* Map */
 .contact-map {
   width: 100%;
   line-height: 0;
-  border-top: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
 /* Responsive */
@@ -231,11 +225,8 @@
 }
 
 @media (max-width: 640px) {
-  .contact-banner h1 {
-    font-size: 30px;
-  }
-  .contact-intro h2 {
-    font-size: 24px;
+  .contact-title {
+    font-size: 26px;
   }
   .contact-form-wrapper {
     padding: 25px;

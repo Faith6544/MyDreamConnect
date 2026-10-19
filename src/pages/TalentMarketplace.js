@@ -1,170 +1,177 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './TalentMarketplace.css';
+import ImageWithFallback from '../components/ImageWithFallback';
+import { supabase } from '../lib/supabase';
 
 function TalentMarketplace() {
-  const [activeTab, setActiveTab] = useState('jobs');
+  const [talents, setTalents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [sortOrder, setSortOrder] = useState('newest');
+  
+  // Simple open/close state for dropdown
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Jobs — placeholder data (will fetch from WordPress later)
-  const jobs = [
-    {
-      id: 1,
-      title: 'Frontend Developer',
-      company: 'TechCorp Nigeria',
-      location: 'Lagos, Nigeria',
-      type: 'Full-time',
-      salary: '₦250,000 - ₦400,000',
-      posted: '2 days ago',
-      description: 'We are looking for a skilled Frontend Developer with experience in React and modern JavaScript.',
-    },
-    {
-      id: 2,
-      title: 'Digital Marketing Intern',
-      company: 'MyDreamConnect',
-      location: 'Remote',
-      type: 'Internship',
-      salary: '₦80,000 / month',
-      posted: '1 week ago',
-      description: 'Join our team as a Digital Marketing Intern and gain hands-on experience in social media and content marketing.',
-    },
-    {
-      id: 3,
-      title: 'Data Analyst',
-      company: 'FinData Ltd',
-      location: 'Abuja, Nigeria',
-      type: 'Full-time',
-      salary: '₦300,000 - ₦500,000',
-      posted: '3 days ago',
-      description: 'Looking for a Data Analyst with strong SQL and Excel skills to join our growing analytics team.',
-    },
-    {
-      id: 4,
-      title: 'UI/UX Designer',
-      company: 'Pixel Studio',
-      location: 'Lagos, Nigeria',
-      type: 'Contract',
-      salary: '₦200,000 - ₦350,000',
-      posted: '5 days ago',
-      description: 'We need a creative UI/UX Designer to design modern, user-friendly interfaces for our clients.',
-    },
-  ];
+  const categories = ['All', 'Design', 'Tech', 'Writing', 'Marketing', 'Music', 'Acting & Dance', 'Business', 'Engineering', 'Consulting', 'Crafts', 'Sports', 'Teaching'];
 
-  // Opportunities — from the original site
-  const opportunities = [
-    {
-      id: 1,
-      title: 'Global Youth Action Fund 2026',
-      org: 'Global Youth Action Network',
-      deadline: 'March 31, 2026',
-      category: 'Grant',
-      description: 'Funding opportunity for youth-led projects that address community challenges.',
-    },
-    {
-      id: 2,
-      title: 'TechGirls Program 2026',
-      org: 'U.S. Department of State',
-      deadline: 'December 8, 2026',
-      category: 'Exchange Program',
-      description: 'A program for young women to develop their skills in technology and STEM fields.',
-    },
-    {
-      id: 3,
-      title: 'Google Africa Developer Scholarship',
-      org: 'Google',
-      deadline: 'April 15, 2026',
-      category: 'Scholarship',
-      description: 'Free online training and certification for African developers.',
-    },
-    {
-      id: 4,
-      title: 'YALI Regional Leadership Center',
-      org: 'USAID',
-      deadline: 'May 20, 2026',
-      category: 'Leadership Program',
-      description: 'Leadership training for young African leaders aged 18-35.',
-    },
-  ];
+  useEffect(() => {
+    const fetchTalents = async () => {
+      const { data, error } = await supabase.from('talents').select('*');
+      if (error) console.error('Talents fetch error:', error);
+      else setTalents(data || []);
+      setLoading(false);
+    };
+    fetchTalents();
+  }, []);
+
+  // Filter
+  let filteredTalents = talents.filter((talent) => {
+    const query = searchQuery.toLowerCase().trim();
+    const nameMatch = String(talent.name || '').toLowerCase().includes(query);
+    const roleMatch = String(talent.role || '').toLowerCase().includes(query);
+    const matchesSearch = nameMatch || roleMatch;
+
+    const matchesCategory = activeCategory === 'All' || 
+      String(talent.category || '').toLowerCase().includes(activeCategory.toLowerCase());
+
+    return matchesSearch && matchesCategory;
+  });
+
+  // Sort (Using spread operator to force React to update)
+  filteredTalents = [...filteredTalents].sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    
+    if (sortOrder === 'newest') {
+      return dateB - dateA;
+    } else {
+      return dateA - dateB;
+    }
+  });
 
   return (
-    <div className="tm-page">
+    <div className="talent-page">
+      <div className="talent-container">
+        <h1 className="talent-main-title">Discover Talents</h1>
 
-      {/* Banner */}
-      <section className="tm-banner">
-        <h1>Talent Marketplace</h1>
-        <p>Home / Talent Marketplace</p>
-      </section>
+        <div className="talent-controls">
+          <div className="talent-search-wrapper">
+            <span className="search-icon">🔍</span>
+            <input 
+              type="text" 
+              className="talent-search-input" 
+              placeholder="Search talents, skills..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-      {/* Tabs */}
-      <div className="tm-tabs">
-        <button
-          className={activeTab === 'jobs' ? 'tm-tab active' : 'tm-tab'}
-          onClick={() => setActiveTab('jobs')}
-        >
-          Jobs
-        </button>
-        <button
-          className={activeTab === 'opportunities' ? 'tm-tab active' : 'tm-tab'}
-          onClick={() => setActiveTab('opportunities')}
-        >
-          Opportunities for Development
-        </button>
+          {/* VERY SIMPLE DROPDOWN */}
+          <div style={{ position: 'relative' }}>
+            <button 
+              type="button"
+              className="talent-sort-btn"
+              onClick={() => {
+                console.log("Dropdown clicked! New state:", !dropdownOpen);
+                setDropdownOpen(!dropdownOpen);
+              }}
+            >
+              {sortOrder === 'newest' ? 'Newest ▼' : 'Oldest ▲'}
+            </button>
+
+            {dropdownOpen && (
+              <div style={{
+                position: 'absolute',
+                top: '110%',
+                right: 0,
+                width: '150px',
+                background: '#fff',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                zIndex: 9999,
+                padding: '5px 0'
+              }}>
+                <button 
+                  type="button"
+                  style={{ display: 'block', width: '100%', padding: '12px 15px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
+                  onClick={() => {
+                    setSortOrder('newest');
+                    setDropdownOpen(false);
+                  }}
+                >
+                  Newest First
+                </button>
+                <button 
+                  type="button"
+                  style={{ display: 'block', width: '100%', padding: '12px 15px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
+                  onClick={() => {
+                    setSortOrder('oldest');
+                    setDropdownOpen(false);
+                  }}
+                >
+                  Oldest First
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="talent-categories">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              className={`talent-cat-btn ${activeCategory === cat ? 'active' : ''}`}
+              onClick={() => setActiveCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        <hr className="talent-divider" />
+
+        {loading ? (
+          <p style={{ textAlign: 'center', padding: '40px' }}>Loading...</p>
+        ) : filteredTalents.length === 0 ? (
+          <div className="talent-empty">
+            <h3>No talents found</h3>
+            <p>Try adjusting your search or category filters.</p>
+          </div>
+        ) : (
+          <div className="talent-list">
+            {filteredTalents.map(talent => (
+              <div className="talent-card" key={talent.id}>
+                <div className="talent-card-header">
+                  <div className="talent-profile-info">
+                    <div className="talent-avatar">
+                      <ImageWithFallback src={talent.image_url} alt={talent.name || 'Talent'} />
+                    </div>
+                    <div>
+                      <h3 className="talent-name">{talent.name || 'Anonymous User'}</h3>
+                      <span className="talent-role">{talent.role || 'Talent'}</span>
+                    </div>
+                  </div>
+                  <Link to={`/talent/${talent.id}`} className="talent-view-btn">
+                    View Profile
+                  </Link>
+                </div>
+
+                <div className="talent-portfolio-grid">
+                  {[1, 2, 3, 4].map((item) => (
+                    <div className="talent-portfolio-item" key={item}>
+                      <span className="placeholder-icon">🖼️</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* JOBS */}
-      {activeTab === 'jobs' && (
-        <section className="tm-section">
-          <div className="tm-intro">
-            <h2>Latest Job Openings</h2>
-            <p>Discover exciting career opportunities from our partner organisations.</p>
-          </div>
-
-          <div className="jobs-list">
-            {jobs.map(job => (
-              <div className="job-card" key={job.id}>
-                <div className="job-header">
-                  <h3>{job.title}</h3>
-                  <span className={`job-type ${job.type.toLowerCase().replace('-', '')}`}>
-                    {job.type}
-                  </span>
-                </div>
-                <div className="job-meta">
-                  <span>🏢 {job.company}</span>
-                  <span>📍 {job.location}</span>
-                  <span>💰 {job.salary}</span>
-                  <span>🕐 {job.posted}</span>
-                </div>
-                <p className="job-description">{job.description}</p>
-                <a href="#" className="btn-apply">Apply Now →</a>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* OPPORTUNITIES */}
-      {activeTab === 'opportunities' && (
-        <section className="tm-section">
-          <div className="tm-intro">
-            <h2>Opportunities for Development</h2>
-            <p>Scholarships, grants, fellowships, and programs to help you grow.</p>
-          </div>
-
-          <div className="opps-grid">
-            {opportunities.map(opp => (
-              <div className="opp-card" key={opp.id}>
-                <span className="opp-category">{opp.category}</span>
-                <h3>{opp.title}</h3>
-                <p className="opp-org">by {opp.org}</p>
-                <p className="opp-desc">{opp.description}</p>
-                <div className="opp-footer">
-                  <span className="opp-deadline">⏰ Deadline: {opp.deadline}</span>
-                  <a href="#" className="btn-learn">Learn More →</a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
     </div>
   );
 }

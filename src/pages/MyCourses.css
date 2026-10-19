@@ -1,42 +1,46 @@
- 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 .mycourses-page {
   font-family: 'Poppins', sans-serif;
   min-height: 100vh;
-  background: #f9f9f9;
+  background: #fff;
+  color: #64686d;
 }
 
-.mycourses-banner {
-  background: #0a4711;
-  padding: 60px 20px;
-  color: #fff;
-  text-align: center;
-}
-
-.mycourses-banner h1 {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0 0 8px;
-}
-
-.mycourses-banner p {
-  font-size: 15px;
-  color: #cfd8cf;
-  margin: 0;
-}
-
-.mycourses-content {
+/* Container matching Jobs/Flyers */
+.mycourses-container {
   max-width: 1000px;
   margin: 60px auto;
   padding: 0 20px;
 }
 
+/* Clean Underlined Title */
+.mycourses-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 10px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eaeaea;
+}
+
+.mycourses-subtitle {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+/* Content area now sits inside the container */
+.mycourses-content {
+  width: 100%;
+}
+
 .mycourses-empty {
-  background: #fff;
+  background: #f9f9f9;
   padding: 60px 40px;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border: 1px dashed #ddd;
 }
 
 .mycourses-empty h2 {
@@ -55,7 +59,7 @@
   background: #0a4711;
   color: #fff;
   padding: 14px 30px;
-  border-radius: 6px;
+  border-radius: 50px;
   text-decoration: none;
   font-weight: 700;
   text-transform: uppercase;
@@ -67,6 +71,7 @@
 .mycourses-btn:hover {
   background: #d4a017;
 }
+
 .mycourses-heading {
   font-size: 20px;
   color: #0a4711;
@@ -83,6 +88,7 @@
 .mycourse-card {
   background: #fff;
   border-radius: 10px;
+  border: 1px solid #eee;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
@@ -131,6 +137,7 @@
   font-size: 13px;
   font-weight: 700;
 }
+
 .mycourse-progress-bar {
   height: 6px;
   background: #f1f1f1;

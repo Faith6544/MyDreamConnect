@@ -3,41 +3,52 @@
 .photos-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
+  color: #64686d;
 }
 
-.photos-banner {
-  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-    url('https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png') center/cover;
-  padding: 80px 20px;
-  color: #fff;
-}
-
-.photos-banner h1 {
-  font-size: 40px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.photos-banner p {
-  font-size: 14px;
-  color: #ddd;
-  margin: 0;
-}
-
-.photos-section {
+/* Container matching Jobs/Contact/Flyers */
+.photos-container {
   max-width: 1200px;
-  margin: 60px auto 80px;
+  margin: 60px auto;
   padding: 0 20px;
 }
 
-.photos-section-title {
-  font-size: 24px;
-  color: #333;
+/* Clean Underlined Title */
+.photos-title {
+  font-size: 32px;
   font-weight: 700;
-  margin: 0 0 30px 0;
-  text-align: center;
+  color: #333;
+  margin: 0 0 10px 0;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eaeaea; 
 }
 
+.photos-subtitle {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+/* Albums Section */
+.photos-section {
+  margin-bottom: 60px;
+}
+
+/* Year Grouping */
+.year-group {
+  margin-bottom: 50px;
+}
+
+.year-heading {
+  font-size: 22px;
+  color: #0a4711;
+  font-weight: 700;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #eaf3eb;
+}
+
+/* Grid & Cards */
 .albums-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -46,6 +57,9 @@
 
 .album-card {
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .album-image {
@@ -108,29 +122,15 @@
   line-height: 1.4;
 }
 
+/* Responsive */
+@media (max-width: 768px) {
+  .photos-title {
+    font-size: 26px;
+  }
+}
+
 @media (max-width: 640px) {
   .albums-grid {
     grid-template-columns: 1fr;
   }
-  .photos-banner h1 {
-    font-size: 32px;
-  }
-}
-.year-group {
-  margin-bottom: 50px;
-}
-
-.year-heading {
-  font-size: 22px;
-  color: #0a4711;
-  font-weight: 700;
-  margin: 0 0 20px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #eaf3eb;
-}
-
-.album-card {
-  text-decoration: none;
-  color: inherit;
-  display: block;
 }
