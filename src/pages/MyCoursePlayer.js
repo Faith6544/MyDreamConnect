@@ -256,14 +256,30 @@ function MyCoursePlayer() {
             <h2>{activeLesson.title}</h2>
           </div>
 
-          {activeLesson.video_url && (
-            <div className="mcp-video">
-              <iframe
-                src={activeLesson.video_url}
-                title={activeLesson.title}
-                frameBorder="0"
-                allowFullScreen
-              />
+          {/* MULTIPLE YOUTUBE VIDEOS SECTION */}
+          {activeLesson.video_urls && activeLesson.video_urls.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
+              {activeLesson.video_urls.map((url, index) => {
+                if (!url) return null;
+                
+                // Safely extract the video ID from standard or shortened YouTube URLs
+                const videoId = url.includes('v=') 
+                  ? url.split('v=')[1].split('&')[0] 
+                  : url.split('/').pop();
+
+                return (
+                  <div key={index} className="mcp-video" style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+                    <iframe
+                      src={`https://www.youtube.com/embed/${videoId}`}
+                      title={`Lesson Video ${index + 1}`}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                    ></iframe>
+                  </div>
+                );
+              })}
             </div>
           )}
 

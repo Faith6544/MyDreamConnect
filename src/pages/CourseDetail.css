@@ -1,8 +1,9 @@
- 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 .cd-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
+  color: #64686d;
 }
 
 .cd-status {
@@ -11,50 +12,55 @@
   color: #666;
 }
 
-/* Banner */
-.cd-banner {
-  background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-    url('https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png') center/cover;
-  padding: 70px 20px;
-  color: #fff;
+/* Container matching other pages */
+.cd-container {
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+/* Clean Underlined Header */
+.cd-header {
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #eaeaea;
 }
 
 .cd-breadcrumb {
   font-size: 13px;
-  color: #ccc;
-  margin-bottom: 10px;
+  color: #888;
+  margin-bottom: 15px;
 }
 
 .cd-breadcrumb a {
-  color: #d4a017;
+  color: #0a4711;
   text-decoration: none;
+  font-weight: 600;
 }
 
 .cd-breadcrumb a:hover {
   text-decoration: underline;
 }
 
-.cd-banner h1 {
+.cd-header h1 {
   font-size: 36px;
   font-weight: 700;
+  color: #333;
   margin: 0;
   line-height: 1.3;
 }
 
 /* Layout */
 .cd-layout {
-  max-width: 1200px;
-  margin: 60px auto;
-  padding: 0 20px;
   display: grid;
-  grid-template-columns: 1.6fr 1fr;
+  grid-template-columns: 1fr 340px;
   gap: 50px;
   align-items: start;
 }
 
-/* Cover image */
+/* Cover Image */
 .cd-cover {
-  margin: 0 0 25px 0;
+  margin: 0 0 30px 0;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
@@ -65,14 +71,15 @@
   display: block;
 }
 
-/* Meta bar */
+/* Meta Bar (Duration, Lessons, Level) */
 .cd-meta-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  padding: 22px;
-  background: #f9f9f9;
-  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  background: #fbfbfb;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 20px;
   margin-bottom: 40px;
 }
 
@@ -83,30 +90,22 @@
 }
 
 .cd-meta-icon {
-  font-size: 20px;
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  font-size: 24px;
 }
 
 .cd-meta-item small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: #888;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 3px;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
 }
 
 .cd-meta-item strong {
-  font-size: 14px;
+  display: block;
+  font-size: 15px;
   color: #333;
-  font-weight: 600;
 }
 
 /* Sections */
@@ -116,220 +115,204 @@
 
 .cd-section h2 {
   font-size: 24px;
-  color: #0a4711;
+  color: #333;
   font-weight: 700;
   margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 3px solid #d4a017;
-  display: inline-block;
 }
 
 .cd-section p {
   font-size: 15px;
+  line-height: 1.8;
   color: #555;
-  line-height: 1.9;
-  margin-bottom: 15px;
+  white-space: pre-wrap; /* Keeps line breaks from the database */
 }
 
-/* Instructor */
-.cd-instructor {
-  display: flex;
-  gap: 20px;
-  padding: 22px;
-  background: #fbfbfb;
-  border: 1px solid #f1f1f1;
-  border-radius: 10px;
-  align-items: flex-start;
-}
-
-.cd-instructor img {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #d4a017;
-  flex-shrink: 0;
-}
-
-.cd-instructor h3 {
-  font-size: 17px;
-  color: #333;
-  font-weight: 700;
-  margin: 0 0 6px 0;
-}
-
-.cd-instructor p {
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-}
-
-/* ============ SIDEBAR BUY CARD ============ */
-.cd-buy-card {
-  background: #f9f9f9;
-  border: 1px solid #f1f1f1;
-  border-radius: 12px;
-  padding: 30px;
-  text-align: center;
-  position: sticky;
-  top: 100px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-}
-
-.cd-price-label {
-  display: block;
-  font-size: 12px;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-}
-
-.cd-price {
-  font-size: 38px;
-  color: #0a4711;
-  font-weight: 800;
-  margin: 0 0 10px 0;
-}
-
-.cd-original-price {
-  font-size: 15px;
-  color: #999;
-  margin-bottom: 10px;
-}
-
-.cd-buy-btn {
-  display: block;
-  background: #0a4711;
-  color: #fff;
-  padding: 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 15px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 20px 0 15px;
-  transition: background 0.3s, transform 0.2s;
-}
-
-.cd-buy-btn:hover {
-  background: #d4a017;
-  transform: translateY(-2px);
-}
-
-.cd-buy-note {
-  font-size: 12.5px;
-  color: #888;
-  line-height: 1.6;
-  margin-bottom: 25px;
-}
-
-.cd-buy-features {
-  list-style: none;
-  padding: 20px 0 0;
-  margin: 0;
-  border-top: 1px solid #e6e6e6;
-  text-align: left;
-}
-
-.cd-buy-features li {
-  font-size: 13.5px;
-  color: #666;
-  padding: 8px 0;
-  border-bottom: 1px dashed #eee;
-}
-
-.cd-buy-features li:last-child {
-  border-bottom: none;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .cd-layout {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-  .cd-meta-bar {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .cd-buy-card {
-    position: static;
-  }
-}
-
-@media (max-width: 640px) {
-  .cd-banner h1 {
-    font-size: 24px;
-  }
-  .cd-meta-bar {
-    grid-template-columns: 1fr;
-  }
-  .cd-price {
-    font-size: 30px;
-  }
-}
-.form-error {
-  background: #fdecea;
-  color: #b81c00;
-  padding: 15px 20px;
-  border-radius: 6px;
-  border-left: 4px solid #e74c3c;
-  font-size: 14px;
-  margin-bottom: 15px;
-}
-.cd-buy-error {
-  background: #fdecea;
-  color: #b81c00;
-  font-size: 12.5px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  margin: 0 0 12px;
-  border-left: 3px solid #e74c3c;
-}
-
-.cd-enrolled-badge {
-  display: block;
-  background: #e8f5e9;
-  color: #0a4711;
-  padding: 14px;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: 700;
-  font-size: 14px;
-  margin: 15px 0 12px;
-}
-
+/* Lessons List */
 .cd-lessons-preview {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .cd-lessons-preview li {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f1f1;
+  gap: 15px;
+  background: #f9f9f9;
+  padding: 15px 20px;
+  border-radius: 8px;
+  border: 1px solid #eaeaea;
   font-size: 15px;
   color: #333;
-}
-
-.cd-lessons-preview li:last-child {
-  border-bottom: none;
+  font-weight: 500;
 }
 
 .cd-lesson-num {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
   background: #eaf3eb;
   color: #0a4711;
-  border-radius: 50%;
-  font-size: 12.5px;
   font-weight: 700;
+  border-radius: 50%;
+  font-size: 13px;
   flex-shrink: 0;
+}
+
+/* Buy Card Sidebar */
+/* Buy Card Sidebar */
+.cd-buy-card {
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  padding: 30px;
+  position: sticky;
+  top: 100px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Premium floating shadow */
+}
+
+.cd-price-header {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.cd-price-label {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.cd-price {
+  font-size: 36px;
+  color: #0a4711;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1;
+}
+
+.cd-divider {
+  height: 1px;
+  background: #eaeaea;
+  margin: 20px 0;
+}
+
+.cd-buy-error {
+  color: #b81c00;
+  background: #fdecea;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Modern Button Styling */
+.cd-buy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: #0a4711;
+  color: #fff;
+  border: none;
+  padding: 16px;
+  border-radius: 8px; /* Modern square-ish radius instead of a pill */
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.cd-buy-btn:hover {
+  background: #08360d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(10, 71, 17, 0.2);
+}
+
+.cd-buy-btn:disabled {
+  background: #a0a0a0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* WhatsApp specific color */
+.whatsapp-btn {
+  background: #25D366;
+}
+.whatsapp-btn:hover {
+  background: #1ebe56;
+}
+
+.cd-buy-note {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  margin: 5px 0 25px 0;
+}
+
+.cd-enrolled-badge {
+  background: #e8f5e9;
+  color: #0a4711;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 15px;
+  border: 1px solid #c8e6c9;
+}
+
+.cd-buy-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.cd-buy-features li {
+  font-size: 14px;
+  color: #444;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+/* Scholarship Additions */
+.scholarship-badge {
+  background: #e8f5e9;
+  color: #27ae60;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+  border: 1px solid #c8e6c9;
+}
+
+.scholarship-apply-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #d4a017;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.scholarship-apply-link:hover {
+  text-decoration: underline;
 }

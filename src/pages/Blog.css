@@ -1,8 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
 .blog-page {
   padding: 60px 20px;
   max-width: 1300px;
   margin: 0 auto;
   font-family: 'Poppins', sans-serif;
+  color: #64686d;
 }
 
 .blog-header {
@@ -20,6 +23,39 @@
 .blog-header p {
   color: #666;
   font-size: 16px;
+}
+
+/* --- FILTERS --- */
+.blog-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+  justify-content: center;
+}
+
+.blog-pill {
+  padding: 9px 20px;
+  border-radius: 25px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #666;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.blog-pill:hover {
+  border-color: #0a4711;
+  color: #0a4711;
+}
+
+.blog-pill.active {
+  background: #0a4711;
+  color: #fff;
+  border-color: #0a4711;
 }
 
 /* --- BLOG GRID --- */
@@ -106,6 +142,49 @@
   border-top: 1px solid #eee;
 }
 
+/* --- PAGINATION --- */
+.blog-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 60px;
+}
+
+.page-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 1px solid #eaeaea;
+  background: #fff;
+  color: #666;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: #f5a623;
+  color: #f5a623;
+}
+
+.page-btn.active {
+  background: #f5a623; /* The yellow/orange from your screenshot */
+  border-color: #f5a623;
+  color: #fff;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f9f9f9;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 1024px) {
   .blog-grid {
@@ -121,34 +200,29 @@
     font-size: 28px;
   }
 }
-.blog-filters {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 35px;
-  justify-content: center;
+.blog-page {
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+.blog-header h1 { color: var(--text-main); }
+.blog-header p { color: var(--text-muted); }
+
+.blog-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
 }
 
-.blog-pill {
-  padding: 9px 20px;
-  border-radius: 25px;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #666;
-  font-family: 'Poppins', sans-serif;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
+.blog-content h3 { color: var(--text-main); }
+.blog-content p { color: var(--text-muted); }
+.blog-meta { border-top: 1px solid var(--border-color); }
 
-.blog-pill:hover {
-  border-color: #0a4711;
-  color: #0a4711;
+/* The Pagination Buttons */
+.page-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
 }
-
-.blog-pill.active {
-  background: #0a4711;
-  color: #fff;
-  border-color: #0a4711;
+.page-btn.active {
+  background: var(--brand-gold);
+  color: #fff; /* Keep text white for the orange button */
 }

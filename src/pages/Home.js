@@ -4,9 +4,6 @@ import './Home.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
 
-// ============================================
-// FALLBACK TESTIMONIALS
-// ============================================
 const FALLBACK_TESTIMONIALS = [
   {
     id: 'f1',
@@ -38,9 +35,6 @@ const FALLBACK_TESTIMONIALS = [
   },
 ];
 
-// ============================================
-// TESTIMONIALS CAROUSEL — infinite auto-scroll
-// ============================================
 function TestimonialsCarousel({ testimonials }) {
   const items = [...testimonials, ...testimonials];
 
@@ -101,47 +95,59 @@ function Home() {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const { data: coursesData } = await supabase
-        .from('courses')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5);
-      setCourses(coursesData || []);
+      try {
+        // 1. Fetch Courses
+        const { data: coursesData, error: coursesError } = await supabase
+          .from('courses')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5);
+          
+        if (coursesError) console.error("Error fetching courses:", coursesError);
+        console.log("Courses loaded on Home:", coursesData);
+        setCourses(coursesData || []);
 
-      const { data: instrData } = await supabase
-        .from('instructors')
-        .select('*')
-        .order('order_index', { ascending: true });
-      setInstructors(instrData || []);
+        // 2. Fetch Instructors
+        const { data: instrData } = await supabase
+          .from('instructors')
+          .select('*')
+          .order('order_index', { ascending: true });
+        setInstructors(instrData || []);
 
-      const { data: testData } = await supabase
-        .from('testimonials')
-        .select('*')
-        .order('order_index', { ascending: true });
+        // 3. Fetch Testimonials
+        const { data: testData } = await supabase
+          .from('testimonials')
+          .select('*')
+          .order('order_index', { ascending: true });
 
-      if (testData && testData.length > 0) {
-        setTestimonials(testData);
+        if (testData && testData.length > 0) {
+          setTestimonials(testData);
+        }
+
+        // 4. Fetch Blogs
+        const { data: blogData } = await supabase
+          .from('posts')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(6);
+        setBlogs(blogData || []);
+
+        // 5. Fetch Stats
+        const { count: totalCourses } = await supabase
+          .from('courses')
+          .select('*', { count: 'exact', head: true });
+
+        setStats({
+          courses: totalCourses || 0,
+          students: 0,
+          instructors: instrData ? instrData.length : 0,
+          programs: 4,
+        });
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      } finally {
+        setLoadingCourses(false);
       }
-
-      const { data: blogData } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(6);
-      setBlogs(blogData || []);
-
-      const { count: totalCourses } = await supabase
-        .from('courses')
-        .select('*', { count: 'exact', head: true });
-
-      setStats({
-        courses: totalCourses || 0,
-        students: 0,
-        instructors: instrData ? instrData.length : 0,
-        programs: 4,
-      });
-
-      setLoadingCourses(false);
     };
 
     fetchAll();
@@ -178,24 +184,6 @@ function Home() {
   return (
     <div className="home-page">
 
-      {/* FIXED BACKGROUND VIDEO — behind hero only */}
-      <div className="home-bg" aria-hidden="true">
-        <video
-          className="home-bg-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-        >
-          <source
-            src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/bg.mp4"
-            type="video/mp4"
-          />
-        </video>
-        <div className="home-bg-overlay" />
-      </div>
-
       {/* HERO */}
       <section className="hero">
         <video
@@ -204,6 +192,7 @@ function Home() {
           muted
           loop
           playsInline
+          preload="auto"
           poster="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png"
         >
           <source
@@ -255,11 +244,9 @@ function Home() {
         </div>
       </section>
 
-      {/* MISSION SECTION — Stats + Support split layout */}
+      {/* MISSION SECTION */}
       <section className="mission-section">
         <div className="mission-container">
-
-          {/* LEFT — content */}
           <div className="mission-content">
             <div className="stats-row">
               <div className="stat-item">
@@ -304,14 +291,12 @@ function Home() {
             </a>
           </div>
 
-          {/* RIGHT — photo */}
           <div className="mission-image">
             <img
               src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/do.png"
               alt="MyDreamConnect classroom"
             />
           </div>
-
         </div>
       </section>
 

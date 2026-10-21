@@ -76,6 +76,30 @@
   text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
   letter-spacing: 1.5px;
 }
+.about-page, .contact-page, .ps-page, .donate-page {
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+.about-title, .contact-title, .ps-title, .donate-title {
+  color: var(--text-main);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.about-content p, .info-item p, .ps-intro-text {
+  color: var(--text-muted);
+}
+
+.about-quote {
+  background: var(--bg-alt);
+}
+
+/* Form inputs in Contact/Partnership */
+.form-group input, .form-group textarea, .ps-group input {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
 
 /* Two-column layout */
 .about-layout {

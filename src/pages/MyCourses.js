@@ -90,8 +90,18 @@ function MyCourses() {
           ) : enrollments.length === 0 ? (
             <div className="mycourses-empty">
               <h2>You're not enrolled in any courses yet</h2>
-              <p>Browse our catalog and enroll to get started.</p>
-              <Link to="/courses" className="mycourses-btn">Browse Courses →</Link>
+              <p>Browse our catalog and enroll to get started, or apply for financial aid.</p>
+              
+              {/* UPDATED BUTTONS HERE */}
+              <div className="mycourses-actions">
+                <Link to="/courses" className="mycourses-btn">
+                  Browse Courses →
+                </Link>
+                <Link to="/scholarship" className="mycourses-scholarship-btn">
+                  Apply for a Course Scholarship 🎓
+                </Link>
+              </div>
+
             </div>
           ) : (
             <>

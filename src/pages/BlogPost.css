@@ -1,4 +1,4 @@
- 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 .bp-page {
   font-family: 'Poppins', sans-serif;
@@ -12,35 +12,42 @@
   color: #666;
 }
 
-/* Banner */
-.bp-banner {
-  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
-    url('https://mydreamconnect.org.ng/wp-content/uploads/2024/04/Life-Skills-4-TYPES-Final-800x568-1-500x300.png') center/cover;
-  padding: 70px 20px;
-  color: #fff;
+/* Container matching other pages */
+.bp-container {
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+/* --- CLEAN HEADER (Replaces the old banner) --- */
+.bp-header {
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #eaeaea;
 }
 
 .bp-breadcrumb {
   font-size: 13px;
-  color: #ccc;
+  color: #888;
   margin-bottom: 15px;
 }
 
 .bp-breadcrumb a {
-  color: #d4a017;
+  color: #0a4711;
   text-decoration: none;
+  font-weight: 600;
 }
 
 .bp-breadcrumb a:hover {
   text-decoration: underline;
 }
 
-.bp-banner h1 {
-  font-size: 34px;
+.bp-header h1 {
+  font-size: 36px;
   font-weight: 700;
+  color: #333;
   margin: 0 0 15px 0;
   line-height: 1.3;
-  max-width: 900px;
 }
 
 .bp-meta {
@@ -48,14 +55,11 @@
   flex-wrap: wrap;
   gap: 20px;
   font-size: 13px;
-  color: #dcdcdc;
+  color: #666;
 }
 
-/* Layout */
+/* --- LAYOUT --- */
 .bp-layout {
-  max-width: 1200px;
-  margin: 60px auto;
-  padding: 0 20px;
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 50px;
@@ -85,14 +89,6 @@
   border-radius: 10px;
   padding: 15px 20px;
   margin-bottom: 35px;
-}
-
-.bp-author-card img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #d4a017;
 }
 
 .bp-author-card small {
@@ -204,161 +200,46 @@
   text-decoration: underline;
 }
 
-/* ============ SIDEBAR ============ */
-.bp-sidebar .widget {
-  background: #fbfbfb;
-  border: 1px solid #f1f1f1;
-  padding: 20px;
-  margin-bottom: 25px;
-  border-radius: 4px;
-}
-
-.bp-sidebar .widget h3 {
-  color: #d4a017;
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #f1f1f1;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.bp-sidebar .widget-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.bp-sidebar .widget-list li {
-  font-size: 13.5px;
-  line-height: 1.5;
-  padding: 10px 0;
-  border-bottom: 1px solid #ebebeb;
-}
-
-.bp-sidebar .widget-list li:last-child {
-  border-bottom: none;
-}
-
-.bp-sidebar .widget-list a {
-  color: #64686d;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.bp-sidebar .widget-list a:hover {
-  color: #d4a017;
-}
-
-.bp-sidebar .sidebar-search {
-  display: flex;
-}
-
-.bp-sidebar .sidebar-search input {
-  flex: 1;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-right: none;
-  font-size: 14px;
-  outline: none;
-}
-
-.bp-sidebar .sidebar-search button {
-  background: #e82a04;
-  color: #fff;
-  border: none;
-  padding: 10px 18px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.bp-sidebar .sidebar-search button:hover {
-  background: #b81c00;
-}
-
-.bp-sidebar .sidebar-subscribe {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.bp-sidebar .sidebar-subscribe input {
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  outline: none;
-  border-radius: 4px;
-}
-
-.bp-sidebar .sidebar-subscribe button {
-  background: #d4a017;
-  color: #fff;
-  border: none;
-  padding: 11px 18px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.bp-sidebar .sidebar-subscribe button:hover {
-  background: #b88a0f;
-}
-
-/* ============ RELATED ============ */
+/* ============ RELATED POSTS ============ */
 .bp-related {
-  background: #f9f9f9;
-  padding: 70px 20px;
-  border-top: 1px solid #f1f1f1;
+  margin-top: 60px;
+  padding-top: 40px;
+  border-top: 1px solid #eaeaea;
 }
 
 .bp-related h2 {
-  text-align: center;
-  font-size: 28px;
+  font-size: 24px;
   color: #333;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   font-weight: 700;
 }
 
-.bp-related h2::after {
-  content: '';
-  display: block;
-  width: 60px;
-  height: 4px;
-  background: #d4a017;
-  margin: 15px auto 0;
-  border-radius: 2px;
-}
-
 .bp-related-grid {
-  max-width: 1200px;
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 25px;
 }
 
 .bp-related-card {
   display: block;
   background: #fff;
+  border: 1px solid #eaeaea;
   border-radius: 8px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .bp-related-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 .bp-related-card img {
   width: 100%;
-  height: 150px;
+  height: 160px;
   object-fit: cover;
 }
 
@@ -377,9 +258,9 @@
 }
 
 .bp-related-card h3 {
-  font-size: 14px;
+  font-size: 15px;
   color: #333;
-  font-weight: 700;
+  font-weight: 600;
   margin: 0;
   line-height: 1.4;
   transition: color 0.3s;
@@ -389,7 +270,7 @@
   color: #0a4711;
 }
 
-/* Responsive */
+/* --- RESPONSIVE --- */
 @media (max-width: 1024px) {
   .bp-layout {
     grid-template-columns: 1fr;
@@ -398,8 +279,8 @@
   .bp-related-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .bp-banner h1 {
-    font-size: 26px;
+  .bp-header h1 {
+    font-size: 28px;
   }
 }
 
@@ -407,23 +288,12 @@
   .bp-related-grid {
     grid-template-columns: 1fr;
   }
-  .bp-banner h1 {
-    font-size: 22px;
+  .bp-header h1 {
+    font-size: 24px;
   }
   .bp-meta {
     font-size: 12px;
     gap: 12px;
-  }
-}
-@media (max-width: 900px) {
-  .bp-layout {
-    grid-template-columns: 1fr;
-  }
-  .bp-related-grid {
-    grid-template-columns: 1fr !important;
-  }
-  .bp-banner h1 {
-    font-size: 22px;
   }
   .bp-body {
     font-size: 15px;

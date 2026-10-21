@@ -42,7 +42,7 @@ function BlogPost() {
         .select('*')
         .neq('id', id)
         .order('created_at', { ascending: false })
-        .limit(4);
+        .limit(3); // Changed to 3 to fit a 3-column grid better
 
       if (error) {
         console.error('Error loading related:', error);
@@ -85,80 +85,82 @@ function BlogPost() {
 
   return (
     <div className="bp-page">
+      <div className="bp-container">
+        
+        {/* Clean Underlined Header */}
+        <header className="bp-header">
+          <p className="bp-breadcrumb">
+            <Link to="/">Home</Link> / <Link to="/blog">Blog</Link>
+          </p>
+          <h1>{title}</h1>
+          <div className="bp-meta">
+            <span>📅 {date}</span>
+            <span>✍️ {author}</span>
+          </div>
+        </header>
 
-      <section className="bp-banner">
-        <p className="bp-breadcrumb">
-          <Link to="/">Home</Link> / <Link to="/blog">Blog</Link> / {title}
-        </p>
-        <h1>{title}</h1>
-        <div className="bp-meta">
-          <span>📅 {date}</span>
-          <span>✍️ {author}</span>
+        <div className="bp-layout">
+          <article className="bp-content">
+            
+            <figure className="bp-cover">
+              <ImageWithFallback src={featuredImage} alt={title} />
+            </figure>
+
+            <div className="bp-author-card">
+              <div>
+                <small>Written by</small>
+                <h4>{author}</h4>
+              </div>
+            </div>
+
+            {/* Render HTML content safely */}
+            <div 
+              className="bp-body" 
+              dangerouslySetInnerHTML={{ __html: post.content || '' }} 
+            />
+
+            {tags.length > 0 && (
+              <div className="bp-tags">
+                <strong>Tags:</strong>{' '}
+                {tags.map(t => (
+                  <span className="bp-tag" key={t.name}>#{t.name}</span>
+                ))}
+              </div>
+            )}
+
+            <div className="bp-back">
+              <Link to="/blog">← Back to all blog posts</Link>
+            </div>
+          </article>
+
+          <Sidebar />
         </div>
-      </section>
 
-      <div className="bp-layout">
-
-        <article className="bp-content">
-
-          <figure className="bp-cover">
-            <ImageWithFallback src={featuredImage} alt="" />
-          </figure>
-
-          <div className="bp-author-card">
-            <div>
-              <small>Written by</small>
-              <h4>{author}</h4>
+        {/* Related Posts */}
+        {related.length > 0 && (
+          <section className="bp-related">
+            <h2>You May Also Like</h2>
+            <div className="bp-related-grid">
+              {related.map(p => {
+                const rImage = p.image_url || null;
+                const rDate = new Date(p.created_at).toLocaleDateString('en-US', {
+                  month: 'short', day: 'numeric', year: 'numeric'
+                });
+                const rTitle = p.title || 'Untitled';
+                return (
+                  <Link to={`/blog/${p.id}`} className="bp-related-card" key={p.id}>
+                    <ImageWithFallback src={rImage} alt={rTitle} />
+                    <div>
+                      <small>{rDate}</small>
+                      <h3>{rTitle}</h3>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
-          </div>
-
-          <div className="bp-body">
-            {post.content || ''}
-          </div>
-
-          {tags.length > 0 && (
-            <div className="bp-tags">
-              <strong>Tags:</strong>{' '}
-              {tags.map(t => (
-                <span className="bp-tag" key={t.name}>#{t.name}</span>
-              ))}
-            </div>
-          )}
-
-          <div className="bp-back">
-            <Link to="/blog">← Back to all blog posts</Link>
-          </div>
-
-        </article>
-
-        <Sidebar />
-
+          </section>
+        )}
       </div>
-
-      {related.length > 0 && (
-        <section className="bp-related">
-          <h2>You May Also Like</h2>
-          <div className="bp-related-grid">
-            {related.map(p => {
-              const rImage = p.image_url || null;
-              const rDate = new Date(p.created_at).toLocaleDateString('en-US', {
-                month: 'short', day: 'numeric', year: 'numeric'
-              });
-              const rTitle = p.title || 'Untitled';
-              return (
-                <Link to={`/blog/${p.id}`} className="bp-related-card" key={p.id}>
-                  <ImageWithFallback src={rImage} alt="" />
-                  <div>
-                    <small>{rDate}</small>
-                    <h3>{rTitle}</h3>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
     </div>
   );
 }

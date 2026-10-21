@@ -18,6 +18,7 @@ function AdminCourseEditor() {
     duration: '',
     level: '',
     category_id: null,
+    
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(isEdit);

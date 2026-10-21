@@ -9,3 +9,25 @@ entrypoint = "./functions/generate-embedding/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/generate-embedding/*.html" ]
+
+[functions.verify-paystack]
+enabled = true
+verify_jwt = false
+import_map = "./functions/verify-paystack/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/verify-paystack/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/verify-paystack/*.html" ]
+
+[functions.initialize-paystack]
+enabled = true
+verify_jwt = false
+import_map = "./functions/initialize-paystack/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/initialize-paystack/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/initialize-paystack/*.html" ]

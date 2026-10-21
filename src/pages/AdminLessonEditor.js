@@ -8,9 +8,14 @@ function AdminLessonEditor() {
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
+  // We use an array of 5 slots for videos
   const [formData, setFormData] = useState({
-    title: '', content: '', video_url: '', order_index: 1,
+    title: '', 
+    content: '', 
+    video_urls: ['', '', '', '', ''], 
+    order_index: 1,
   });
+  
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -23,12 +28,18 @@ function AdminLessonEditor() {
       if (isEdit) {
         const { data, error } = await supabase.from('lessons').select('*').eq('id', id).single();
         if (error) setError('Load failed: ' + error.message);
-        else if (data) setFormData({
-          title: data.title || '',
-          content: data.content || '',
-          video_url: data.video_url || '',
-          order_index: data.order_index || 1,
-        });
+        else if (data) {
+          // Safely handle existing videos (fill up to 5 slots)
+          const existingVideos = data.video_urls || [];
+          const paddedVideos = [...existingVideos, '', '', '', '', ''].slice(0, 5);
+
+          setFormData({
+            title: data.title || '',
+            content: data.content || '',
+            video_urls: paddedVideos,
+            order_index: data.order_index || 1,
+          });
+        }
         setLoading(false);
       } else {
         // Auto-suggest next order_index
@@ -52,12 +63,26 @@ function AdminLessonEditor() {
     setFormData({ ...formData, [e.target.name]: value });
   };
 
+  // Special handler for the video array
+  const handleVideoChange = (index, value) => {
+    const newVideos = [...formData.video_urls];
+    newVideos[index] = value;
+    setFormData({ ...formData, video_urls: newVideos });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError('');
 
-    const payload = { ...formData, course_id: Number(courseId) };
+    // Clean up empty video URLs before saving
+    const cleanedVideos = formData.video_urls.filter(url => url.trim() !== '');
+    
+    const payload = { 
+      ...formData, 
+      video_urls: cleanedVideos,
+      course_id: Number(courseId) 
+    };
 
     const op = isEdit
       ? supabase.from('lessons').update(payload).eq('id', id)
@@ -91,9 +116,22 @@ function AdminLessonEditor() {
           <input type="number" name="order_index" value={formData.order_index} onChange={handleChange} min="1" disabled={saving} />
         </div>
 
-        <div className="admin-field">
-          <label>Video URL (optional)</label>
-          <input type="text" name="video_url" value={formData.video_url} onChange={handleChange} placeholder="https://..." disabled={saving} />
+        {/* YOUTUBE VIDEOS SECTION (Up to 5) */}
+        <div className="admin-field" style={{ background: '#f9f9f9', padding: '15px', borderRadius: '8px', border: '1px solid #eaeaea' }}>
+          <label style={{ marginBottom: '10px', display: 'block' }}>YouTube Video URLs (Up to 5)</label>
+          
+          {formData.video_urls.map((url, index) => (
+            <div key={index} style={{ marginBottom: '10px' }}>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => handleVideoChange(index, e.target.value)}
+                placeholder={`Video ${index + 1} URL (e.g. https://youtube.com/watch?v=...)`}
+                disabled={saving}
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
+              />
+            </div>
+          ))}
         </div>
 
         <div className="admin-field">

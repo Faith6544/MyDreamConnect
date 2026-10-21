@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import WhatsAppButton from './components/WhatsAppButton';
+import ScrollToTop from './components/ScrollToTop';
 import { AuthProvider } from './context/AuthContext';
 
 /* ---------- Public pages ---------- */
@@ -31,6 +32,7 @@ import Partnership from './pages/Partnership';
 import Terms from './pages/Terms';
 import Search from './pages/Search';
 import NotFound from './pages/NotFound';
+import Scholarship from './pages/Scholarship';
 
 /* ---------- Student (protected) ---------- */
 import MyCourses from './pages/MyCourses';
@@ -39,6 +41,7 @@ import MyCoursePlayer from './pages/MyCoursePlayer';
 /* ---------- Admin ---------- */
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminScholarships from './pages/AdminScholarships';
 
 import AdminPostsList from './pages/AdminPostsList';
 import AdminPostEditor from './pages/AdminPostEditor';
@@ -61,7 +64,6 @@ import AdminVideosList from './pages/AdminVideosList';
 import AdminVideoEditor from './pages/AdminVideoEditor';
 import AdminFlyersList from './pages/AdminFlyersList';
 import AdminFlyerEditor from './pages/AdminFlyerEditor';
-import ScrollToTop from './components/ScrollToTop';
 import AdminJobsList from './pages/AdminJobsList';
 import AdminJobEditor from './pages/AdminJobEditor';
 import AdminOpportunitiesList from './pages/AdminOpportunitiesList';
@@ -85,9 +87,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        {/* ✅ ScrollToTop is now safely inside the Router */}
         <ScrollToTop />
-        
         <Navbar />
 
         <Routes>
@@ -113,99 +113,71 @@ function App() {
           <Route path="/partnership" element={<Partnership />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/scholarship" element={<Scholarship />} />
 
           {/* ==================== Student (protected) ==================== */}
-          <Route
-            path="/my-courses"
-            element={
-              <ProtectedRoute>
-                <MyCourses />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/my-courses/:id"
-            element={
-              <ProtectedRoute>
-                <MyCoursePlayer />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
+          <Route path="/my-courses/:id" element={<ProtectedRoute><MyCoursePlayer /></ProtectedRoute>} />
 
-          {/* ==================== Admin: login (public) ==================== */}
+          {/* ==================== Admin ==================== */}
           <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
-          {/* ==================== Admin: dashboard ==================== */}
-          <Route
-            path="/admin/dashboard"
-            element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            }
-          />
+          {/* Admin: Scholarships */}
+          <Route path="/admin/scholarships" element={<AdminRoute><AdminScholarships /></AdminRoute>} />
 
-          {/* ==================== Admin: posts ==================== */}
+          {/* Admin: Posts */}
           <Route path="/admin/posts" element={<AdminRoute><AdminPostsList /></AdminRoute>} />
           <Route path="/admin/posts/new" element={<AdminRoute><AdminPostEditor /></AdminRoute>} />
           <Route path="/admin/posts/edit/:id" element={<AdminRoute><AdminPostEditor /></AdminRoute>} />
-
           <Route path="/admin/post-categories" element={<AdminRoute><AdminPostCategoriesList /></AdminRoute>} />
           <Route path="/admin/post-categories/new" element={<AdminRoute><AdminPostCategoryEditor /></AdminRoute>} />
           <Route path="/admin/post-categories/edit/:id" element={<AdminRoute><AdminPostCategoryEditor /></AdminRoute>} />
-
           <Route path="/admin/post-tags" element={<AdminRoute><AdminPostTagsList /></AdminRoute>} />
           <Route path="/admin/post-tags/new" element={<AdminRoute><AdminPostTagEditor /></AdminRoute>} />
           <Route path="/admin/post-tags/edit/:id" element={<AdminRoute><AdminPostTagEditor /></AdminRoute>} />
 
-          {/* ==================== Admin: courses ==================== */}
+          {/* Admin: Courses */}
           <Route path="/admin/courses" element={<AdminRoute><AdminCoursesList /></AdminRoute>} />
           <Route path="/admin/courses/new" element={<AdminRoute><AdminCourseEditor /></AdminRoute>} />
           <Route path="/admin/courses/edit/:id" element={<AdminRoute><AdminCourseEditor /></AdminRoute>} />
           <Route path="/admin/courses/:courseId/lessons" element={<AdminRoute><AdminLessonsList /></AdminRoute>} />
           <Route path="/admin/courses/:courseId/lessons/new" element={<AdminRoute><AdminLessonEditor /></AdminRoute>} />
           <Route path="/admin/courses/:courseId/lessons/edit/:id" element={<AdminRoute><AdminLessonEditor /></AdminRoute>} />
-
           <Route path="/admin/categories" element={<AdminRoute><AdminCategoriesList /></AdminRoute>} />
           <Route path="/admin/categories/new" element={<AdminRoute><AdminCategoryEditor /></AdminRoute>} />
           <Route path="/admin/categories/edit/:id" element={<AdminRoute><AdminCategoryEditor /></AdminRoute>} />
 
-          {/* ==================== Admin: media ==================== */}
+          {/* Admin: Media */}
           <Route path="/admin/photos" element={<AdminRoute><AdminPhotosList /></AdminRoute>} />
           <Route path="/admin/photos/new" element={<AdminRoute><AdminPhotoEditor /></AdminRoute>} />
           <Route path="/admin/photos/edit/:id" element={<AdminRoute><AdminPhotoEditor /></AdminRoute>} />
           <Route path="/admin/photos/:albumId/images" element={<AdminRoute><AdminAlbumPhotos /></AdminRoute>} />
-
           <Route path="/admin/videos" element={<AdminRoute><AdminVideosList /></AdminRoute>} />
           <Route path="/admin/videos/new" element={<AdminRoute><AdminVideoEditor /></AdminRoute>} />
           <Route path="/admin/videos/edit/:id" element={<AdminRoute><AdminVideoEditor /></AdminRoute>} />
-
           <Route path="/admin/flyers" element={<AdminRoute><AdminFlyersList /></AdminRoute>} />
           <Route path="/admin/flyers/new" element={<AdminRoute><AdminFlyerEditor /></AdminRoute>} />
           <Route path="/admin/flyers/edit/:id" element={<AdminRoute><AdminFlyerEditor /></AdminRoute>} />
 
-          {/* ==================== Admin: talent ==================== */}
+          {/* Admin: Talent */}
           <Route path="/admin/jobs" element={<AdminRoute><AdminJobsList /></AdminRoute>} />
           <Route path="/admin/jobs/new" element={<AdminRoute><AdminJobEditor /></AdminRoute>} />
           <Route path="/admin/jobs/edit/:id" element={<AdminRoute><AdminJobEditor /></AdminRoute>} />
-
           <Route path="/admin/opportunities" element={<AdminRoute><AdminOpportunitiesList /></AdminRoute>} />
           <Route path="/admin/opportunities/new" element={<AdminRoute><AdminOpportunityEditor /></AdminRoute>} />
           <Route path="/admin/opportunities/edit/:id" element={<AdminRoute><AdminOpportunityEditor /></AdminRoute>} />
-
           <Route path="/admin/talent" element={<AdminRoute><AdminTalentList /></AdminRoute>} />
           <Route path="/admin/talent/new" element={<AdminRoute><AdminTalentEditor /></AdminRoute>} />
           <Route path="/admin/talent/edit/:id" element={<AdminRoute><AdminTalentEditor /></AdminRoute>} />
-
           <Route path="/admin/instructors" element={<AdminRoute><AdminInstructorsList /></AdminRoute>} />
           <Route path="/admin/instructors/new" element={<AdminRoute><AdminInstructorEditor /></AdminRoute>} />
           <Route path="/admin/instructors/edit/:id" element={<AdminRoute><AdminInstructorEditor /></AdminRoute>} />
-
           <Route path="/admin/testimonials" element={<AdminRoute><AdminTestimonialsList /></AdminRoute>} />
           <Route path="/admin/testimonials/new" element={<AdminRoute><AdminTestimonialEditor /></AdminRoute>} />
           <Route path="/admin/testimonials/edit/:id" element={<AdminRoute><AdminTestimonialEditor /></AdminRoute>} />
 
-          {/* ==================== Admin: people + submissions ==================== */}
+          {/* Admin: People & Submissions */}
           <Route path="/admin/enrollments" element={<AdminRoute><AdminEnrollments /></AdminRoute>} />
           <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
           <Route path="/admin/subscribers" element={<AdminRoute><AdminSubscribers /></AdminRoute>} />
@@ -213,7 +185,7 @@ function App() {
           <Route path="/admin/partnerships" element={<AdminRoute><AdminPartnerships /></AdminRoute>} />
           <Route path="/admin/volunteers" element={<AdminRoute><AdminVolunteers /></AdminRoute>} />
 
-          {/* ==================== 404 — must be last ==================== */}
+          {/* ==================== 404 ==================== */}
           <Route path="*" element={<NotFound />} />
         </Routes>
 
