@@ -4,13 +4,11 @@ import './TalentMarketplace.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
 
-// `talent.skills` is a TEXT column, so it can come back as a comma separated
-// string (or null). Array methods would throw on a string.
 function parseSkills(raw) {
   if (Array.isArray(raw)) return raw.filter(Boolean);
   if (typeof raw === 'string' && raw.trim()) {
     return raw
-      .replace(/[\[\]"]/g, '')
+      .replace(/[[\]"]/g, '') // <-- FIXED REGEX
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
@@ -32,7 +30,6 @@ function TalentMarketplace() {
 
   useEffect(() => {
     const fetchTalents = async () => {
-      // The table is `talent` (singular) - `talents` does not exist.
       const { data, error } = await supabase.from('talent').select('*');
       if (error) console.error('Talents fetch error:', error);
       else setTalents(data || []);
@@ -50,7 +47,6 @@ function TalentMarketplace() {
       String(talent.role || '').toLowerCase().includes(query) ||
       skills.some((s) => s.toLowerCase().includes(query));
 
-    // The talent table has no `category` column - derive it from role + skills.
     const matchesCategory =
       activeCategory === 'All' ||
       String(talent.role || '').toLowerCase().includes(activeCategory.toLowerCase()) ||
@@ -161,7 +157,6 @@ function TalentMarketplace() {
                 <div className="talent-card-header">
                   <div className="talent-profile-info">
                     <div className="talent-avatar">
-                      {/* `avatar_url`, not `image_url` */}
                       <ImageWithFallback src={talent.avatar_url} alt={talent.name || 'Talent'} type="human" />
                     </div>
                     <div>

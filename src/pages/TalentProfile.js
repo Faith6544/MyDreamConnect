@@ -8,7 +8,7 @@ function parseSkills(raw) {
   if (Array.isArray(raw)) return raw.filter(Boolean);
   if (typeof raw === 'string' && raw.trim()) {
     return raw
-      .replace(/[\[\]"]/g, '')
+      .replace(/[[\]"]/g, '') // <-- FIXED REGEX
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
@@ -27,7 +27,6 @@ function TalentProfile() {
 
     const fetchTalent = async () => {
       setLoading(true);
-      // `talent` is the real table name (singular).
       const { data, error: fetchError } = await supabase
         .from('talent')
         .select('*')

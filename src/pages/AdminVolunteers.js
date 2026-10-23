@@ -10,18 +10,20 @@ function AdminVolunteers() {
   const [openId, setOpenId] = useState(null);
   const navigate = useNavigate();
 
-  const loadData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { navigate('/admin'); return; }
-    const { data } = await supabase
-      .from('volunteer_applications')
-      .select('*')
-      .order('created_at', { ascending: false });
-    setItems(data || []);
-    setLoading(false);
-  };
+  useEffect(() => {
+    const loadData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate('/admin'); return; }
+      const { data } = await supabase
+        .from('volunteer_applications')
+        .select('*')
+        .order('created_at', { ascending: false });
+      setItems(data || []);
+      setLoading(false);
+    };
 
-  useEffect(() => { loadData(); /* eslint-disable-next-line */ }, [navigate]);
+    loadData();
+  }, [navigate]); // Dependency array is clean now
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this application?')) return;
