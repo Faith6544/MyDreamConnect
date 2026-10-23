@@ -15,31 +15,33 @@ function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState('all');
   const navigate = useNavigate();
 
-  const loadData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { navigate('/admin'); return; }
+  useEffect(() => {
+    const loadData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate('/admin'); return; }
 
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    // Get enrollment counts per user
-    const { data: enrollments } = await supabase
-      .from('enrollments')
-      .select('user_id');
+      // Get enrollment counts per user
+      const { data: enrollments } = await supabase
+        .from('enrollments')
+        .select('user_id');
 
-    const counts = {};
-    (enrollments || []).forEach(e => {
-      counts[e.user_id] = (counts[e.user_id] || 0) + 1;
-    });
+      const counts = {};
+      (enrollments || []).forEach(e => {
+        counts[e.user_id] = (counts[e.user_id] || 0) + 1;
+      });
 
-    setUsers(profiles || []);
-    setEnrollCounts(counts);
-    setLoading(false);
-  };
+      setUsers(profiles || []);
+      setEnrollCounts(counts);
+      setLoading(false);
+    };
 
-  useEffect(() => { loadData(); /* eslint-disable-next-line */ }, [navigate]);
+    loadData();
+  }, [navigate]);
 
   const handleRoleToggle = async (id, currentRole) => {
     const normalized = normalizeRole(currentRole);

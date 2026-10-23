@@ -10,20 +10,22 @@ function AdminMessages() {
   const [openId, setOpenId] = useState(null);
   const navigate = useNavigate();
 
-  const loadData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { navigate('/admin'); return; }
+  useEffect(() => {
+    const loadData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigate('/admin'); return; }
 
-    const { data } = await supabase
-      .from('contact_messages')
-      .select('*')
-      .order('created_at', { ascending: false });
+      const { data } = await supabase
+        .from('contact_messages')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    setMessages(data || []);
-    setLoading(false);
-  };
+      setMessages(data || []);
+      setLoading(false);
+    };
 
-  useEffect(() => { loadData(); /* eslint-disable-next-line */ }, [navigate]);
+    loadData();
+  }, [navigate]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this message?')) return;
