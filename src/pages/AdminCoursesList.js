@@ -25,10 +25,29 @@ function AdminCoursesList() {
   }, [navigate]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this course?')) return;
+    if (!window.confirm('Delete this course? This will also remove its lessons, enrollments, certificates and progress.')) return;
+
+    // There are no FK cascades from lessons/enrollments/certificates/progress
+    // back to courses, so clean up children explicitly (best effort).
+    const { data: lessonRows } = await supabase
+      .from('lessons')
+      .select('id')
+      .eq('course_id', id);
+
+    const lessonIds = (lessonRows || []).map(l => l.id);
+
+    if (lessonIds.length > 0) {
+      await supabase.from('lesson_progress').delete().in('lesson_id', lessonIds);
+    }
+
+    await supabase.from('lesson_progress').delete().eq('course_id', id);
+    await supabase.from('lessons').delete().eq('course_id', id);
+    await supabase.from('enrollments').delete().eq('course_id', id);
+    await supabase.from('certificates').delete().eq('course_id', id);
+
     const { error } = await supabase.from('courses').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setCourses(courses.filter(c => c.id !== id));
+    else setCourses((prev) => prev.filter(c => c.id !== id));
   };
 
   return (

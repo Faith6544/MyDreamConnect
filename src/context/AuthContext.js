@@ -8,18 +8,32 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    let mounted = true;
+
+    // Listen for auth changes. This also clears the loading state, so a
+    // failed getSession() below can never leave the app stuck on "Loading".
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
       setUser(session?.user || null);
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
+    // Get initial session. `finally` guarantees `loading` is released even if
+    // storage access is denied (private mode) or the request fails.
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (mounted) setUser(session?.user || null);
+      })
+      .catch((err) => console.error('Could not restore session:', err))
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email, password, fullName) => {

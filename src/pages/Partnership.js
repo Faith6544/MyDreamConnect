@@ -18,7 +18,8 @@ function Partnership() {
   const [status, setStatus] = useState('idle');
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -114,13 +115,13 @@ function Partnership() {
             <h3>Partnership Enquiry</h3>
 
             {status === 'success' && (
-              <div className="form-success">
+              <div className="form-success" role="status" aria-live="polite">
                 ✅ Thank you. Our team will be in touch shortly.
               </div>
             )}
 
             {status === 'error' && (
-              <div className="form-error">
+              <div className="form-error" role="alert">
                 ❌ Something went wrong. Please try again or email us directly at info@mydreamconnect.org.ng.
               </div>
             )}

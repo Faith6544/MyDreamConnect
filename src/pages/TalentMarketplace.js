@@ -4,22 +4,36 @@ import './TalentMarketplace.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
 
+// `talent.skills` is a TEXT column, so it can come back as a comma separated
+// string (or null). Array methods would throw on a string.
+function parseSkills(raw) {
+  if (Array.isArray(raw)) return raw.filter(Boolean);
+  if (typeof raw === 'string' && raw.trim()) {
+    return raw
+      .replace(/[\[\]"]/g, '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 function TalentMarketplace() {
   const [talents, setTalents] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState('newest');
-  
-  // Simple open/close state for dropdown
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const categories = ['All', 'Design', 'Tech', 'Writing', 'Marketing', 'Music', 'Acting & Dance', 'Business', 'Engineering', 'Consulting', 'Crafts', 'Sports', 'Teaching'];
 
   useEffect(() => {
     const fetchTalents = async () => {
-      const { data, error } = await supabase.from('talents').select('*');
+      // The table is `talent` (singular) - `talents` does not exist.
+      const { data, error } = await supabase.from('talent').select('*');
       if (error) console.error('Talents fetch error:', error);
       else setTalents(data || []);
       setLoading(false);
@@ -27,29 +41,32 @@ function TalentMarketplace() {
     fetchTalents();
   }, []);
 
-  // Filter
   let filteredTalents = talents.filter((talent) => {
     const query = searchQuery.toLowerCase().trim();
-    const nameMatch = String(talent.name || '').toLowerCase().includes(query);
-    const roleMatch = String(talent.role || '').toLowerCase().includes(query);
-    const matchesSearch = nameMatch || roleMatch;
+    const skills = parseSkills(talent.skills);
 
-    const matchesCategory = activeCategory === 'All' || 
-      String(talent.category || '').toLowerCase().includes(activeCategory.toLowerCase());
+    const matchesSearch =
+      String(talent.name || '').toLowerCase().includes(query) ||
+      String(talent.role || '').toLowerCase().includes(query) ||
+      skills.some((s) => s.toLowerCase().includes(query));
+
+    // The talent table has no `category` column - derive it from role + skills.
+    const matchesCategory =
+      activeCategory === 'All' ||
+      String(talent.role || '').toLowerCase().includes(activeCategory.toLowerCase()) ||
+      skills.some((s) => s.toLowerCase().includes(activeCategory.toLowerCase()));
 
     return matchesSearch && matchesCategory;
   });
 
-  // Sort (Using spread operator to force React to update)
   filteredTalents = [...filteredTalents].sort((a, b) => {
     const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
     const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-    
+
     if (sortOrder === 'newest') {
       return dateB - dateA;
-    } else {
-      return dateA - dateB;
     }
+    return dateA - dateB;
   });
 
   return (
@@ -60,24 +77,20 @@ function TalentMarketplace() {
         <div className="talent-controls">
           <div className="talent-search-wrapper">
             <span className="search-icon">🔍</span>
-            <input 
-              type="text" 
-              className="talent-search-input" 
+            <input
+              type="text"
+              className="talent-search-input"
               placeholder="Search talents, skills..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          {/* VERY SIMPLE DROPDOWN */}
           <div style={{ position: 'relative' }}>
-            <button 
+            <button
               type="button"
               className="talent-sort-btn"
-              onClick={() => {
-                console.log("Dropdown clicked! New state:", !dropdownOpen);
-                setDropdownOpen(!dropdownOpen);
-              }}
+              onClick={() => setDropdownOpen((open) => !open)}
             >
               {sortOrder === 'newest' ? 'Newest ▼' : 'Oldest ▲'}
             </button>
@@ -95,7 +108,7 @@ function TalentMarketplace() {
                 zIndex: 9999,
                 padding: '5px 0'
               }}>
-                <button 
+                <button
                   type="button"
                   style={{ display: 'block', width: '100%', padding: '12px 15px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
                   onClick={() => {
@@ -105,7 +118,7 @@ function TalentMarketplace() {
                 >
                   Newest First
                 </button>
-                <button 
+                <button
                   type="button"
                   style={{ display: 'block', width: '100%', padding: '12px 15px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
                   onClick={() => {
@@ -148,7 +161,8 @@ function TalentMarketplace() {
                 <div className="talent-card-header">
                   <div className="talent-profile-info">
                     <div className="talent-avatar">
-                      <ImageWithFallback src={talent.image_url} alt={talent.name || 'Talent'} />
+                      {/* `avatar_url`, not `image_url` */}
+                      <ImageWithFallback src={talent.avatar_url} alt={talent.name || 'Talent'} type="human" />
                     </div>
                     <div>
                       <h3 className="talent-name">{talent.name || 'Anonymous User'}</h3>

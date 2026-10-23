@@ -12,7 +12,11 @@ function MyCourses() {
 
   useEffect(() => {
     const fetchEnrollments = async () => {
-      if (!user) return;
+      if (!user) {
+        setEnrollments([]);
+        setLoading(false);
+        return;
+      }
 
       // Get enrollments
       const { data: enrollData, error } = await supabase
@@ -46,6 +50,7 @@ function MyCourses() {
       const enriched = await Promise.all(
         enrollData.map(async (enr) => {
           const courseId = enr.course_id;
+          const course = courseMap[courseId] || null;
 
           const { count: totalLessons } = await supabase
             .from('lessons')
@@ -58,11 +63,14 @@ function MyCourses() {
             .eq('course_id', courseId)
             .eq('user_id', user.id);
 
+          const total = totalLessons || 0;
+          const done = completedLessons || 0;
+
           return {
             ...enr,
-            courses: courseMap[courseId] || null,
-            totalLessons: totalLessons || 0,
-            completedLessons: completedLessons || 0,
+            courses: course,
+            totalLessons: total,
+            completedLessons: done,
           };
         })
       );
@@ -92,7 +100,6 @@ function MyCourses() {
               <h2>You're not enrolled in any courses yet</h2>
               <p>Browse our catalog and enroll to get started, or apply for financial aid.</p>
               
-              {/* UPDATED BUTTONS HERE */}
               <div className="mycourses-actions">
                 <Link to="/courses" className="mycourses-btn">
                   Browse Courses →
@@ -101,7 +108,6 @@ function MyCourses() {
                   Apply for a Course Scholarship 🎓
                 </Link>
               </div>
-
             </div>
           ) : (
             <>
@@ -110,9 +116,9 @@ function MyCourses() {
                 {enrollments.map(enr => {
                   const course = enr.courses;
                   if (!course) return null;
-                  const total = enr.totalLessons;
-                  const done = enr.completedLessons;
-                  const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+                  const total = enr.totalLessons || 0;
+                  const done = enr.completedLessons || 0;
+                  const percent = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
 
                   return (
                     <Link
@@ -148,6 +154,13 @@ function MyCourses() {
                     </Link>
                   );
                 })}
+              </div>
+
+              {/* EXPLORE MORE COURSES BUTTON */}
+              <div className="explore-more-wrapper">
+                <Link to="/courses" className="explore-more-btn">
+                  Explore More Courses →
+                </Link>
               </div>
             </>
           )}

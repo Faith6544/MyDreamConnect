@@ -28,25 +28,34 @@ function AdminTalentEditor() {
           location: data.location || '',
           availability: data.availability || '',
           avatar_url: data.avatar_url || '',
-          skillsInput: (data.skills || []).join(', '),
+          // `talent.skills` is a TEXT column; it can come back as a string,
+          // an array (legacy) or null. Calling .join() on a string throws.
+          skillsInput: Array.isArray(data.skills)
+            ? data.skills.join(', ')
+            : String(data.skills || ''),
         });
-        setLoading(false);
       }
+      setLoading(false);
     };
     checkAuthAndLoad();
   }, [id, isEdit, navigate]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError('');
 
-    const skills = formData.skillsInput
+    // `talent.skills` is TEXT: store a comma-separated string, not an array.
+    const skillsText = formData.skillsInput
       .split(',')
       .map(s => s.trim())
-      .filter(s => s.length > 0);
+      .filter(s => s.length > 0)
+      .join(', ');
 
     const payload = {
       name: formData.name,
@@ -54,7 +63,7 @@ function AdminTalentEditor() {
       location: formData.location,
       availability: formData.availability,
       avatar_url: formData.avatar_url,
-      skills: skills,
+      skills: skillsText || null,
     };
 
     const op = isEdit
@@ -97,7 +106,7 @@ function AdminTalentEditor() {
         <ImageUpload
   label="Avatar Photo"
   value={formData.avatar_url}
-  onChange={(url) => setFormData({ ...formData, avatar_url: url })}
+  onChange={(url) => setFormData((prev) => ({ ...prev, avatar_url: url }))}
 />
         <div className="admin-field">
           <label>Skills (comma-separated)</label>

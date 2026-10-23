@@ -14,9 +14,17 @@ function AdminPostCategoriesList() {
       if (!user) { navigate('/admin'); return; }
       const { data, error } = await supabase
         .from('post_categories')
-        .select('*')
-        .order('order_index', { ascending: true });
-      if (!error) setItems(data || []);
+        .select('*');
+      if (error) {
+        console.error('Failed to load categories:', error);
+      } else {
+        // `post_categories.order_index` is TEXT, so ordering in the database is
+        // lexicographic ("10" before "2"). Sort numerically on the client.
+        const sorted = [...(data || [])].sort(
+          (a, b) => (Number(a.order_index) || 0) - (Number(b.order_index) || 0)
+        );
+        setItems(sorted);
+      }
       setLoading(false);
     };
     checkAuthAndLoad();
@@ -24,9 +32,21 @@ function AdminPostCategoriesList() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this category? Posts in it will become uncategorized.')) return;
+
+    // posts.category_id has a real FK, so clear it before deleting.
+    const { error: clearError } = await supabase
+      .from('posts')
+      .update({ category_id: null })
+      .eq('category_id', id);
+
+    if (clearError) {
+      alert('Could not uncategorize posts: ' + clearError.message);
+      return;
+    }
+
     const { error } = await supabase.from('post_categories').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setItems(items.filter(i => i.id !== id));
+    else setItems((prev) => prev.filter(i => i.id !== id));
   };
 
   return (

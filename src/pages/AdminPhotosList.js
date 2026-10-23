@@ -25,10 +25,14 @@ function AdminPhotosList() {
   }, [navigate]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this album?')) return;
+    if (!window.confirm('Delete this album? This will remove all photos in it.')) return;
+
+    // album_photos has no FK to photos, so delete the children explicitly.
+    await supabase.from('album_photos').delete().eq('album_id', id);
+
     const { error } = await supabase.from('photos').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setPhotos(photos.filter(p => p.id !== id));
+    else setPhotos((prev) => prev.filter(p => p.id !== id));
   };
 
   return (

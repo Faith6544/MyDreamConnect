@@ -26,32 +26,47 @@ function AdminLessonEditor() {
       if (!user) { navigate('/admin'); return; }
 
       if (isEdit) {
-        const { data, error } = await supabase.from('lessons').select('*').eq('id', id).single();
+        // Scope by course_id as well, so an id from another course cannot be
+        // opened (and re-parented) through this editor.
+        const { data, error } = await supabase
+          .from('lessons')
+          .select('*')
+          .eq('id', id)
+          .eq('course_id', courseId)
+          .maybeSingle();
+
         if (error) setError('Load failed: ' + error.message);
-        else if (data) {
+        else if (!data) setError('This lesson does not belong to this course.');
+        else {
           // Safely handle existing videos (fill up to 5 slots)
-          const existingVideos = data.video_urls || [];
-          const paddedVideos = [...existingVideos, '', '', '', '', ''].slice(0, 5);
+          const existingVideos = Array.isArray(data.video_urls) ? data.video_urls : [];
+          if (existingVideos.length > 5) {
+            setError('Note: this lesson has more than 5 videos; only the first 5 are shown.');
+          }
+          const paddedVideos = [...existingVideos.slice(0, 5), '', '', '', '', ''].slice(0, 5);
 
           setFormData({
             title: data.title || '',
             content: data.content || '',
             video_urls: paddedVideos,
-            order_index: data.order_index || 1,
+            order_index: data.order_index ?? 1,
           });
         }
         setLoading(false);
       } else {
-        // Auto-suggest next order_index
+        // Auto-suggest next order_index (sorted numerically, in case the
+        // column ever comes back as text).
         const { data } = await supabase
           .from('lessons')
           .select('order_index')
-          .eq('course_id', courseId)
-          .order('order_index', { ascending: false })
-          .limit(1);
+          .eq('course_id', courseId);
 
-        const nextIndex = data && data.length > 0 ? (data[0].order_index || 0) + 1 : 1;
-        setFormData(prev => ({ ...prev, order_index: nextIndex }));
+        const maxIndex = (data || []).reduce((max, row) => {
+          const value = Number(row.order_index);
+          return Number.isFinite(value) && value > max ? value : max;
+        }, 0);
+
+        setFormData(prev => ({ ...prev, order_index: maxIndex + 1 }));
         setLoading(false);
       }
     };
@@ -59,15 +74,18 @@ function AdminLessonEditor() {
   }, [id, isEdit, courseId, navigate]);
 
   const handleChange = (e) => {
-    const value = e.target.name === 'order_index' ? Number(e.target.value) : e.target.value;
-    setFormData({ ...formData, [e.target.name]: value });
+    const { name } = e.target;
+    const value = name === 'order_index' ? Number(e.target.value) : e.target.value;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Special handler for the video array
   const handleVideoChange = (index, value) => {
-    const newVideos = [...formData.video_urls];
-    newVideos[index] = value;
-    setFormData({ ...formData, video_urls: newVideos });
+    setFormData((prev) => {
+      const newVideos = [...prev.video_urls];
+      newVideos[index] = value;
+      return { ...prev, video_urls: newVideos };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -76,17 +94,21 @@ function AdminLessonEditor() {
     setError('');
 
     // Clean up empty video URLs before saving
-    const cleanedVideos = formData.video_urls.filter(url => url.trim() !== '');
-    
-    const payload = { 
-      ...formData, 
+    const cleanedVideos = formData.video_urls
+      .map(url => (url || '').trim())
+      .filter(url => url !== '');
+
+    const payload = {
+      title: formData.title,
+      content: formData.content,
       video_urls: cleanedVideos,
-      course_id: Number(courseId) 
+      order_index: Number(formData.order_index) || 1,
     };
 
+    // Only set course_id on create. On update, never re-parent the lesson.
     const op = isEdit
-      ? supabase.from('lessons').update(payload).eq('id', id)
-      : supabase.from('lessons').insert([payload]);
+      ? supabase.from('lessons').update(payload).eq('id', id).eq('course_id', courseId)
+      : supabase.from('lessons').insert([{ ...payload, course_id: Number(courseId) }]);
 
     const { error } = await op;
     if (error) { setError('Save failed: ' + error.message); setSaving(false); }

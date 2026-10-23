@@ -21,26 +21,33 @@ function AdminLogin() {
     });
 
     if (error) {
-  setError(error.message);
-  setStatus('idle');
-  return;
-}
+      setError(error.message);
+      setStatus('idle');
+      return;
+    }
 
-// Check if they're an admin
-const { data: { user } } = await supabase.auth.getUser();
-const { data: profile } = await supabase
-  .from('profiles')
-  .select('role')
-  .eq('id', user.id)
-  .maybeSingle();
+    // Check if they're an admin
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setError('Failed to get user session');
+      setStatus('idle');
+      return;
+    }
 
-setStatus('success');
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
 
-if (profile?.role === 'admin') {
-  navigate('/admin/dashboard');
-} else {
-  navigate('/my-courses');
-}
+    setStatus('success');
+
+    const role = String(profile?.role || '').replace(/^'+|'+$/g, '');
+    if (role === 'admin') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/my-courses');
+    }
   };
 
   return (

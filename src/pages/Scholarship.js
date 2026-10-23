@@ -15,6 +15,7 @@ export default function Scholarship() {
     course_id: initialCourseId 
   });
   const [status, setStatus] = useState('idle');
+  const [error, setError] = useState('');
 
   // Fetch courses in case they didn't come from a specific course page
   useEffect(() => {
@@ -27,31 +28,49 @@ export default function Scholarship() {
     }
   }, [initialCourseId]);
 
+  // Keep the form in sync when the ?course_id= query string changes (React
+  // Router reuses this component, so the initial state would otherwise go stale).
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, course_id: initialCourseId }));
+  }, [initialCourseId]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (!formData.course_id) {
-      alert("Please select a course.");
+      setError('Please select a course.');
       return;
     }
-    
+
     setStatus('submitting');
 
-    const { error } = await supabase.from('scholarship_applications').insert([
-      { 
-        course_id: formData.course_id, 
-        full_name: formData.full_name, 
-        email: formData.email, 
-        reason: formData.reason 
+    try {
+      const { error } = await supabase.from('scholarship_applications').insert([
+        { 
+          course_id: formData.course_id, 
+          full_name: formData.full_name, 
+          email: formData.email.trim().toLowerCase(), 
+          reason: formData.reason 
+        }
+      ]);
+
+      if (error) {
+        setError('Failed to submit application: ' + error.message);
+        setStatus('idle');
+        return;
       }
-    ]);
 
-    if (error) {
-      alert("Failed to submit application: " + error.message);
+      setStatus('success');
+    } catch (err) {
+      setError('Failed to submit application: ' + err.message);
       setStatus('idle');
-      return;
     }
-
-    setStatus('success');
   };
 
   return (
@@ -79,6 +98,12 @@ export default function Scholarship() {
             <p>MyDreamConnect offers an 80% scholarship to eligible applicants. Tell us why you need it.</p>
 
             <form onSubmit={handleSubmit} className="scholarship-form">
+
+              {error && (
+                <div className="form-error" role="alert" style={{ marginBottom: 15 }}>
+                  ❌ {error}
+                </div>
+              )}
               
               {/* SHOW DROPDOWN ONLY IF NO COURSE WAS PRE-SELECTED */}
               {!initialCourseId && (
@@ -86,13 +111,16 @@ export default function Scholarship() {
                   <label>Which course are you applying for?</label>
                   <select 
                     required
+                    name="course_id"
                     value={formData.course_id}
-                    onChange={(e) => setFormData({...formData, course_id: e.target.value})}
+                    onChange={handleChange}
                     style={{ padding: '12px 16px', border: '1px solid #ddd', borderRadius: '8px', fontFamily: 'inherit' }}
                   >
                     <option value="">-- Select a Course --</option>
                     {courses.map(c => (
-                      <option key={c.id} value={c.id}>{c.name} (₦{c.price?.toLocaleString() || 0})</option>
+                      <option key={c.id} value={c.id}>
+                        {c.name || 'Untitled'} (₦{Number(c.price || 0).toLocaleString('en-NG')})
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -102,18 +130,20 @@ export default function Scholarship() {
                 <label>Full Name</label>
                 <input 
                   type="text" 
+                  name="full_name"
                   required 
                   value={formData.full_name} 
-                  onChange={(e) => setFormData({...formData, full_name: e.target.value})} 
+                  onChange={handleChange} 
                 />
               </div>
               <div className="form-group">
                 <label>Email Address</label>
                 <input 
                   type="email" 
+                  name="email"
                   required 
                   value={formData.email} 
-                  onChange={(e) => setFormData({...formData, email: e.target.value})} 
+                  onChange={handleChange} 
                 />
               </div>
               <div className="form-group">
@@ -121,8 +151,9 @@ export default function Scholarship() {
                 <textarea 
                   required 
                   rows="5"
+                  name="reason"
                   value={formData.reason} 
-                  onChange={(e) => setFormData({...formData, reason: e.target.value})} 
+                  onChange={handleChange} 
                 />
               </div>
               <button type="submit" disabled={status === 'submitting'} className="submit-btn">

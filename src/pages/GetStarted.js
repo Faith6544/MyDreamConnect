@@ -19,11 +19,16 @@ function GetStarted() {
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn, signUp } = useAuth();
-  const from = location.state?.from?.pathname || '/my-courses';
+
+  // Preserve the query string/hash of the page we were bounced from.
+  const fromState = location.state?.from;
+  const from = fromState
+    ? `${fromState.pathname || '/'}${fromState.search || ''}${fromState.hash || ''}`
+    : '/my-courses';
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+    setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleSubmit = async (e) => {
@@ -52,14 +57,19 @@ function GetStarted() {
           return;
         }
 
-        const { error } = await signUp(formData.email, formData.password, formData.name);
+        const { data, error } = await signUp(formData.email, formData.password, formData.name);
 
         if (error) {
           setError(error.message);
+        } else if (data?.session) {
+          // Email confirmation is disabled on this project, so signUp returns a
+          // live session. Send the user straight into the app instead of
+          // asking them to sign in again.
+          navigate(from, { replace: true });
         } else {
-          setSuccess('Account created! You can now sign in.');
+          setSuccess('Account created! Check your email to confirm, then sign in.');
           setMode('signin');
-          setFormData({ ...formData, password: '' });
+          setFormData((prev) => ({ ...prev, password: '' }));
         }
       }
     } catch (err) {

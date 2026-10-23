@@ -29,12 +29,16 @@ function AdminPostEditor() {
         return;
       }
 
-      // Load categories (always)
+      // Load categories (always). `post_categories.order_index` is TEXT, so a
+      // database ORDER BY is lexicographic ("10" before "2"); sort here instead.
       const { data: catData } = await supabase
         .from('post_categories')
-        .select('*')
-        .order('order_index', { ascending: true });
-      setCategories(catData || []);
+        .select('*');
+      setCategories(
+        [...(catData || [])].sort(
+          (a, b) => (Number(a.order_index) || 0) - (Number(b.order_index) || 0)
+        )
+      );
 
       // Load post if editing
       if (isEdit) {
@@ -42,17 +46,19 @@ function AdminPostEditor() {
           .from('posts')
           .select('*')
           .eq('id', id)
-          .single();
+          .maybeSingle();
 
         if (error) {
           setError('Could not load post: ' + error.message);
-        } else if (data) {
+        } else if (!data) {
+          setError('This post no longer exists.');
+        } else {
           setFormData({
             title: data.title || '',
             excerpt: data.excerpt || '',
             content: data.content || '',
             image_url: data.image_url || '',
-            category_id: data.category_id || null,
+            category_id: data.category_id ?? null,
           });
         }
         setLoading(false);
@@ -69,7 +75,7 @@ function AdminPostEditor() {
     if (e.target.name === 'category_id') {
       value = value === '' ? null : Number(value);
     }
-    setFormData({ ...formData, [e.target.name]: value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -145,7 +151,7 @@ function AdminPostEditor() {
         <ImageUpload
           label="Featured Image"
           value={formData.image_url}
-          onChange={(url) => setFormData({ ...formData, image_url: url })}
+          onChange={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
         />
 
         <div className="admin-field">

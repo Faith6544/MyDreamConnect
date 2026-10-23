@@ -68,11 +68,21 @@ function AdminCourseEditor() {
   }, [id, isEdit, navigate]);
 
   const handleChange = (e) => {
-    let value = e.target.value;
-    if (e.target.name === 'price' || e.target.name === 'category_id') {
-      value = value === '' ? null : Number(value);
+    const { name, value } = e.target;
+
+    if (name === 'category_id') {
+      setFormData((prev) => ({ ...prev, category_id: value === '' ? null : Number(value) }));
+      return;
     }
-    setFormData({ ...formData, [e.target.name]: value });
+
+    if (name === 'price') {
+      // Keep the raw string while typing so the controlled input never jumps
+      // to "0" and the field can be temporarily empty. It is normalised on save.
+      setFormData((prev) => ({ ...prev, price: value }));
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -80,15 +90,20 @@ function AdminCourseEditor() {
     setSaving(true);
     setError('');
 
-    if (isEdit) {
-      const { error } = await supabase.from('courses').update(formData).eq('id', id);
-      if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-      else navigate('/admin/courses');
-    } else {
-      const { error } = await supabase.from('courses').insert([formData]);
-      if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-      else navigate('/admin/courses');
-    }
+    // An empty price means "Free" (0), never NULL.
+    const priceNumber = Number(formData.price);
+    const payload = {
+      ...formData,
+      price: Number.isFinite(priceNumber) ? priceNumber : 0,
+    };
+
+    const op = isEdit
+      ? supabase.from('courses').update(payload).eq('id', id)
+      : supabase.from('courses').insert([payload]);
+
+    const { error } = await op;
+    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
+    else navigate('/admin/courses');
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -135,7 +150,7 @@ function AdminCourseEditor() {
         <ImageUpload
           label="Course Image"
           value={formData.image_url}
-          onChange={(url) => setFormData({ ...formData, image_url: url })}
+          onChange={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
         />
 
         <div className="admin-field">

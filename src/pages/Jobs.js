@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Imported Link
 import './Jobs.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
+
+const APPLY_EMAIL = 'info@mydreamconnect.org.ng';
 
 function Jobs() {
   const [jobs, setJobs] = useState([]);
@@ -29,10 +30,9 @@ function Jobs() {
   return (
     <div className="jobs-page">
       <div className="jobs-container">
-        
-        {/* Clean Underlined Title */}
+
         <h1 className="jobs-title">Job Openings</h1>
-        
+
         <p className="jobs-intro-text">
           Explore current opportunities and join our team to make a difference.
         </p>
@@ -44,26 +44,32 @@ function Jobs() {
         ) : (
           <div className="jobs-grid">
             {jobs.map(job => (
-              /* Wrapped in a Link so you can click it */
-              <Link to={`/jobs/${job.id}`} className="job-card" key={job.id}>
+              // There is no /jobs/:id route and the table holds no extra detail
+              // fields, so the card shows everything it has instead of linking
+              // to a page that does not exist.
+              <article className="job-card" key={job.id}>
                 <div className="job-image">
-                  <ImageWithFallback src={job.image_url} alt={job.title} />
+                  <ImageWithFallback src={job.image_url} alt={job.title || 'Job'} />
                 </div>
                 <div className="job-content">
                   <span className="job-date">
-                    {new Date(job.created_at).toLocaleDateString('en-US', {
-                      month: 'long', day: 'numeric', year: 'numeric'
-                    })}
+                    {job.created_at
+                      ? new Date(job.created_at).toLocaleDateString('en-US', {
+                          month: 'long', day: 'numeric', year: 'numeric',
+                        })
+                      : ''}
                   </span>
                   <h3 className="job-title">{job.title}</h3>
                   <p className="job-excerpt">{job.description}</p>
-                  
-                  {/* The Apply Button */}
-                  <div className="job-apply-btn">
-                    View & Apply →
-                  </div>
+
+                  <a
+                    className="job-apply-btn"
+                    href={`mailto:${APPLY_EMAIL}?subject=${encodeURIComponent(`Application: ${job.title}`)}`}
+                  >
+                    Apply →
+                  </a>
                 </div>
-              </Link>
+              </article>
             ))}
           </div>
         )}

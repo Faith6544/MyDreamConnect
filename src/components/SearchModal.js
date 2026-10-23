@@ -10,10 +10,10 @@ const staticPages = [
   { title: 'Contact Us', subtitle: 'Get in touch with our team', url: '/contact', keywords: 'contact email phone message' },
   { title: 'Donate', subtitle: 'Support our mission', url: '/donate', keywords: 'donate give money support' },
   { title: 'Partnership', subtitle: 'Partner with us', url: '/partnership', keywords: 'partner sponsor collaborate' },
-  { title: 'Talent Marketplace', subtitle: 'Discover talented individuals', url: '/talent-marketplace', keywords: 'talent hire freelancer marketplace' },
+  { title: 'Talent Marketplace', subtitle: 'Discover talented individuals', url: '/talent/all', keywords: 'talent hire freelancer marketplace' },
   { title: 'Blogs', subtitle: 'Read our latest articles', url: '/blog', keywords: 'blog post article news' },
   { title: 'Courses', subtitle: 'Browse our courses', url: '/courses', keywords: 'course learn academy training' },
-  { title: 'Jobs', subtitle: 'View job openings', url: '/jobs', keywords: 'job work career opening' },
+  { title: 'Jobs', subtitle: 'View job openings', url: '/talent/jobs', keywords: 'job work career opening' },
   { title: 'Flyers', subtitle: 'Download media resources', url: '/media/flyers', keywords: 'flyer media download resource' },
 ];
 
@@ -88,33 +88,43 @@ function SearchModal({ onClose }) {
         allResults = [...allResults, ...matchedPages];
 
         // 2. SEARCH DATABASE
+        // Only the columns needed for matching/preview are fetched, and the
+        // result set is capped - a full `select('*')` of every table on each
+        // keystroke is megabytes of payload.
         const [postsRes, coursesRes, jobsRes] = await Promise.allSettled([
-          supabase.from('posts').select('*'),
-          supabase.from('courses').select('*'),
-          supabase.from('jobs').select('*')
+          supabase.from('posts').select('id, title, excerpt').limit(200),
+          supabase.from('courses').select('id, name, excerpt').limit(200),
+          supabase.from('jobs').select('id, title, description').limit(200),
         ]);
 
-        const matchesAnyField = (row, searchTerm) => {
-          return Object.values(row).some(value => 
-            typeof value === 'string' && value.toLowerCase().includes(searchTerm)
-          );
+        // Every word typed must appear somewhere, so "digital marketing"
+        // matches even when the phrase is not stored verbatim.
+        const tokens = term.split(/\s+/).filter(Boolean);
+        const matchesAllTokens = (row) => {
+          if (!row) return false;
+          const haystack = Object.values(row)
+            .filter((value) => typeof value === 'string')
+            .join(' ')
+            .toLowerCase();
+          return tokens.every((token) => haystack.includes(token));
         };
 
         if (postsRes.status === 'fulfilled' && postsRes.value.data) {
-          postsRes.value.data.filter(p => matchesAnyField(p, term)).forEach(p => {
-            allResults.push({ type: 'Post', id: p.id, title: p.title, subtitle: p.excerpt || p.content, url: `/blog/${p.id}` });
+          postsRes.value.data.filter(matchesAllTokens).forEach(p => {
+            allResults.push({ type: 'Post', id: p.id, title: p.title, subtitle: p.excerpt, url: `/blog/${p.id}` });
           });
         }
 
         if (coursesRes.status === 'fulfilled' && coursesRes.value.data) {
-          coursesRes.value.data.filter(c => matchesAnyField(c, term)).forEach(c => {
-            allResults.push({ type: 'Course', id: c.id, title: c.name, subtitle: c.excerpt || c.content, url: `/courses/${c.id}` });
+          coursesRes.value.data.filter(matchesAllTokens).forEach(c => {
+            allResults.push({ type: 'Course', id: c.id, title: c.name, subtitle: c.excerpt, url: `/courses/${c.id}` });
           });
         }
 
         if (jobsRes.status === 'fulfilled' && jobsRes.value.data) {
-          jobsRes.value.data.filter(j => matchesAnyField(j, term)).forEach(j => {
-            allResults.push({ type: 'Job', id: j.id, title: j.title, subtitle: j.description, url: `/jobs/${j.id}` });
+          jobsRes.value.data.filter(matchesAllTokens).forEach(j => {
+            // There is no /jobs/:id route.
+            allResults.push({ type: 'Job', id: j.id, title: j.title, subtitle: j.description, url: '/talent/jobs' });
           });
         }
 

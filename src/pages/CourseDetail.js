@@ -5,11 +5,15 @@ import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
+const SUPABASE_FUNCTIONS_URL = process.env.REACT_APP_SUPABASE_URL;
+
+const formatNaira = (value) => `₦${Number(value ?? 0).toLocaleString('en-NG')}`;
+
 function CourseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const [course, setCourse] = useState(null);
   const [lessons, setLessons] = useState([]);
@@ -17,12 +21,21 @@ function CourseDetail() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
 
-  // SCHOLARSHIP CHECK
-  const isScholarship = searchParams.get('scholarship') === 'approved_80';
+  // Authoritative pricing comes from the server (see check-scholarship).
+  // { price, amount, eligible } - `amount` is what the user actually pays.
+  const [pricing, setPricing] = useState(null);
+  const [paymentState, setPaymentState] = useState('idle'); // idle | verifying | done | failed
+
+  // The scholarship magic link is only a HINT. The discount itself is granted
+  // by the server after it verifies an approved scholarship_applications row.
+  const scholarshipRequested = searchParams.get('scholarship') === 'approved_80';
+  const paystackReference = searchParams.get('reference');
 
   useEffect(() => {
-    // ... (Keep your existing fetchData logic here) ...
+    let cancelled = false;
+
     const fetchData = async () => {
       setLoading(true);
       setError(null);
@@ -30,30 +43,145 @@ function CourseDetail() {
       const { data: courseData, error: courseErr } = await supabase
         .from('courses').select('*').eq('id', id).single();
 
-      if (courseErr) { setError('Could not load this course.'); setLoading(false); return; }
+      if (courseErr) {
+        if (!cancelled) { setError('Could not load this course.'); setLoading(false); }
+        return;
+      }
+      if (cancelled) return;
       setCourse(courseData);
 
-      const { data: lessonsData } = await supabase
-        .from('lesson_outline').select('id, title, order_index').eq('course_id', id).order('order_index', { ascending: true });
+      // `lessons` is the table the app actually writes to (AdminLessonEditor).
+      const { data: lessonsData, error: lessonsErr } = await supabase
+        .from('lessons')
+        .select('id, title, order_index')
+        .eq('course_id', id)
+        .order('order_index', { ascending: true })
+        .order('id', { ascending: true });
+      if (lessonsErr) console.error('Could not load lessons:', lessonsErr);
       setLessons(lessonsData || []);
 
+      // Always reset first so a signed-out visitor never sees stale state.
+      setEnrolled(false);
       if (user) {
-        const { data: enrollment } = await supabase
-          .from('enrollments').select('id').eq('course_id', id).eq('user_id', user.id).maybeSingle();
-        setEnrolled(!!enrollment);
+        // Use an array query: maybeSingle() errors out when duplicate rows
+        // exist, which would make an enrolled student look unenrolled.
+        const { data: enrollments, error: enrollErr } = await supabase
+          .from('enrollments')
+          .select('id')
+          .eq('course_id', id)
+          .eq('user_id', user.id)
+          .limit(1);
+        if (enrollErr) console.error('Enrollment check failed:', enrollErr);
+        else setEnrolled((enrollments || []).length > 0);
       }
-      setLoading(false);
+
+      if (!cancelled) setLoading(false);
     };
+
     fetchData();
+    return () => { cancelled = true; };
   }, [id, user]);
 
-  // ... (Keep your existing paystack/enrollment functions here) ...
+  // Ask the server what this visitor actually has to pay. The URL parameter
+  // alone is never enough - it can be typed in by anyone.
+  useEffect(() => {
+    let cancelled = false;
+    if (!user || !scholarshipRequested) return;
+
+    const loadPricing = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/functions/v1/check-scholarship`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ course_id: Number(id) }),
+        });
+
+        const body = await response.json();
+        if (cancelled) return;
+        if (!response.ok) throw new Error(body.error || 'Could not verify scholarship');
+
+        setPricing({ price: body.price, amount: body.amount, eligible: body.eligible });
+
+        if (!body.eligible) {
+          setNotice('This scholarship link is not valid for your account.');
+        }
+      } catch (err) {
+        if (!cancelled) console.error('Scholarship check failed:', err);
+      }
+    };
+
+    loadPricing();
+    return () => { cancelled = true; };
+  }, [id, user, scholarshipRequested]);
+
+  // Paystack redirects back here with ?reference=...&status=success.
+  // The enrollment for a paid course is created by the verify-paystack edge
+  // function - it has to be called, otherwise the payment grants nothing.
+  useEffect(() => {
+    let cancelled = false;
+    if (!paystackReference || !user) return;
+
+    const verifyPayment = async () => {
+      setPaymentState('verifying');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('Please sign in to complete your payment.');
+
+        const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/functions/v1/verify-paystack`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ reference: paystackReference, course_id: Number(id) }),
+        });
+
+        const body = await response.json();
+        if (cancelled) return;
+        if (!response.ok || !body.success) throw new Error(body.error || 'Payment verification failed');
+
+        setPaymentState('done');
+        setEnrolled(true);
+
+        // Strip the payment params so a refresh does not re-verify.
+        const clean = new URLSearchParams(searchParams);
+        clean.delete('reference');
+        clean.delete('status');
+        navigate({ pathname: `/courses/${id}`, search: clean.toString() ? `?${clean.toString()}` : '' }, { replace: true });
+      } catch (err) {
+        if (cancelled) return;
+        setPaymentState('failed');
+        setError(err.message);
+      }
+    };
+
+    verifyPayment();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paystackReference, id, user, navigate]);
+
   const handleEnrollFree = async () => {
     if (!user) { navigate('/get-started', { state: { from: { pathname: `/courses/${id}` } } }); return; }
     setProcessing(true);
-    const { error } = await supabase.from('enrollments').insert([{ user_id: user.id, course_id: Number(id) }]);
-    if (error) setError('Enrollment failed: ' + error.message);
-    else setEnrolled(true);
+    setError(null);
+
+    const { error: insertError } = await supabase.from('enrollments').insert([
+      { user_id: user.id, course_id: Number(id), enrolled_at: new Date().toISOString() },
+    ]);
+
+    // 23505 = unique_violation: the student is already enrolled, which is a
+    // success from the user's point of view.
+    if (insertError && insertError.code !== '23505') {
+      setError('Enrollment failed: ' + insertError.message);
+    } else {
+      setEnrolled(true);
+    }
     setProcessing(false);
   };
 
@@ -64,21 +192,21 @@ function CourseDetail() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("No active session");
+      if (!session) throw new Error('No active session');
 
-      const callbackUrl = `${window.location.origin}/courses/${id}?course_id=${id}`;
-      
-      // CALCULATE FINAL PRICE
-      const finalPrice = isScholarship ? course.price * 0.2 : course.price;
+      const callbackUrl = `${window.location.origin}/courses/${id}`;
 
-      const response = await fetch('https://kzdqbqnyytgovlngfvwr.supabase.co/functions/v1/initialize-paystack', {
+      // NOTE: the amount is deliberately NOT sent from the client. The edge
+      // function looks up the course price and applies the scholarship based
+      // on the database, so a tampered client cannot pay less.
+      const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/functions/v1/initialize-paystack`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({ email: user.email, amount: finalPrice, course_id: course.id, callback_url: callbackUrl }),
+        body: JSON.stringify({ course_id: Number(id), callback_url: callbackUrl }),
       });
 
       const data = await response.json();
-      if (!response.ok || !data.authorization_url) throw new Error(data.error || "Payment failed");
+      if (!response.ok || !data.authorization_url) throw new Error(data.error || 'Payment failed');
       window.location.href = data.authorization_url;
 
     } catch (err) {
@@ -91,15 +219,17 @@ function CourseDetail() {
   if (error && !course) return <h2 className="cd-status">{error}</h2>;
   if (!course) return <h2 className="cd-status">Course not found.</h2>;
 
-  const isFree = !course.price || course.price === 0;
-  
-  // CALCULATE DISPLAY PRICE
-  const displayPrice = isScholarship ? course.price * 0.2 : course.price;
+  const price = Number(course.price ?? 0);
+  const isFree = price === 0;
+
+  // Server-authoritative amounts. Fall back to the raw price until (and if)
+  // the scholarship check comes back.
+  const isScholarship = Boolean(pricing?.eligible);
+  const displayPrice = pricing?.amount ?? price;
 
   return (
     <div className="cd-page">
       <div className="cd-container">
-        {/* ... Keep your existing header and main content here ... */}
         <header className="cd-header">
           <p className="cd-breadcrumb"><Link to="/">Home</Link> / <Link to="/courses">Courses</Link></p>
           <h1>{course.name}</h1>
@@ -107,15 +237,55 @@ function CourseDetail() {
 
         <div className="cd-layout">
           <article className="cd-content">
-             {/* ... Keep your existing image, meta, and lessons here ... */}
-             <figure className="cd-cover"><ImageWithFallback src={course.image_url} alt={course.name} /></figure>
-             <section className="cd-section"><h2>About This Course</h2><p>{course.content || course.excerpt}</p></section>
+            <figure className="cd-cover"><ImageWithFallback src={course.image_url} alt={course.name} /></figure>
+
+            <div className="cd-meta-bar">
+              <div className="cd-meta-item">
+                <span className="cd-meta-icon">🕐</span>
+                <div>
+                  <small>Duration</small>
+                  <strong>{course.duration || 'Flexible'}</strong>
+                </div>
+              </div>
+              <div className="cd-meta-item">
+                <span className="cd-meta-icon">📚</span>
+                <div>
+                  <small>Lessons</small>
+                  <strong>{lessons.length}</strong>
+                </div>
+              </div>
+              <div className="cd-meta-item">
+                <span className="cd-meta-icon">🎯</span>
+                <div>
+                  <small>Level</small>
+                  <strong>{course.level || 'All Levels'}</strong>
+                </div>
+              </div>
+            </div>
+
+            <section className="cd-section">
+              <h2>About This Course</h2>
+              <p>{course.content || course.excerpt}</p>
+            </section>
+
+            {lessons.length > 0 && (
+              <section className="cd-section">
+                <h2>What You Will Learn</h2>
+                <ul className="cd-lessons-preview">
+                  {lessons.map((lesson, index) => (
+                    <li key={lesson.id}>
+                      <span className="cd-lesson-num">{index + 1}</span>
+                      <span>{lesson.title}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </article>
 
           <aside className="cd-sidebar">
             <div className="cd-buy-card">
-              
-              {/* SCHOLARSHIP BADGE */}
+
               {isScholarship && (
                 <div className="scholarship-badge">
                   🎉 80% Scholarship Applied!
@@ -127,20 +297,25 @@ function CourseDetail() {
                 {isScholarship ? (
                   <div>
                     <h2 className="cd-price" style={{ color: '#27ae60' }}>
-                      ₦{displayPrice.toLocaleString('en-NG')}
+                      {formatNaira(displayPrice)}
                     </h2>
                     <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '16px' }}>
-                      ₦{course.price.toLocaleString('en-NG')}
+                      {formatNaira(price)}
                     </span>
                   </div>
                 ) : (
-                  <h2 className="cd-price">{isFree ? 'Free' : `₦${course.price.toLocaleString('en-NG')}`}</h2>
+                  <h2 className="cd-price">{isFree ? 'Free' : formatNaira(price)}</h2>
                 )}
               </div>
 
               <div className="cd-divider" />
 
               {error && <p className="cd-buy-error">{error}</p>}
+              {notice && <p className="cd-buy-note">{notice}</p>}
+
+              {paymentState === 'verifying' && (
+                <p className="cd-buy-note">Verifying your payment...</p>
+              )}
 
               {!user && (
                 <button className="cd-buy-btn" onClick={() => navigate('/get-started', { state: { from: { pathname: `/courses/${id}` } } })}>
@@ -155,8 +330,8 @@ function CourseDetail() {
               )}
 
               {user && !enrolled && !isFree && (
-                <button className="cd-buy-btn" onClick={handlePaystackCheckout} disabled={processing}>
-                  {processing ? 'Processing...' : `Pay ₦${displayPrice.toLocaleString('en-NG')} with Paystack`}
+                <button className="cd-buy-btn" onClick={handlePaystackCheckout} disabled={processing || paymentState === 'verifying'}>
+                  {processing ? 'Processing...' : `Pay ${formatNaira(displayPrice)} with Paystack`}
                 </button>
               )}
 

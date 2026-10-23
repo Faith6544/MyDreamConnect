@@ -16,17 +16,27 @@ function AdminEnrollments() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigate('/admin'); return; }
 
-    const { data: enrollData } = await supabase
+    // There is no FK between enrollments and courses, so PostgREST embed fails.
+    // Load enrollments and join in JS instead.
+    const { data: enrollData, error: enrollErr } = await supabase
       .from('enrollments')
-      .select('*, courses:courses(id, name)')
-      .order('enrolled_at', { ascending: false });
+      .select('*')
+      .order('enrolled_at', { ascending: false })
+      .order('id', { ascending: false });
+
+    if (enrollErr) {
+      console.error('Failed to load enrollments:', enrollErr);
+      setLoading(false);
+      return;
+    }
 
     const { data: courseData } = await supabase
       .from('courses')
       .select('id, name')
       .order('name', { ascending: true });
 
-    const userIds = [...new Set((enrollData || []).map(e => e.user_id))];
+    const userIds = [...new Set((enrollData || []).map(e => e.user_id).filter(Boolean))];
+    const courseIds = [...new Set((enrollData || []).map(e => e.course_id).filter(Boolean))];
 
     let profileMap = {};
     if (userIds.length > 0) {
@@ -38,7 +48,21 @@ function AdminEnrollments() {
       (profileData || []).forEach(p => { profileMap[p.id] = p; });
     }
 
-    setEnrollments(enrollData || []);
+    let courseMap = {};
+    if (courseIds.length > 0) {
+      const { data: fetchedCourses } = await supabase
+        .from('courses')
+        .select('id, name')
+        .in('id', courseIds);
+      (fetchedCourses || []).forEach(c => { courseMap[c.id] = c; });
+    }
+
+    const enriched = (enrollData || []).map(e => ({
+      ...e,
+      courses: courseMap[e.course_id] || null,
+    }));
+
+    setEnrollments(enriched);
     setCourses(courseData || []);
     setProfiles(profileMap);
     setLoading(false);
@@ -69,7 +93,7 @@ function AdminEnrollments() {
     return true;
   });
 
-  const uniqueStudents = new Set(filtered.map(e => e.user_id)).size;
+  const uniqueStudents = new Set(filtered.map(e => e.user_id).filter(Boolean)).size;
 
   return (
     <div className="admin-list-page">
@@ -138,9 +162,11 @@ function AdminEnrollments() {
                   </td>
                   <td>{e.courses?.name || 'Deleted course'}</td>
                   <td>
-                    {new Date(e.enrolled_at).toLocaleDateString('en-US', {
-                      month: 'short', day: 'numeric', year: 'numeric'
-                    })}
+                    {e.enrolled_at
+                      ? new Date(e.enrolled_at).toLocaleDateString('en-US', {
+                          month: 'short', day: 'numeric', year: 'numeric'
+                        })
+                      : '—'}
                   </td>
                   <td className="admin-actions">
                     <button onClick={() => handleDelete(e.id)} className="btn-delete">

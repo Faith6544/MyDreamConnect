@@ -17,19 +17,30 @@ export default function AdminScholarships() {
       .from('scholarship_applications')
       .select('*, courses(name)')
       .order('created_at', { ascending: false });
-    
+
+    if (error) {
+      console.error('Failed to load scholarship applications:', error);
+      alert('Failed to load applications: ' + error.message);
+    }
+
     if (!error) setApplications(data || []);
     setLoading(false);
   };
 
   const handleApprove = async (app) => {
     setProcessingId(app.id); // Lock ONLY this specific card
-    
+
     // 1. Update database status to approved
-    await supabase
+    const { error: updateError } = await supabase
       .from('scholarship_applications')
       .update({ status: 'approved' })
       .eq('id', app.id);
+
+    if (updateError) {
+      alert('Failed to update application: ' + updateError.message);
+      setProcessingId(null);
+      return;
+    }
 
     // 2. Generate the Magic Link
     const magicLink = `${window.location.origin}/courses/${app.course_id}?scholarship=approved_80`;
@@ -52,7 +63,8 @@ export default function AdminScholarships() {
       fetchApps(); // Refresh list to show updated status
     } catch (err) {
       console.error("EmailJS Error:", err);
-      alert('Approved, but the email failed to send. Check the F12 console.');
+      alert('Status updated to approved, but the email failed to send. Check the F12 console.');
+      fetchApps();
     } finally {
       setProcessingId(null); // Unlock the card when done
     }

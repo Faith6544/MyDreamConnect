@@ -6,25 +6,48 @@ import './AdminPostTagsList.css';
 function AdminPostTagsList() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate('/admin'); return; }
-      const { data } = await supabase.from('post_tags').select('*').order('name', { ascending: true });
-      setItems(data || []);
-      setLoading(false);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { navigate('/admin'); return; }
+
+        const { data, error: loadError } = await supabase
+          .from('post_tags')
+          .select('*')
+          .order('name', { ascending: true });
+
+        if (loadError) setError('Load failed: ' + loadError.message);
+        else setItems(data || []);
+      } catch (err) {
+        setError('Load failed: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [navigate]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this tag? It will be removed from all posts.')) return;
-    await supabase.from('post_tag_links').delete().eq('tag_id', id);
+
+    // post_tag_links has no FK to post_tags, so clear the links first.
+    const { error: linkError } = await supabase
+      .from('post_tag_links')
+      .delete()
+      .eq('tag_id', id);
+
+    if (linkError) {
+      alert('Could not remove this tag from posts: ' + linkError.message);
+      return;
+    }
+
     const { error } = await supabase.from('post_tags').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setItems(items.filter(i => i.id !== id));
+    else setItems((prev) => prev.filter(i => i.id !== id));
   };
 
   return (
@@ -36,6 +59,8 @@ function AdminPostTagsList() {
         </div>
         <Link to="/admin/post-tags/new" className="btn-new">+ New Tag</Link>
       </header>
+
+      {error && <div className="admin-error">❌ {error}</div>}
 
       {loading ? (
         <p className="admin-list-loading">Loading...</p>

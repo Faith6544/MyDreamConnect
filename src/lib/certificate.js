@@ -5,7 +5,16 @@ export function generateCertificate({
   courseName,
   issuedDate,
   certificateId,
-}) {
+} = {}) {
+  const safeStudentName = (studentName || 'Student').trim().slice(0, 80);
+  const safeCourseName = (courseName || 'Course').trim();
+  const safeIssuedDate = issuedDate || new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const safeId = certificateId || 'PENDING';
+
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
@@ -52,10 +61,10 @@ export function generateCertificate({
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(30);
   doc.setTextColor(10, 71, 17);
-  doc.text(studentName || 'Student', W / 2, 118, { align: 'center' });
+  doc.text(safeStudentName, W / 2, 118, { align: 'center' });
 
   // Underline under student name
-  const nameWidth = doc.getTextWidth(studentName || 'Student');
+  const nameWidth = doc.getTextWidth(safeStudentName);
   doc.setDrawColor(212, 160, 23);
   doc.setLineWidth(0.5);
   doc.line(W / 2 - nameWidth / 2 - 10, 122, W / 2 + nameWidth / 2 + 10, 122);
@@ -69,16 +78,16 @@ export function generateCertificate({
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
   doc.setTextColor(30, 30, 30);
-  doc.text(courseName || 'Course', W / 2, 148, { align: 'center', maxWidth: W - 60 });
+  doc.text(safeCourseName, W / 2, 148, { align: 'center', maxWidth: W - 60 });
 
   // Footer
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(140, 140, 140);
-  doc.text(`Issued on ${issuedDate}`, W / 2, 172, { align: 'center' });
+  doc.text(`Issued on ${safeIssuedDate}`, W / 2, 172, { align: 'center' });
 
   doc.setFontSize(8);
-  doc.text(`Certificate ID: ${certificateId}`, W / 2, 178, { align: 'center' });
+  doc.text(`Certificate ID: ${safeId}`, W / 2, 178, { align: 'center' });
 
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(9);
@@ -88,8 +97,11 @@ export function generateCertificate({
   return doc;
 }
 
-export function downloadCertificate(data) {
+export function downloadCertificate(data = {}) {
   const doc = generateCertificate(data);
-  const filename = `MyDreamConnect-Certificate-${data.courseName.replace(/\s+/g, '-')}.pdf`;
-  doc.save(filename);
+  const courseName = data.courseName || 'Course';
+  const safeFilename = courseName
+    .replace(/[^A-Za-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'Course';
+  doc.save(`MyDreamConnect-Certificate-${safeFilename}.pdf`);
 }

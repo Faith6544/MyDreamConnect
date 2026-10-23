@@ -24,6 +24,8 @@ import PhotoAlbum from './pages/PhotoAlbum';
 import Videos from './pages/Videos';
 import Flyers from './pages/Flyers';
 import TalentHome from './pages/TalentHome';
+import TalentMarketplace from './pages/TalentMarketplace';
+import TalentProfile from './pages/TalentProfile';
 import Jobs from './pages/Jobs';
 import Opportunities from './pages/Opportunities';
 import Donate from './pages/Donate';
@@ -106,8 +108,10 @@ function App() {
           <Route path="/media/videos" element={<Videos />} />
           <Route path="/media/flyers" element={<Flyers />} />
           <Route path="/talent" element={<TalentHome />} />
+          <Route path="/talent/all" element={<TalentMarketplace />} />
           <Route path="/talent/jobs" element={<Jobs />} />
           <Route path="/talent/opportunities" element={<Opportunities />} />
+          <Route path="/talent/:id" element={<TalentProfile />} />
           <Route path="/donate" element={<Donate />} />
           <Route path="/volunteer" element={<Volunteer />} />
           <Route path="/partnership" element={<Partnership />} />

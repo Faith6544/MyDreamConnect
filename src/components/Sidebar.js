@@ -194,6 +194,8 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
       const archiveMap = {};
       safePosts.forEach((p) => {
         const d = new Date(p.created_at);
+        // A null/invalid created_at would otherwise produce "NaN NaN".
+        if (Number.isNaN(d.getTime())) return;
         const key = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
         archiveMap[key] = (archiveMap[key] || 0) + 1;
       });
@@ -210,7 +212,8 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
   }, []);
 
   const handleSubscribeChange = (e) => {
-    setSubscribeData({ ...subscribeData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setSubscribeData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubscribe = async (e) => {
@@ -220,36 +223,40 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
     const cleanEmail = subscribeData.email.trim().toLowerCase();
     const cleanName = subscribeData.name.trim();
 
-    const spam = await checkSpam({
-      honeypot: subscribeData.website,
-      email: cleanEmail,
-      formType: 'subscribe',
-    });
+    try {
+      const spam = await checkSpam({
+        honeypot: subscribeData.website,
+        email: cleanEmail,
+        formType: 'subscribe',
+      });
 
-    if (!spam.allowed) {
-      setSubscribeStatus('success');
-      setSubscribeData({ name: '', email: '', website: '' });
-      setTimeout(() => setSubscribeStatus('idle'), 6000);
-      return;
-    }
-
-    const { error } = await supabase
-      .from('subscribers')
-      .insert([{ email: cleanEmail, name: cleanName || null }]);
-
-    if (error) {
-      if (error.code === '23505') {
-        setSubscribeStatus('already');
-      } else {
-        console.error('Subscribe error:', error);
-        setSubscribeStatus('error');
+      if (!spam.allowed) {
+        // Fake success — don't reveal the block to a bot.
+        setSubscribeStatus('success');
+        setSubscribeData({ name: '', email: '', website: '' });
+        return;
       }
-    } else {
+
+      const { error } = await supabase
+        .from('subscribers')
+        .insert([{ email: cleanEmail, name: cleanName || null }]);
+
+      if (error) {
+        if (error.code === '23505') {
+          setSubscribeStatus('already');
+        } else {
+          console.error('Subscribe error:', error);
+          setSubscribeStatus('error');
+        }
+        return;
+      }
+
       setSubscribeStatus('success');
       setSubscribeData({ name: '', email: '', website: '' });
 
       await logSubmission({ email: cleanEmail, formType: 'subscribe' });
 
+      // Fire-and-forget notification; a failure here must not break the UI.
       fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
@@ -264,9 +271,13 @@ function Sidebar({ showComments = false, showSubscribe = true }) {
           email: cleanEmail,
         }),
       }).catch(() => {});
+    } catch (err) {
+      console.error('Subscribe failed:', err);
+      setSubscribeStatus('error');
+    } finally {
+      // Always release the button, even if something above threw.
+      setTimeout(() => setSubscribeStatus('idle'), 6000);
     }
-
-    setTimeout(() => setSubscribeStatus('idle'), 6000);
   };
 
   return (

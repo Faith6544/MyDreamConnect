@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function ImageWithFallback({ src, alt = '', className = '', type = 'default', ...rest }) {
   const [failed, setFailed] = useState(false);
+
+  // Reset the failure flag when the source changes, otherwise one bad URL
+  // permanently pins this component to the placeholder.
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
 
   const fallback = type === 'human' ? '/placeholder1.webp' : '/placeholder.webp';
   const finalSrc = failed || !src ? fallback : src;

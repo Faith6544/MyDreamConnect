@@ -4,6 +4,18 @@ import './TalentHome.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
 
+function parseSkills(raw) {
+  if (Array.isArray(raw)) return raw.filter(Boolean);
+  if (typeof raw === 'string' && raw.trim()) {
+    return raw
+      .replace(/[\[\]"]/g, '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 function TalentHome() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
@@ -34,17 +46,18 @@ function TalentHome() {
     fetchTalents();
   }, []);
 
-  const filteredTalents = talents.filter(talent => {
-    const skills = talent.skills || [];
+  const filteredTalents = talents.filter((talent) => {
+    const skills = parseSkills(talent.skills);
+    const term = searchTerm.toLowerCase();
     const matchesSearch =
-      (talent.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (talent.role || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      skills.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
+      (talent.name || '').toLowerCase().includes(term) ||
+      (talent.role || '').toLowerCase().includes(term) ||
+      skills.some((s) => s.toLowerCase().includes(term));
 
     const matchesCategory =
       activeCategory === 'All' ||
       (talent.role || '').toLowerCase().includes(activeCategory.toLowerCase()) ||
-      skills.some(s => s.toLowerCase().includes(activeCategory.toLowerCase()));
+      skills.some((s) => s.toLowerCase().includes(activeCategory.toLowerCase()));
 
     return matchesSearch && matchesCategory;
   });
@@ -105,7 +118,9 @@ function TalentHome() {
                       <p className="talent-role">{talent.role}</p>
                     </div>
                   </div>
-                  <button className="view-profile-btn">View Profile</button>
+                  <Link to={`/talent/${talent.id}`} className="view-profile-btn">
+                    View Profile
+                  </Link>
                 </div>
 
                 <div className="talent-meta">
@@ -122,8 +137,8 @@ function TalentHome() {
                 </div>
 
                 <div className="skill-tags">
-                  {(talent.skills || []).slice(0, 4).map((s, i) => (
-                    <span className="skill-tag" key={i}>{s}</span>
+                  {parseSkills(talent.skills).slice(0, 4).map((s) => (
+                    <span className="skill-tag" key={s}>{s}</span>
                   ))}
                 </div>
               </div>

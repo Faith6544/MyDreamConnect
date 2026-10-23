@@ -78,11 +78,12 @@ function AdminDashboard() {
       const { data: recent } = await supabase
         .from('enrollments')
         .select('id, enrolled_at, user_id, course_id')
-        .order('enrolled_at', { ascending: false })
+        .order('enrolled_at', { ascending: false, nullsFirst: false })
+        .order('id', { ascending: false })
         .limit(5);
 
       if (recent && recent.length > 0) {
-        const courseIds = [...new Set(recent.map(r => r.course_id))];
+        const courseIds = [...new Set(recent.map(r => r.course_id).filter(Boolean))];
         const { data: recentCourses } = await supabase
           .from('courses')
           .select('id, name')
@@ -91,7 +92,7 @@ function AdminDashboard() {
         const courseMap = {};
         (recentCourses || []).forEach(c => { courseMap[c.id] = c; });
 
-        const userIds = [...new Set(recent.map(r => r.user_id))];
+        const userIds = [...new Set(recent.map(r => r.user_id).filter(Boolean))];
         const { data: profiles } = await supabase
           .from('profiles')
           .select('id, email, full_name')
@@ -107,6 +108,8 @@ function AdminDashboard() {
         }));
 
         setRecentEnrollments(enriched);
+      } else {
+        setRecentEnrollments([]);
       }
 
       // -------- Recent Activity --------
@@ -130,7 +133,7 @@ function AdminDashboard() {
         supabase.from('contact_messages').select('*', { count: 'exact', head: true }).gte('created_at', yesterday),
         supabase.from('volunteer_applications').select('*', { count: 'exact', head: true }).gte('created_at', yesterday),
         supabase.from('partnership_enquiries').select('*', { count: 'exact', head: true }).gte('created_at', yesterday),
-        supabase.from('enrollments').select('*', { count: 'exact', head: true }).gte('enrolled_at', yesterday),
+        supabase.from('enrollments').select('*', { count: 'exact', head: true }).gte('enrolled_at', yesterday).not('enrolled_at', 'is', null),
         supabase.from('subscribers').select('*', { count: 'exact', head: true }).gte('subscribed_at', yesterday),
       ]);
 

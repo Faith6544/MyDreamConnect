@@ -7,38 +7,48 @@ function ImageUpload({ value, onChange, label = 'Image' }) {
   const [error, setError] = useState('');
 
   const handleFile = async (e) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
       setError('Please choose an image file.');
+      input.value = ''; // allow re-selecting the same file
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
       setError('Image must be under 5 MB.');
+      input.value = '';
       return;
     }
 
     setError('');
     setUploading(true);
 
-    const ext = file.name.split('.').pop();
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const path = `uploads/${filename}`;
+    try {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const path = `uploads/${filename}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('images')
-      .upload(path, file, { cacheControl: '3600', upsert: false });
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(path, file, { cacheControl: '3600', upsert: false });
 
-    if (uploadError) {
-      setError('Upload failed: ' + uploadError.message);
+      if (uploadError) {
+        setError('Upload failed: ' + uploadError.message);
+        return;
+      }
+
+      const { data } = supabase.storage.from('images').getPublicUrl(path);
+      onChange(data.publicUrl);
+    } catch (err) {
+      setError('Upload failed: ' + err.message);
+    } finally {
       setUploading(false);
-      return;
+      // Clearing the input lets the user pick the SAME file again; without
+      // this the change event never fires and "Replace image" looks broken.
+      input.value = '';
     }
-
-    const { data } = supabase.storage.from('images').getPublicUrl(path);
-    onChange(data.publicUrl);
-    setUploading(false);
   };
 
   return (

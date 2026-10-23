@@ -104,7 +104,6 @@ function Home() {
           .limit(5);
           
         if (coursesError) console.error("Error fetching courses:", coursesError);
-        console.log("Courses loaded on Home:", coursesData);
         setCourses(coursesData || []);
 
         // 2. Fetch Instructors
@@ -137,9 +136,15 @@ function Home() {
           .from('courses')
           .select('*', { count: 'exact', head: true });
 
+        // "Students Enrolled" used to be hard-coded to 0. Count real
+        // enrollment rows instead (one row per student/course).
+        const { count: totalEnrollments } = await supabase
+          .from('enrollments')
+          .select('*', { count: 'exact', head: true });
+
         setStats({
           courses: totalCourses || 0,
-          students: 0,
+          students: totalEnrollments || 0,
           instructors: instrData ? instrData.length : 0,
           programs: 4,
         });
@@ -327,14 +332,16 @@ function Home() {
         {!loadingCourses && courses.length > 0 && (
           <div className="courses-grid">
             {courses.map(course => {
-              const isFree = !course.price || course.price === 0;
+              // price may be null, 0, a number, or a numeric string.
+              const priceValue = Number(course.price);
+              const isFree = !course.price || !Number.isFinite(priceValue) || priceValue <= 0;
               return (
                 <div className="course-card" key={course.id}>
                   <div className="course-image">
-                    <ImageWithFallback src={course.image_url} alt="" />
+                    <ImageWithFallback src={course.image_url} alt={course.name ? `${course.name} course` : 'Course'} />
                   </div>
                   <div className="course-body">
-                    <h3>{course.name}</h3>
+                    <h3>{course.name || 'Untitled Course'}</h3>
                     <p className="course-excerpt">
                       {course.excerpt
                         ? course.excerpt.substring(0, 90) + '...'
@@ -346,7 +353,7 @@ function Home() {
                     </div>
                     <div className="course-footer">
                       <span className="course-price">
-                        {isFree ? 'Free' : `₦${course.price.toLocaleString('en-NG')}`}
+                        {isFree ? 'Free' : `₦${priceValue.toLocaleString('en-NG')}`}
                       </span>
                       <Link to={`/courses/${course.id}`} className="course-btn">
                         {isFree ? 'Enroll Now' : 'Buy Now'}
@@ -383,7 +390,7 @@ function Home() {
           <div className="instructors-grid">
             {instructors.map((inst) => (
               <div className="instructor-card" key={inst.id}>
-                <ImageWithFallback src={inst.image_url} alt="" type="human" />
+                <ImageWithFallback src={inst.image_url} alt={inst.name || 'Instructor'} type="human" />
                 <h4>{inst.name}</h4>
                 <span>{inst.role}</span>
               </div>
@@ -412,7 +419,7 @@ function Home() {
           <div className="blogs-grid">
             {blogs.map((b) => (
               <Link to={`/blog/${b.id}`} className="blog-card" key={b.id}>
-                <ImageWithFallback src={b.image_url} alt="" />
+                <ImageWithFallback src={b.image_url} alt={b.title || 'Blog post'} />
                 <h3>{b.title}</h3>
               </Link>
             ))}

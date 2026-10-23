@@ -31,11 +31,15 @@ function AdminPostsList() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this post? This cannot be undone.')) return;
 
+    // post_tag_links has no FK to posts, so deleting the post leaves orphan
+    // rows behind. Clean them up first (best effort).
+    await supabase.from('post_tag_links').delete().eq('post_id', id);
+
     const { error } = await supabase.from('posts').delete().eq('id', id);
     if (error) {
       alert('Delete failed: ' + error.message);
     } else {
-      setPosts(posts.filter(p => p.id !== id));
+      setPosts((prev) => prev.filter(p => p.id !== id));
     }
   };
 

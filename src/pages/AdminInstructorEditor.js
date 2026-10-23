@@ -37,7 +37,7 @@ function AdminInstructorEditor() {
 
   const handleChange = (e) => {
     const value = e.target.name === 'order_index' ? Number(e.target.value) : e.target.value;
-    setFormData({ ...formData, [e.target.name]: value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -75,7 +75,7 @@ function AdminInstructorEditor() {
         <ImageUpload
   label="Instructor Photo"
   value={formData.image_url}
-  onChange={(url) => setFormData({ ...formData, image_url: url })}
+  onChange={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
 />
         <div className="admin-field">
           <label>Bio (optional)</label>

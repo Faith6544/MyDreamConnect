@@ -3,6 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminUsers.css';
 
+function normalizeRole(role) {
+  return String(role || '').replace(/^'+|'+$/g, '').toLowerCase();
+}
+
 function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [enrollCounts, setEnrollCounts] = useState({});
@@ -38,8 +42,15 @@ function AdminUsers() {
   useEffect(() => { loadData(); /* eslint-disable-next-line */ }, [navigate]);
 
   const handleRoleToggle = async (id, currentRole) => {
-    const newRole = currentRole === 'admin' ? 'student' : 'admin';
-    if (!window.confirm(`Change this user's role to "${newRole}"?`)) return;
+    const normalized = normalizeRole(currentRole);
+    const newRole = normalized === 'admin' ? 'student' : 'admin';
+
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (currentUser && currentUser.id === id && newRole === 'student') {
+      if (!window.confirm('You are about to remove your own admin privileges. You will lose access to admin pages. Continue?')) return;
+    } else {
+      if (!window.confirm(`Change this user's role to "${newRole}"?`)) return;
+    }
 
     const { error } = await supabase
       .from('profiles')
@@ -50,6 +61,9 @@ function AdminUsers() {
       alert('Update failed: ' + error.message);
     } else {
       setUsers(users.map(u => u.id === id ? { ...u, role: newRole } : u));
+      if (currentUser && currentUser.id === id && newRole === 'student') {
+        window.location.href = '/';
+      }
     }
   };
 
@@ -59,10 +73,11 @@ function AdminUsers() {
       (u.full_name || '').toLowerCase().includes(search.toLowerCase()) ||
       (u.email || '').toLowerCase().includes(search.toLowerCase());
 
+    const role = normalizeRole(u.role);
     const matchesRole =
       roleFilter === 'all' ||
-      (roleFilter === 'admin' && u.role === 'admin') ||
-      (roleFilter === 'student' && u.role !== 'admin');
+      (roleFilter === 'admin' && role === 'admin') ||
+      (roleFilter === 'student' && role !== 'admin');
 
     return matchesSearch && matchesRole;
   });
@@ -118,7 +133,7 @@ function AdminUsers() {
           </thead>
           <tbody>
             {filtered.map(u => {
-              const isAdmin = u.role === 'admin';
+              const isAdmin = normalizeRole(u.role) === 'admin';
               const count = enrollCounts[u.id] || 0;
               return (
                 <tr key={u.id}>

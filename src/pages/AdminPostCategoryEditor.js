@@ -8,54 +8,91 @@ function AdminPostCategoryEditor() {
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ name: '', slug: '', order_index: 0 });
+  const [formData, setFormData] = useState({ name: '', slug: '', order_index: '' });
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
     const checkAuthAndLoad = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate('/admin'); return; }
-      if (isEdit) {
-        const { data, error } = await supabase.from('post_categories').select('*').eq('id', id).single();
-        if (error) setError('Load failed: ' + error.message);
-        else if (data) setFormData({
-          name: data.name || '',
-          slug: data.slug || '',
-          order_index: data.order_index || 0,
-        });
-        setLoading(false);
-      } else {
-        setLoading(false);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { navigate('/admin'); return; }
+
+        if (isEdit) {
+          const { data, error } = await supabase
+            .from('post_categories')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+          if (cancelled) return;
+
+          if (error) setError('Load failed: ' + error.message);
+          else if (!data) setError('This category no longer exists.');
+          else setFormData({
+            name: data.name || '',
+            slug: data.slug || '',
+            // `post_categories.order_index` is TEXT — keep it a string.
+            order_index: data.order_index == null ? '' : String(data.order_index),
+          });
+        }
+      } catch (err) {
+        if (!cancelled) setError('Load failed: ' + err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
+
     checkAuthAndLoad();
+    return () => { cancelled = true; };
   }, [id, isEdit, navigate]);
 
   const handleChange = (e) => {
-    const value = e.target.name === 'order_index' ? Number(e.target.value) : e.target.value;
-    setFormData({ ...formData, [e.target.name]: value });
-
-    if (e.target.name === 'name' && !isEdit) {
-      setFormData(prev => ({
-        ...prev,
-        name: value,
-        slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      // Auto-generate the slug from the name when creating.
+      if (name === 'name' && !isEdit) {
+        return {
+          ...prev,
+          name: value,
+          slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError('');
-    const op = isEdit
-      ? supabase.from('post_categories').update(formData).eq('id', id)
-      : supabase.from('post_categories').insert([formData]);
-    const { error } = await op;
-    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-    else navigate('/admin/post-categories');
+
+    const payload = {
+      name: formData.name,
+      slug: formData.slug,
+      // Store a string: the column is TEXT.
+      order_index: formData.order_index === '' ? null : String(formData.order_index).trim(),
+    };
+
+    try {
+      const op = isEdit
+        ? supabase.from('post_categories').update(payload).eq('id', id)
+        : supabase.from('post_categories').insert([payload]);
+
+      const { error } = await op;
+      if (error) {
+        setError('Save failed: ' + error.message);
+        setSaving(false);
+      } else {
+        navigate('/admin/post-categories');
+      }
+    } catch (err) {
+      setError('Save failed: ' + err.message);
+      setSaving(false);
+    }
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -80,7 +117,14 @@ function AdminPostCategoryEditor() {
         </div>
         <div className="admin-field">
           <label>Order (lower = shown first)</label>
-          <input type="number" name="order_index" value={formData.order_index} onChange={handleChange} disabled={saving} />
+          <input
+            type="number"
+            name="order_index"
+            value={formData.order_index}
+            onChange={handleChange}
+            placeholder="e.g. 1"
+            disabled={saving}
+          />
         </div>
         <div className="admin-editor-actions">
           <Link to="/admin/post-categories" className="btn-cancel">Cancel</Link>

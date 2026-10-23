@@ -8,6 +8,7 @@ function AdminLessonsList() {
   const [lessons, setLessons] = useState([]);
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,8 +16,14 @@ function AdminLessonsList() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate('/admin'); return; }
 
-      const { data: courseData } = await supabase.from('courses').select('*').eq('id', courseId).single();
-      setCourse(courseData);
+      const { data: courseData, error: courseError } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', courseId)
+        .maybeSingle();
+
+      if (courseError) setError('Load failed: ' + courseError.message);
+      else setCourse(courseData);
 
       const { data, error } = await supabase
         .from('lessons')
@@ -24,7 +31,12 @@ function AdminLessonsList() {
         .eq('course_id', courseId)
         .order('order_index', { ascending: true });
 
-      if (!error) setLessons(data || []);
+      if (error) {
+        setError('Load failed: ' + error.message);
+        setLessons([]);
+      } else {
+        setLessons(data || []);
+      }
       setLoading(false);
     };
     checkAuthAndLoad();
@@ -32,9 +44,13 @@ function AdminLessonsList() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this lesson?')) return;
+
+    // lesson_progress has no FK to lessons, so remove its rows first.
+    await supabase.from('lesson_progress').delete().eq('lesson_id', id);
+
     const { error } = await supabase.from('lessons').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setLessons(lessons.filter(l => l.id !== id));
+    else setLessons((prev) => prev.filter(l => l.id !== id));
   };
 
   return (
@@ -46,6 +62,8 @@ function AdminLessonsList() {
         </div>
         <Link to={`/admin/courses/${courseId}/lessons/new`} className="btn-new">+ New Lesson</Link>
       </header>
+
+      {error && <div className="admin-error">❌ {error}</div>}
 
       {loading ? (
         <p className="admin-list-loading">Loading...</p>

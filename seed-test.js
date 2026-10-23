@@ -1,9 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
-
-const SUPABASE_URL = 'https://kzdqbqnyytgovlngfvwr.supabase.co';
-const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6ZHFicW55eXRnb3ZsbmdmdndyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDk1MzkwNiwiZXhwIjoyMTA2NTI5OTA2fQ.vLfAoKUK6UiZqXdWie1k75VtcLPR_0ZIf1xMzRi5Tkw';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const { supabase, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = require('./scripts/admin-client');
 
 async function testSearch() {
   const query = "dream"; // We know "dream" is in the About Us text
@@ -15,7 +10,7 @@ async function testSearch() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`
+        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
       },
       body: JSON.stringify({ text: query })
     });

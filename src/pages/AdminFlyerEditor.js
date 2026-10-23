@@ -35,7 +35,10 @@ function AdminFlyerEditor() {
     checkAuthAndLoad();
   }, [id, isEdit, navigate]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -83,7 +86,7 @@ function AdminFlyerEditor() {
         <ImageUpload
   label="Flyer Image"
   value={formData.image_url}
-  onChange={(url) => setFormData({ ...formData, image_url: url })}
+  onChange={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
 />
         <div className="admin-field">
           <label>PDF URL</label>

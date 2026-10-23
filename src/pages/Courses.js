@@ -4,9 +4,16 @@ import './Courses.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
 
+// `courses.price` is nullable and may come back as a numeric string.
+const toPrice = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
+
 const formatPrice = (course) => {
-  if (!course.price || course.price === 0) return 'Free';
-  return `₦${course.price.toLocaleString('en-NG')}`;
+  const price = toPrice(course.price);
+  if (price <= 0) return 'Free';
+  return `₦${price.toLocaleString('en-NG')}`;
 };
 
 function Courses() {
@@ -53,18 +60,24 @@ function Courses() {
   }, []);
 
   const filteredCourses = courses.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const name = (c.name || '').toLowerCase();
+    const matchesSearch = name.includes(searchTerm.toLowerCase());
     const matchesCat =
       filterCategory === 'all' ||
       String(c.category_id) === String(filterCategory);
     return matchesSearch && matchesCat;
   });
 
+  const safeTime = (value) => {
+    const t = new Date(value).getTime();
+    return Number.isNaN(t) ? 0 : t;
+  };
+
   const sortedCourses = [...filteredCourses].sort((a, b) => {
-    if (sortBy === 'newest') return new Date(b.created_at) - new Date(a.created_at);
-    if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
-    if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
-    if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
+    if (sortBy === 'newest') return safeTime(b.created_at) - safeTime(a.created_at);
+    if (sortBy === 'oldest') return safeTime(a.created_at) - safeTime(b.created_at);
+    if (sortBy === 'price-low') return toPrice(a.price) - toPrice(b.price);
+    if (sortBy === 'price-high') return toPrice(b.price) - toPrice(a.price);
     return 0;
   });
 
@@ -113,36 +126,46 @@ function Courses() {
         </div>
 
         <div className="courses-grid">
-          {sortedCourses.map(course => (
-            <div className="course-card" key={course.id}>
-              <div className="course-image">
-                <ImageWithFallback src={course.image_url} alt="" />
-                {course.price === 0 && <span className="badge-free">FREE</span>}
-                {course.price > 0 && <span className="badge-paid">PAID</span>}
-              </div>
+          {sortedCourses.map(course => {
+            const price = toPrice(course.price);
+            const isFree = price <= 0;
+            return (
+              <div className="course-card" key={course.id}>
+                <div className="course-image">
+                  <ImageWithFallback
+                    src={course.image_url}
+                    alt={course.name ? `${course.name} course` : 'Course'}
+                  />
+                  {isFree ? (
+                    <span className="badge-free">FREE</span>
+                  ) : (
+                    <span className="badge-paid">PAID</span>
+                  )}
+                </div>
 
-              <div className="course-content">
-                <div className="course-categories">
-                  {course.categories?.name || 'General'}
-                </div>
-                <h3 className="course-title">{course.name}</h3>
-                <p className="course-excerpt">
-                  {course.excerpt
-                    ? course.excerpt.substring(0, 90) + '...'
-                    : 'Click to view full course description and enroll today.'}
-                </p>
-                <div className="course-meta">
-                  <span>🕐 {course.duration || 'Flexible'}</span>
-                </div>
-                <div className="course-footer">
-                  <span className="course-price">{formatPrice(course)}</span>
-                  <Link to={`/courses/${course.id}`} className="buy-btn">
-                    {course.price === 0 ? 'Enroll Now' : 'Buy Now'}
-                  </Link>
+                <div className="course-content">
+                  <div className="course-categories">
+                    {course.categories?.name || 'General'}
+                  </div>
+                  <h3 className="course-title">{course.name || 'Untitled Course'}</h3>
+                  <p className="course-excerpt">
+                    {course.excerpt
+                      ? course.excerpt.substring(0, 90) + '...'
+                      : 'Click to view full course description and enroll today.'}
+                  </p>
+                  <div className="course-meta">
+                    <span>🕐 {course.duration || 'Flexible'}</span>
+                  </div>
+                  <div className="course-footer">
+                    <span className="course-price">{formatPrice(course)}</span>
+                    <Link to={`/courses/${course.id}`} className="buy-btn">
+                      {isFree ? 'Enroll Now' : 'Buy Now'}
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {sortedCourses.length === 0 && (

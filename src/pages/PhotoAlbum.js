@@ -12,8 +12,11 @@ function PhotoAlbum() {
   const [index, setIndex] = useState(-1); // -1 = closed
 
   useEffect(() => {
+    let cancelled = false;
+
     const load = async () => {
-      const { data: albumData } = await supabase.from('photos').select('*').eq('id', id).single();
+      const { data: albumData } = await supabase.from('photos').select('*').eq('id', id).maybeSingle();
+      if (cancelled) return;
       setAlbum(albumData);
 
       const { data: photoData } = await supabase
@@ -22,23 +25,30 @@ function PhotoAlbum() {
         .eq('album_id', id)
         .order('order_index', { ascending: true });
 
+      if (cancelled) return;
       setPhotos(photoData || []);
       setLoading(false);
     };
     load();
+
+    return () => { cancelled = true; };
   }, [id]);
+
+  // `album_photos.image_url` is a bigint in the live schema, so a row can hold
+  // a number. Filter those out instead of rendering them as <img src="123">.
+  const displayPhotos = photos.filter((p) => typeof p.image_url === 'string' && p.image_url.trim());
 
   // Keyboard nav
   useEffect(() => {
     if (index < 0) return;
     const onKey = (e) => {
       if (e.key === 'Escape') setIndex(-1);
-      if (e.key === 'ArrowRight') setIndex(i => (i + 1) % photos.length);
-      if (e.key === 'ArrowLeft') setIndex(i => (i - 1 + photos.length) % photos.length);
+      if (displayPhotos.length > 0 && e.key === 'ArrowRight') setIndex(i => (i + 1) % displayPhotos.length);
+      if (displayPhotos.length > 0 && e.key === 'ArrowLeft') setIndex(i => (i - 1 + displayPhotos.length) % displayPhotos.length);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [index, photos.length]);
+  }, [index, displayPhotos.length]);
 
   if (loading) return <h2 className="pa-status">Loading album...</h2>;
   if (!album) return <h2 className="pa-status">Album not found.</h2>;
@@ -54,11 +64,11 @@ function PhotoAlbum() {
       </section>
 
       <section className="pa-content">
-        {photos.length === 0 ? (
+        {displayPhotos.length === 0 ? (
           <p className="pa-empty">No photos in this album yet.</p>
         ) : (
           <div className="pa-grid">
-            {photos.map((p, i) => (
+            {displayPhotos.map((p, i) => (
               <div key={p.id} className="pa-thumb" onClick={() => setIndex(i)}>
                 <ImageWithFallback src={p.image_url} alt={p.caption || ''} />
                 {p.caption && <span className="pa-caption">{p.caption}</span>}
@@ -68,33 +78,33 @@ function PhotoAlbum() {
         )}
       </section>
 
-      {index >= 0 && photos[index] && (
+      {index >= 0 && displayPhotos[index] && (
         <div className="pa-lightbox" onClick={() => setIndex(-1)}>
           <button className="pa-close" onClick={() => setIndex(-1)}>×</button>
 
-          {photos.length > 1 && (
+          {displayPhotos.length > 1 && (
             <button
               className="pa-nav pa-prev"
-              onClick={(e) => { e.stopPropagation(); setIndex(i => (i - 1 + photos.length) % photos.length); }}
+              onClick={(e) => { e.stopPropagation(); setIndex(i => (i - 1 + displayPhotos.length) % displayPhotos.length); }}
             >‹</button>
           )}
 
           <img
-            src={photos[index].image_url}
-            alt={photos[index].caption || ''}
+            src={displayPhotos[index].image_url}
+            alt={displayPhotos[index].caption || ''}
             onClick={(e) => e.stopPropagation()}
           />
 
-          {photos.length > 1 && (
+          {displayPhotos.length > 1 && (
             <button
               className="pa-nav pa-next"
-              onClick={(e) => { e.stopPropagation(); setIndex(i => (i + 1) % photos.length); }}
+              onClick={(e) => { e.stopPropagation(); setIndex(i => (i + 1) % displayPhotos.length); }}
             >›</button>
           )}
 
           <div className="pa-lightbox-info">
-            {photos[index].caption && <p>{photos[index].caption}</p>}
-            <span>{index + 1} / {photos.length}</span>
+            {displayPhotos[index].caption && <p>{displayPhotos[index].caption}</p>}
+            <span>{index + 1} / {displayPhotos.length}</span>
           </div>
         </div>
       )}

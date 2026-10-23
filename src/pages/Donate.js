@@ -19,10 +19,23 @@ function Donate() {
   };
 
   const finalAmount = customAmount || amount;
+  const numericAmount = Number(finalAmount);
+  const isValidAmount = Number.isFinite(numericAmount) && numericAmount >= 100;
 
   const handleDonate = (e) => {
     e.preventDefault();
-    window.open('https://bit.ly/support-mydreamconnect', '_blank', 'noopener'); 
+
+    // Don't open a payment page for an amount we can't honour.
+    if (!isValidAmount) return;
+
+    // The donation itself is completed on the external payment page. Passing
+    // the chosen amount/frequency along at least lets that page prefill it
+    // (and keeps the values in the URL for reference).
+    const url = new URL('https://bit.ly/support-mydreamconnect');
+    url.searchParams.set('amount', String(Math.round(numericAmount)));
+    url.searchParams.set('frequency', frequency);
+
+    window.open(url.toString(), '_blank', 'noopener');
   };
 
   return (
@@ -76,25 +89,40 @@ function Donate() {
             </div>
 
             {/* Custom amount */}
-            <label className="donate-label">Or enter a custom amount</label>
+            <label className="donate-label" htmlFor="donate-custom">Or enter a custom amount</label>
             <div className="custom-amount">
               <span>₦</span>
               <input
+                id="donate-custom"
                 type="number"
-                placeholder="Enter amount"
+                placeholder="Enter amount (minimum ₦100)"
                 value={customAmount}
                 onChange={handleCustomChange}
                 min="100"
+                step="50"
+                inputMode="numeric"
               />
             </div>
 
+            {!isValidAmount && (
+              <p className="donate-error" role="alert" style={{ color: '#c0392b', fontSize: 13, marginTop: 8 }}>
+                Please enter an amount of at least ₦100.
+              </p>
+            )}
+
             {/* Submit */}
-            <button type="button" className="donate-submit" onClick={handleDonate}>
-              Donate ₦{finalAmount ? Number(finalAmount).toLocaleString() : '0'} {frequency === 'monthly' ? 'Monthly' : 'Now'}
+            <button
+              type="button"
+              className="donate-submit"
+              onClick={handleDonate}
+              disabled={!isValidAmount}
+            >
+              Donate ₦{isValidAmount ? numericAmount.toLocaleString('en-NG') : '0'} {frequency === 'monthly' ? 'Monthly' : 'Now'}
             </button>
 
             <p className="donate-note">
-              🔒 Secure payment powered by Paystack &amp; Flutterwave.
+              🔒 Secure payment powered by Paystack &amp; Flutterwave. You will
+              confirm the amount on the secure payment page.
             </p>
           </div>
 

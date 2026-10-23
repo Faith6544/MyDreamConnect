@@ -9,9 +9,16 @@ function AdminRoute({ children }) {
   const location = useLocation();
 
   useEffect(() => {
+    let cancelled = false;
+
+    // Reset the verdict whenever the identity changes. Otherwise the previous
+    // user's result is used for one render: an admin gets bounced to "/" on
+    // sign-in, and a student can briefly see (and query) admin pages.
+    setIsAdmin(null);
+
     const check = async () => {
       if (!user) {
-        setIsAdmin(false);
+        if (!cancelled) setIsAdmin(false);
         return;
       }
 
@@ -21,14 +28,14 @@ function AdminRoute({ children }) {
         .eq('id', user.id)
         .maybeSingle();
 
-      if (error || !data) {
-        setIsAdmin(false);
-      } else {
-        setIsAdmin(data.role === 'admin');
-      }
+      if (cancelled) return;
+      const normalizedRole = String(data?.role || '').replace(/^'+|'+$/g, '');
+      setIsAdmin(!error && !!data && normalizedRole === 'admin');
     };
 
     if (!authLoading) check();
+
+    return () => { cancelled = true; };
   }, [user, authLoading]);
 
   if (authLoading || isAdmin === null) {

@@ -14,35 +14,54 @@ function AdminCategoryEditor() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
+
     const checkAuthAndLoad = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate('/admin'); return; }
-      if (isEdit) {
-        const { data, error } = await supabase.from('categories').select('*').eq('id', id).single();
-        if (error) setError('Load failed: ' + error.message);
-        else if (data) setFormData({
-          name: data.name || '',
-          slug: data.slug || '',
-          order_index: data.order_index || 0,
-        });
-        setLoading(false);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { navigate('/admin'); return; }
+
+        if (isEdit) {
+          const { data, error } = await supabase
+            .from('categories')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+          if (cancelled) return;
+
+          if (error) setError('Load failed: ' + error.message);
+          else if (!data) setError('This category no longer exists.');
+          else setFormData({
+            name: data.name || '',
+            slug: data.slug || '',
+            order_index: data.order_index ?? 0,
+          });
+        }
+      } catch (err) {
+        if (!cancelled) setError('Load failed: ' + err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
+
     checkAuthAndLoad();
+    return () => { cancelled = true; };
   }, [id, isEdit, navigate]);
 
   const handleChange = (e) => {
-    const value = e.target.name === 'order_index' ? Number(e.target.value) : e.target.value;
-    setFormData({ ...formData, [e.target.name]: value });
-
-    // Auto-generate slug from name when creating and slug is empty
-    if (e.target.name === 'name' && !isEdit) {
-      setFormData(prev => ({
-        ...prev,
-        name: value,
-        slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData((prev) => {
+      // Auto-generate the slug from the name when creating.
+      if (name === 'name' && !isEdit) {
+        return {
+          ...prev,
+          name: value,
+          slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        };
+      }
+      return { ...prev, [name]: name === 'order_index' ? Number(value) : value };
+    });
   };
 
   const handleSubmit = async (e) => {

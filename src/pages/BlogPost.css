@@ -3,7 +3,7 @@
 .bp-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
-  color: #333;
+  color: #64686d;
 }
 
 .bp-status {
@@ -12,14 +12,13 @@
   color: #666;
 }
 
-/* Container matching other pages */
 .bp-container {
   max-width: 1200px;
   margin: 60px auto;
   padding: 0 20px;
 }
 
-/* --- CLEAN HEADER (Replaces the old banner) --- */
+/* --- CLEAN HEADER --- */
 .bp-header {
   margin-bottom: 40px;
   padding-bottom: 20px;
@@ -66,7 +65,7 @@
   align-items: start;
 }
 
-/* Content */
+/* --- CONTENT --- */
 .bp-cover {
   margin: 0 0 35px 0;
   border-radius: 10px;
@@ -79,96 +78,23 @@
   display: block;
 }
 
-/* Author card */
-.bp-author-card {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  background: #fbfbfb;
-  border: 1px solid #f1f1f1;
-  border-radius: 10px;
-  padding: 15px 20px;
-  margin-bottom: 35px;
-}
-
-.bp-author-card small {
-  display: block;
-  font-size: 11px;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
-}
-
-.bp-author-card h4 {
-  font-size: 15px;
-  color: #333;
-  font-weight: 700;
-  margin: 0;
-}
-
-/* Body content */
+/* FIXED CONTENT SPACING */
 .bp-body {
   font-size: 16px;
   line-height: 1.9;
   color: #444;
 }
 
-.bp-body h2 {
-  font-size: 26px;
-  color: #0a4711;
-  margin: 35px 0 15px;
-  font-weight: 700;
-}
-
-.bp-body h3 {
-  font-size: 21px;
-  color: #0a4711;
-  margin: 30px 0 12px;
-  font-weight: 700;
-}
-
 .bp-body p {
-  margin-bottom: 20px;
-}
-
-.bp-body a {
-  color: #d4a017;
-  text-decoration: underline;
-}
-
-.bp-body img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin: 20px 0;
-}
-
-.bp-body ul,
-.bp-body ol {
-  padding-left: 25px;
-  margin-bottom: 20px;
-}
-
-.bp-body li {
-  margin-bottom: 8px;
-}
-
-.bp-body blockquote {
-  border-left: 5px solid #d4a017;
-  background: #fef9e7;
-  padding: 20px 25px;
-  margin: 25px 0;
-  font-style: italic;
-  color: #555;
-  border-radius: 0 8px 8px 0;
+  margin-bottom: 25px; /* Adds space between paragraphs */
+  white-space: pre-wrap; /* Respects line breaks from database */
 }
 
 /* Tags */
 .bp-tags {
   margin: 40px 0 20px;
   padding: 20px 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #eaeaea;
   font-size: 14px;
   color: #666;
 }
@@ -178,7 +104,7 @@
   background: #eaf3eb;
   color: #0a4711;
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 600;
   padding: 5px 12px;
   border-radius: 20px;
   margin: 0 6px 6px 0;
@@ -200,7 +126,136 @@
   text-decoration: underline;
 }
 
-/* ============ RELATED POSTS ============ */
+/* ================= COMMENTS SECTION ================= */
+.bp-comments-section {
+  margin-top: 50px;
+  padding-top: 30px;
+  border-top: 1px solid #eaeaea;
+}
+
+.bp-comments-section h3 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 25px;
+  font-weight: 700;
+}
+
+.bp-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.bp-comment {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #eaeaea;
+}
+
+.bp-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.bp-comment-header strong {
+  font-size: 15px;
+  color: #0a4711;
+}
+
+.bp-comment-date {
+  font-size: 12px;
+  color: #999;
+}
+
+.bp-comment-text {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.bp-no-comments {
+  color: #888;
+  font-style: italic;
+  font-size: 14px;
+}
+
+.bp-comment-form-wrapper {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #eaeaea;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+
+.bp-comment-form-wrapper h4 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.bp-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.bp-comment-form textarea {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  min-height: 100px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.bp-comment-form textarea:focus {
+  border-color: #0a4711;
+}
+
+.bp-comment-form button {
+  align-self: flex-start;
+  background: #0a4711;
+  color: #fff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.bp-comment-form button:hover {
+  background: #d4a017;
+}
+
+.bp-comment-form button:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.bp-login-prompt {
+  font-size: 14px;
+  color: #666;
+}
+
+.bp-login-prompt a {
+  color: #0a4711;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* --- RELATED POSTS --- */
 .bp-related {
   margin-top: 60px;
   padding-top: 40px;

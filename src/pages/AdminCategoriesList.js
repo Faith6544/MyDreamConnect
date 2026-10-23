@@ -24,9 +24,21 @@ function AdminCategoriesList() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this category? Courses in it will become uncategorized.')) return;
+
+    // `courses.category_id` has no FK cascade, so clear it first.
+    const { error: clearError } = await supabase
+      .from('courses')
+      .update({ category_id: null })
+      .eq('category_id', id);
+
+    if (clearError) {
+      alert('Could not uncategorize courses: ' + clearError.message);
+      return;
+    }
+
     const { error } = await supabase.from('categories').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setItems(items.filter(i => i.id !== id));
+    else setItems((prev) => prev.filter(i => i.id !== id));
   };
 
   return (
