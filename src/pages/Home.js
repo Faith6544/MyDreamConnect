@@ -66,7 +66,6 @@ function TestimonialsCarousel({ testimonials }) {
 }
 
 function Home() {
-
   const programs = [
     { title: 'SHAPE', desc: 'Life Skills training for teenagers for personal development.', color: '#8e44ad', link: '/about' },
     { title: 'STAR', desc: 'Tech, digital & leadership training for educators, youth & managers.', color: '#e84393', link: '/about' },
@@ -85,63 +84,33 @@ function Home() {
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
   const [blogs, setBlogs] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
-
-  const [stats, setStats] = useState({
-    courses: 0,
-    students: 0,
-    instructors: 0,
-    programs: 4,
-  });
+  const [stats, setStats] = useState({ courses: 0, students: 0, instructors: 0, programs: 4 });
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        // 1. Fetch Courses
-        const { data: coursesData, error: coursesError } = await supabase
-          .from('courses')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
-          
-        if (coursesError) console.error("Error fetching courses:", coursesError);
+        // FETCH EVERYTHING AT THE SAME TIME (The Magic Fix)
+        const [
+          { data: coursesData },
+          { data: instrData },
+          { data: testData },
+          { data: blogData },
+          { count: totalCourses },
+          { count: totalEnrollments }
+        ] = await Promise.all([
+          supabase.from('courses').select('*').order('created_at', { ascending: false }).limit(5),
+          supabase.from('instructors').select('*').order('order_index', { ascending: true }),
+          supabase.from('testimonials').select('*').order('order_index', { ascending: true }),
+          supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(6),
+          supabase.from('courses').select('*', { count: 'exact', head: true }),
+          supabase.from('enrollments').select('*', { count: 'exact', head: true })
+        ]);
+
         setCourses(coursesData || []);
-
-        // 2. Fetch Instructors
-        const { data: instrData } = await supabase
-          .from('instructors')
-          .select('*')
-          .order('order_index', { ascending: true });
         setInstructors(instrData || []);
-
-        // 3. Fetch Testimonials
-        const { data: testData } = await supabase
-          .from('testimonials')
-          .select('*')
-          .order('order_index', { ascending: true });
-
-        if (testData && testData.length > 0) {
-          setTestimonials(testData);
-        }
-
-        // 4. Fetch Blogs
-        const { data: blogData } = await supabase
-          .from('posts')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(6);
+        if (testData && testData.length > 0) setTestimonials(testData);
         setBlogs(blogData || []);
-
-        // 5. Fetch Stats
-        const { count: totalCourses } = await supabase
-          .from('courses')
-          .select('*', { count: 'exact', head: true });
-
-        // "Students Enrolled" used to be hard-coded to 0. Count real
-        // enrollment rows instead (one row per student/course).
-        const { count: totalEnrollments } = await supabase
-          .from('enrollments')
-          .select('*', { count: 'exact', head: true });
-
+        
         setStats({
           courses: totalCourses || 0,
           students: totalEnrollments || 0,
@@ -188,7 +157,6 @@ function Home() {
 
   return (
     <div className="home-page">
-
       {/* HERO */}
       <section className="hero">
         <video
@@ -197,7 +165,7 @@ function Home() {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           poster="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png"
         >
           <source
@@ -286,21 +254,13 @@ function Home() {
               between formal education and real-world professional skills.
             </p>
 
-            <a
-              href="https://bit.ly/support-mydreamconnect"
-              target="_blank"
-              rel="noreferrer"
-              className="btn-donate"
-            >
+            <a href="https://bit.ly/support-mydreamconnect" target="_blank" rel="noreferrer" className="btn-donate">
               Donate Now
             </a>
           </div>
 
           <div className="mission-image">
-            <img
-              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/do.png"
-              alt="MyDreamConnect classroom"
-            />
+            <img src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/do.png" alt="MyDreamConnect classroom" />
           </div>
         </div>
       </section>
@@ -332,7 +292,6 @@ function Home() {
         {!loadingCourses && courses.length > 0 && (
           <div className="courses-grid">
             {courses.map(course => {
-              // price may be null, 0, a number, or a numeric string.
               const priceValue = Number(course.price);
               const isFree = !course.price || !Number.isFinite(priceValue) || priceValue <= 0;
               return (
@@ -426,7 +385,6 @@ function Home() {
           </div>
         </section>
       )}
-
     </div>
   );
 }
