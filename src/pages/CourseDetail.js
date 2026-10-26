@@ -23,13 +23,9 @@ function CourseDetail() {
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
 
-  // Authoritative pricing comes from the server (see check-scholarship).
-  // { price, amount, eligible } - `amount` is what the user actually pays.
   const [pricing, setPricing] = useState(null);
-  const [paymentState, setPaymentState] = useState('idle'); // idle | verifying | done | failed
+  const [paymentState, setPaymentState] = useState('idle');
 
-  // The scholarship magic link is only a HINT. The discount itself is granted
-  // by the server after it verifies an approved scholarship_applications row.
   const scholarshipRequested = searchParams.get('scholarship') === 'approved_80';
   const paystackReference = searchParams.get('reference');
 
@@ -50,7 +46,6 @@ function CourseDetail() {
       if (cancelled) return;
       setCourse(courseData);
 
-      // `lessons` is the table the app actually writes to (AdminLessonEditor).
       const { data: lessonsData, error: lessonsErr } = await supabase
         .from('lessons')
         .select('id, title, order_index')
@@ -60,11 +55,8 @@ function CourseDetail() {
       if (lessonsErr) console.error('Could not load lessons:', lessonsErr);
       setLessons(lessonsData || []);
 
-      // Always reset first so a signed-out visitor never sees stale state.
       setEnrolled(false);
       if (user) {
-        // Use an array query: maybeSingle() errors out when duplicate rows
-        // exist, which would make an enrolled student look unenrolled.
         const { data: enrollments, error: enrollErr } = await supabase
           .from('enrollments')
           .select('id')
@@ -82,8 +74,6 @@ function CourseDetail() {
     return () => { cancelled = true; };
   }, [id, user]);
 
-  // Ask the server what this visitor actually has to pay. The URL parameter
-  // alone is never enough - it can be typed in by anyone.
   useEffect(() => {
     let cancelled = false;
     if (!user || !scholarshipRequested) return;
@@ -120,9 +110,6 @@ function CourseDetail() {
     return () => { cancelled = true; };
   }, [id, user, scholarshipRequested]);
 
-  // Paystack redirects back here with ?reference=...&status=success.
-  // The enrollment for a paid course is created by the verify-paystack edge
-  // function - it has to be called, otherwise the payment grants nothing.
   useEffect(() => {
     let cancelled = false;
     if (!paystackReference || !user) return;
@@ -149,7 +136,6 @@ function CourseDetail() {
         setPaymentState('done');
         setEnrolled(true);
 
-        // Strip the payment params so a refresh does not re-verify.
         const clean = new URLSearchParams(searchParams);
         clean.delete('reference');
         clean.delete('status');
@@ -175,8 +161,6 @@ function CourseDetail() {
       { user_id: user.id, course_id: Number(id), enrolled_at: new Date().toISOString() },
     ]);
 
-    // 23505 = unique_violation: the student is already enrolled, which is a
-    // success from the user's point of view.
     if (insertError && insertError.code !== '23505') {
       setError('Enrollment failed: ' + insertError.message);
     } else {
@@ -186,27 +170,41 @@ function CourseDetail() {
   };
 
   const handlePaystackCheckout = async () => {
-    if (!user) { navigate('/get-started', { state: { from: { pathname: `/courses/${id}` } } }); return; }
+    if (!user) { 
+      navigate('/get-started', { state: { from: { pathname: `/courses/${id}` } } }); 
+      return; 
+    }
+
+    if (!user.email) {
+      setError("Your account is missing an email address. Please log out and log back in.");
+      return;
+    }
+
     setProcessing(true);
     setError(null);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No active session');
+      if (!session) throw new Error("No active session");
 
-      const callbackUrl = `${window.location.origin}/courses/${id}`;
+      const callbackUrl = `${window.location.origin}/courses/${id}?course_id=${id}`;
+      
+      // FIX: Use the correct variable (isScholarship instead of isValidScholarship)
+      const finalPrice = isScholarship ? displayPrice : course.price;
 
-      // NOTE: the amount is deliberately NOT sent from the client. The edge
-      // function looks up the course price and applies the scholarship based
-      // on the database, so a tampered client cannot pay less.
       const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/functions/v1/initialize-paystack`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({ course_id: Number(id), callback_url: callbackUrl }),
+        body: JSON.stringify({ 
+          email: user.email, 
+          amount: finalPrice, 
+          course_id: course.id, 
+          callback_url: callbackUrl 
+        }),
       });
 
       const data = await response.json();
-      if (!response.ok || !data.authorization_url) throw new Error(data.error || 'Payment failed');
+      if (!response.ok || !data.authorization_url) throw new Error(data.error || "Payment failed");
       window.location.href = data.authorization_url;
 
     } catch (err) {
@@ -222,8 +220,6 @@ function CourseDetail() {
   const price = Number(course.price ?? 0);
   const isFree = price === 0;
 
-  // Server-authoritative amounts. Fall back to the raw price until (and if)
-  // the scholarship check comes back.
   const isScholarship = Boolean(pricing?.eligible);
   const displayPrice = pricing?.amount ?? price;
 
@@ -344,7 +340,6 @@ function CourseDetail() {
                 </>
               )}
 
-              {/* SCHOLARSHIP LINK (Only shows if they haven't applied yet) */}
               {!isScholarship && !isFree && !enrolled && (
                 <Link to={`/scholarship?course_id=${course.id}`} className="scholarship-apply-link">
                   Can't afford this? Apply for an 80% Scholarship →
