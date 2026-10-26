@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminCoursesList.css';
+import AdminYearGroup from '../components/AdminYearGroup';
 
 function AdminCoursesList() {
   const [courses, setCourses] = useState([]);
@@ -27,13 +28,7 @@ function AdminCoursesList() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this course? This will also remove its lessons, enrollments, certificates and progress.')) return;
 
-    // There are no FK cascades from lessons/enrollments/certificates/progress
-    // back to courses, so clean up children explicitly (best effort).
-    const { data: lessonRows } = await supabase
-      .from('lessons')
-      .select('id')
-      .eq('course_id', id);
-
+    const { data: lessonRows } = await supabase.from('lessons').select('id').eq('course_id', id);
     const lessonIds = (lessonRows || []).map(l => l.id);
 
     if (lessonIds.length > 0) {
@@ -50,6 +45,22 @@ function AdminCoursesList() {
     else setCourses((prev) => prev.filter(c => c.id !== id));
   };
 
+  const renderCourse = (course) => (
+    <div key={course.id} className="admin-list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: '#fff', border: '1px solid #eaeaea', borderRadius: '8px', marginBottom: '10px' }}>
+      <div>
+        <strong style={{ display: 'block', color: '#333', fontSize: '16px' }}>{course.name}</strong>
+        <span style={{ fontSize: '12px', color: '#888' }}>
+          {course.price === 0 || !course.price ? 'Free' : `₦${course.price.toLocaleString()}`} · {new Date(course.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
+      </div>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <Link to={`/admin/courses/${course.id}/lessons`} className="btn-edit" style={{ background: '#e0f2fe', color: '#0369a1' }}>Lessons</Link>
+        <Link to={`/admin/courses/edit/${course.id}`} className="btn-edit">Edit</Link>
+        <button onClick={() => handleDelete(course.id)} className="btn-delete">Delete</button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="admin-list-page">
       <header className="admin-list-header">
@@ -58,7 +69,6 @@ function AdminCoursesList() {
           <h1>Courses</h1>
         </div>
         <Link to="/admin/courses/new" className="btn-new">+ New Course</Link>
-        
       </header>
 
       {loading ? (
@@ -66,30 +76,11 @@ function AdminCoursesList() {
       ) : courses.length === 0 ? (
         <p className="admin-list-empty">No courses yet.</p>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Created</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {courses.map(c => (
-              <tr key={c.id}>
-                <td>{c.name}</td>
-                <td>{c.price === 0 || !c.price ? 'Free' : `₦${c.price.toLocaleString()}`}</td>
-                <td>{new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                <td className="admin-actions">
-                  <Link to={`/admin/courses/edit/${c.id}`} className="btn-edit">Edit</Link>
-                  <Link to={`/admin/courses/${c.id}/lessons`} className="btn-edit">Lessons</Link>
-                  <button onClick={() => handleDelete(c.id)} className="btn-delete">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <AdminYearGroup 
+          items={courses} 
+          dateField="created_at"
+          renderItem={renderCourse} 
+        />
       )}
     </div>
   );

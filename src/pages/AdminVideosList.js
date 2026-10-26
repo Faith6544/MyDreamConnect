@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminVideosList.css';
+import AdminYearGroup from '../components/AdminYearGroup';
 
 function AdminVideosList() {
   const [videos, setVideos] = useState([]);
@@ -31,6 +32,21 @@ function AdminVideosList() {
     else setVideos(videos.filter(v => v.id !== id));
   };
 
+  const renderVideo = (video) => (
+    <div key={video.id} className="admin-list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: '#fff', border: '1px solid #eaeaea', borderRadius: '8px', marginBottom: '10px' }}>
+      <div>
+        <strong style={{ display: 'block', color: '#333', fontSize: '16px' }}>{video.title}</strong>
+        <span style={{ fontSize: '12px', color: '#888' }}>
+          ID: {video.youtube_id} · {new Date(video.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
+      </div>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <Link to={`/admin/videos/edit/${video.id}`} className="btn-edit">Edit</Link>
+        <button onClick={() => handleDelete(video.id)} className="btn-delete">Delete</button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="admin-list-page">
       <header className="admin-list-header">
@@ -46,23 +62,11 @@ function AdminVideosList() {
       ) : videos.length === 0 ? (
         <p className="admin-list-empty">No videos yet.</p>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr><th>Title</th><th>YouTube ID</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
-            {videos.map(v => (
-              <tr key={v.id}>
-                <td>{v.title}</td>
-                <td><code>{v.youtube_id}</code></td>
-                <td className="admin-actions">
-                  <Link to={`/admin/videos/edit/${v.id}`} className="btn-edit">Edit</Link>
-                  <button onClick={() => handleDelete(v.id)} className="btn-delete">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <AdminYearGroup 
+          items={videos} 
+          dateField="created_at"
+          renderItem={renderVideo} 
+        />
       )}
     </div>
   );

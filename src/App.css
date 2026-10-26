@@ -113,15 +113,29 @@ video {
 }
 
 .admin-year-header {
-  font-size: 24px;
+  font-size: 28px;
   color: #0a4711;
-  font-weight: 700;
-  margin-bottom: 15px;
+  font-weight: 800;
+  margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #eaeaea;
+  border-bottom: 3px solid #0a4711;
 }
 
-.admin-year-content {
-  /* If you are using a table, this ensures it fits nicely */
-  width: 100%;
+.admin-month-section {
+  margin-bottom: 25px;
+}
+
+.admin-month-header {
+  font-size: 18px;
+  color: #666;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
