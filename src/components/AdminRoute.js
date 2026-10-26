@@ -1,67 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
 
-function AdminRoute({ children }) {
-  const { user, loading: authLoading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(null); // null = checking
-  const location = useLocation();
+// ONLY these emails can access the admin dashboard
+const ADMIN_EMAILS = [
+  'atigahfaith44@gmail.com',
+  'fthferanmi@gmail.com',
+  'mydreamconnectlc@gmail.com'
+];
 
-  useEffect(() => {
-    let cancelled = false;
+export default function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
 
-    // Reset the verdict whenever the identity changes. Otherwise the previous
-    // user's result is used for one render: an admin gets bounced to "/" on
-    // sign-in, and a student can briefly see (and query) admin pages.
-    setIsAdmin(null);
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>;
+  }
 
-    const check = async () => {
-      if (!user) {
-        if (!cancelled) setIsAdmin(false);
-        return;
-      }
+  // If not logged in, go to the admin login page
+  if (!user) {
+    return <Navigate to="/admin" replace />;
+  }
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (cancelled) return;
-      const normalizedRole = String(data?.role || '').replace(/^'+|'+$/g, '');
-      setIsAdmin(!error && !!data && normalizedRole === 'admin');
-    };
-
-    if (!authLoading) check();
-
-    return () => { cancelled = true; };
-  }, [user, authLoading]);
-
-  if (authLoading || isAdmin === null) {
+  // If logged in, but email is NOT in the list, block them
+  if (!ADMIN_EMAILS.includes(user.email)) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'Poppins, sans-serif',
-        color: '#888',
-      }}>
-        Loading...
+      <div style={{ textAlign: 'center', padding: '100px 20px', fontFamily: 'Poppins, sans-serif' }}>
+        <h2 style={{ color: '#b81c00' }}>Access Denied</h2>
+        <p style={{ color: '#666' }}>You do not have permission to view the Admin Dashboard.</p>
+        <button 
+          onClick={() => window.location.href = '/'} 
+          style={{ marginTop: '20px', padding: '10px 20px', background: '#0a4711', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+        >
+          Return to Home
+        </button>
       </div>
     );
   }
 
-  if (!user) {
-    return <Navigate to="/admin" state={{ from: location }} replace />;
-  }
-
-  if (!isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
+  // If they are logged in and their email is in the list, let them in
   return children;
 }
-
-export default AdminRoute;
