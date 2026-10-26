@@ -9,8 +9,7 @@ function AdminPhotoEditor() {
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
-  // Added event_year to the initial state
-  const [formData, setFormData] = useState({ title: '', cover_url: '', event_year: '' });
+  const [formData, setFormData] = useState({ title: '', cover_url: '' });
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -22,16 +21,8 @@ function AdminPhotoEditor() {
 
       if (isEdit) {
         const { data, error } = await supabase.from('photos').select('*').eq('id', id).single();
-        if (error) {
-          setError('Could not load album: ' + error.message);
-        } else if (data) {
-          // Added event_year to the load logic
-          setFormData({ 
-            title: data.title || '', 
-            cover_url: data.cover_url || '',
-            event_year: data.event_year || '' 
-          });
-        }
+        if (error) setError('Could not load album: ' + error.message);
+        else if (data) setFormData({ title: data.title || '', cover_url: data.cover_url || '' });
         setLoading(false);
       } else {
         setLoading(false);
@@ -50,23 +41,13 @@ function AdminPhotoEditor() {
     setSaving(true);
     setError('');
 
-    // Convert event_year to a number before saving (or null if empty)
-    const payload = {
-      ...formData,
-      event_year: formData.event_year ? Number(formData.event_year) : null,
-    };
-
     const op = isEdit
-      ? supabase.from('photos').update(payload).eq('id', id)
-      : supabase.from('photos').insert([payload]);
+      ? supabase.from('photos').update(formData).eq('id', id)
+      : supabase.from('photos').insert([formData]);
 
     const { error } = await op;
-    if (error) { 
-      setError('Save failed: ' + error.message); 
-      setSaving(false); 
-    } else {
-      navigate('/admin/photos');
-    }
+    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
+    else navigate('/admin/photos');
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -85,27 +66,7 @@ function AdminPhotoEditor() {
 
         <div className="admin-field">
           <label>Album Title *</label>
-          <input 
-            type="text" 
-            name="title" 
-            value={formData.title} 
-            onChange={handleChange} 
-            required 
-            disabled={saving} 
-          />
-        </div>
-
-        {/* NEW FIELD ADDED HERE */}
-        <div className="admin-field">
-          <label>Event Year (e.g., 2023)</label>
-          <input 
-            type="number" 
-            name="event_year" 
-            value={formData.event_year} 
-            onChange={handleChange} 
-            placeholder="Enter year (e.g., 2024)" 
-            disabled={saving} 
-          />
+          <input type="text" name="title" value={formData.title} onChange={handleChange} required disabled={saving} />
         </div>
 
         <ImageUpload

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminPhotosList.css';
-import AdminYearGroup from '../components/AdminYearGroup';
 
 function AdminPhotosList() {
   const [photos, setPhotos] = useState([]);
@@ -17,8 +16,6 @@ function AdminPhotosList() {
       const { data } = await supabase
         .from('photos')
         .select('*')
-        // Sort by event_year if it exists, otherwise sort by created_at
-        .order('event_year', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false });
 
       setPhotos(data || []);
@@ -33,22 +30,6 @@ function AdminPhotosList() {
     if (error) alert('Delete failed: ' + error.message);
     else setPhotos(prev => prev.filter(p => p.id !== id));
   };
-
-  const renderPhoto = (photo) => (
-    <div key={photo.id} className="admin-list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: '#fff', border: '1px solid #eaeaea', borderRadius: '8px', marginBottom: '10px' }}>
-      <div>
-        <strong style={{ display: 'block', color: '#333', fontSize: '16px' }}>{photo.title}</strong>
-        <span style={{ fontSize: '12px', color: '#888' }}>
-          {photo.event_year ? `Year: ${photo.event_year}` : new Date(photo.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-        </span>
-      </div>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <Link to={`/admin/photos/${photo.id}/images`} className="btn-edit">Manage Images</Link>
-        <Link to={`/admin/photos/edit/${photo.id}`} className="btn-edit">Edit</Link>
-        <button onClick={() => handleDelete(photo.id)} className="btn-delete">Delete</button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="admin-list-page">
@@ -65,12 +46,32 @@ function AdminPhotosList() {
       ) : photos.length === 0 ? (
         <p className="admin-list-empty">No albums yet.</p>
       ) : (
-        <AdminYearGroup 
-          items={photos} 
-          // THIS IS THE MAGIC LINE: Use event_year for the grouping
-          dateField="event_year" 
-          renderItem={renderPhoto} 
-        />
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {photos.map(photo => (
+              <tr key={photo.id}>
+                <td>{photo.title}</td>
+                <td>
+                  {new Date(photo.created_at).toLocaleDateString('en-US', {
+                    month: 'short', day: 'numeric', year: 'numeric'
+                  })}
+                </td>
+                <td className="admin-actions">
+                  <Link to={`/admin/photos/${photo.id}/images`} className="btn-edit" style={{ background: '#f1f1f1', color: '#333' }}>Manage Images</Link>
+                  <Link to={`/admin/photos/edit/${photo.id}`} className="btn-edit">Edit</Link>
+                  <button onClick={() => handleDelete(photo.id)} className="btn-delete">Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
