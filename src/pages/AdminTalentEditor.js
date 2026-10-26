@@ -10,13 +10,8 @@ function AdminTalentEditor() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: '', 
-    role: '', 
-    location: '', 
-    availability: '', 
-    avatar_url: '', 
-    skillsInput: '',
-    portfolio_images: ['', '', '', ''] // <-- Added 4 empty slots
+    name: '', role: '', location: '', availability: '', avatar_url: '', skillsInput: '',
+    portfolio_images: ['', '', '', ''] // 4 slots
   });
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -30,8 +25,8 @@ function AdminTalentEditor() {
         const { data, error } = await supabase.from('talent').select('*').eq('id', id).single();
         if (error) setError('Load failed: ' + error.message);
         else if (data) {
-          // Pad the portfolio images to always have 4 slots for the form
           const existingImages = data.portfolio_images || [];
+          // Ensure we always have exactly 4 slots
           const paddedImages = [...existingImages, '', '', '', ''].slice(0, 4);
 
           setFormData({
@@ -40,9 +35,7 @@ function AdminTalentEditor() {
             location: data.location || '',
             availability: data.availability || '',
             avatar_url: data.avatar_url || '',
-            skillsInput: Array.isArray(data.skills)
-              ? data.skills.join(', ')
-              : String(data.skills || ''),
+            skillsInput: Array.isArray(data.skills) ? data.skills.join(', ') : String(data.skills || ''),
             portfolio_images: paddedImages,
           });
         }
@@ -57,7 +50,8 @@ function AdminTalentEditor() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (index, url) => {
+  // Update a specific image slot
+  const handleImageChange = (index, url) => {
     const newImages = [...formData.portfolio_images];
     newImages[index] = url;
     setFormData({ ...formData, portfolio_images: newImages });
@@ -69,13 +63,10 @@ function AdminTalentEditor() {
     setError('');
 
     const skillsText = formData.skillsInput
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s.length > 0)
-      .join(', ');
+      .split(',').map(s => s.trim()).filter(s => s.length > 0).join(', ');
 
-    // Clean up empty image slots
-    const cleanImages = formData.portfolio_images.filter(url => url.trim() !== '');
+    // Remove empty slots so you don't save blank strings
+    const cleanImages = formData.portfolio_images.filter(url => url && url.trim() !== '');
 
     const payload = {
       name: formData.name,
@@ -84,7 +75,7 @@ function AdminTalentEditor() {
       availability: formData.availability,
       avatar_url: formData.avatar_url,
       skills: skillsText || null,
-      portfolio_images: cleanImages // <-- Save the images
+      portfolio_images: cleanImages, // Save the array of images
     };
 
     const op = isEdit
@@ -106,6 +97,7 @@ function AdminTalentEditor() {
           <h1>{isEdit ? 'Edit Talent' : 'New Talent'}</h1>
         </div>
       </header>
+      
       <form onSubmit={handleSubmit} className="admin-editor-form">
         {error && <div className="admin-error">❌ {error}</div>}
         
@@ -140,15 +132,21 @@ function AdminTalentEditor() {
           <input type="text" name="skillsInput" value={formData.skillsInput} onChange={handleChange} placeholder="e.g. React, JavaScript, CSS" disabled={saving} />
         </div>
 
-        {/* NEW PORTFOLIO IMAGES SECTION */}
-        <div className="admin-field" style={{ background: '#f9f9f9', padding: '15px', borderRadius: '8px', border: '1px solid #eaeaea' }}>
-          <label style={{ marginBottom: '10px', display: 'block' }}>Portfolio Images (Max 4)</label>
+        {/* --- CLEAN PORTFOLIO IMAGES SECTION --- */}
+        <div className="admin-field" style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px', border: '1px solid #eaeaea' }}>
+          <label style={{ fontSize: '16px', marginBottom: '15px', display: 'block', color: '#0a4711' }}>
+            Portfolio Images (Optional - Max 4)
+          </label>
+          
           {formData.portfolio_images.map((url, index) => (
-            <div key={index} style={{ marginBottom: '10px' }}>
+            <div key={index} style={{ marginBottom: '15px', paddingBottom: '15px', borderBottom: index !== 3 ? '1px solid #eaeaea' : 'none' }}>
+              <label style={{ fontSize: '12px', color: '#888', marginBottom: '5px', display: 'block' }}>
+                Image {index + 1}
+              </label>
               <ImageUpload
-                label={`Image ${index + 1}`}
+                label="" // Hide the default label to save space
                 value={url}
-                onChange={(newUrl) => handleImageUpload(index, newUrl)}
+                onChange={(newUrl) => handleImageChange(index, newUrl)}
               />
             </div>
           ))}
@@ -157,7 +155,7 @@ function AdminTalentEditor() {
         <div className="admin-editor-actions">
           <Link to="/admin/talent" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
-            {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            {saving ? 'Saving...' : isEdit ? 'Update Talent' : 'Create Talent'}
           </button>
         </div>
       </form>
