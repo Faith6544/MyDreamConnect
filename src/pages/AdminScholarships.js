@@ -6,7 +6,7 @@ import './AdminScholarships.css';
 export default function AdminScholarships() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [processingId, setProcessingId] = useState(null); // Tracks ONLY the clicked student
+  const [processingId, setProcessingId] = useState(null); 
 
   useEffect(() => {
     fetchApps();
@@ -28,7 +28,7 @@ export default function AdminScholarships() {
   };
 
   const handleApprove = async (app) => {
-    setProcessingId(app.id); // Lock ONLY this specific card
+    setProcessingId(app.id);
 
     // 1. Update database status to approved
     const { error: updateError } = await supabase
@@ -36,8 +36,9 @@ export default function AdminScholarships() {
       .update({ status: 'approved' })
       .eq('id', app.id);
 
+    // 🚨 CRITICAL CHECK: If the database blocked the update, stop here.
     if (updateError) {
-      alert('Failed to update application: ' + updateError.message);
+      alert('Failed to update database: ' + updateError.message);
       setProcessingId(null);
       return;
     }
@@ -48,25 +49,24 @@ export default function AdminScholarships() {
     // 3. Send Email directly to the student using EmailJS
     try {
       await emailjs.send(
-        'service_i93rqqa',       // Your Service ID
-        'template_u0bb4if',      // Your Template ID
+        'service_i93rqqa',       
+        'template_u0bb4if',      
         {
           to_name: app.full_name,
           to_email: app.email,
           course_name: app.courses?.name || 'MyDreamConnect Course',
           magic_link: magicLink,
         },
-        { publicKey: 'iyczG5moSdTXjFTOx' } // <-- YOUR CORRECT PUBLIC KEY & FORMAT
+        { publicKey: 'iyczG5moSdTXjFTOx' } 
       );
 
       alert(`Approved! Email sent successfully to ${app.email}`);
-      fetchApps(); // Refresh list to show updated status
     } catch (err) {
       console.error("EmailJS Error:", err);
-      alert('Status updated to approved, but the email failed to send. Check the F12 console.');
-      fetchApps();
+      alert('Database updated to approved, but the email failed to send.');
     } finally {
-      setProcessingId(null); // Unlock the card when done
+      await fetchApps(); // Refresh list to show updated status
+      setProcessingId(null); 
     }
   };
 
