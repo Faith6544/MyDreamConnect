@@ -133,6 +133,7 @@ function AdminTalentEditor() {
         </div>
 
         {/* --- CLEAN PORTFOLIO IMAGES SECTION --- */}
+                {/* --- CLEAN PORTFOLIO IMAGES SECTION --- */}
         <div className="admin-field" style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px', border: '1px solid #eaeaea' }}>
           <label style={{ fontSize: '16px', marginBottom: '15px', display: 'block', color: '#0a4711' }}>
             Portfolio Images (Optional - Max 4)
@@ -144,7 +145,7 @@ function AdminTalentEditor() {
                 Image {index + 1}
               </label>
               <ImageUpload
-                label="" // Hide the default label to save space
+                label="" 
                 value={url}
                 onChange={(newUrl) => handleImageChange(index, newUrl)}
               />
