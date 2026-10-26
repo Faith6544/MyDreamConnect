@@ -29,6 +29,7 @@ function CourseDetail() {
   const scholarshipRequested = searchParams.get('scholarship') === 'approved_80';
   const paystackReference = searchParams.get('reference');
 
+  // 1. Fetch Course & Enrollment Data
   useEffect(() => {
     let cancelled = false;
 
@@ -74,6 +75,7 @@ function CourseDetail() {
     return () => { cancelled = true; };
   }, [id, user]);
 
+  // 2. Scholarship Pricing Check
   useEffect(() => {
     let cancelled = false;
     if (!user || !scholarshipRequested) return;
@@ -82,6 +84,8 @@ function CourseDetail() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) return;
+
+        console.log("Calling backend for course_id:", id);
 
         const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/functions/v1/check-scholarship`, {
           method: 'POST',
@@ -93,12 +97,22 @@ function CourseDetail() {
         });
 
         const body = await response.json();
+        console.log("Backend returned:", body); 
+
         if (cancelled) return;
         if (!response.ok) throw new Error(body.error || 'Could not verify scholarship');
 
-        setPricing({ price: body.price, amount: body.amount, eligible: body.eligible });
+        // Force types to be correct
+        const finalAmount = Number(body.amount);
+        const finalEligible = body.eligible === true;
 
-        if (!body.eligible) {
+        setPricing({ 
+          price: Number(body.price), 
+          amount: finalAmount, 
+          eligible: finalEligible 
+        });
+
+        if (!finalEligible) {
           setNotice('This scholarship link is not valid for your account.');
         }
       } catch (err) {
@@ -110,6 +124,7 @@ function CourseDetail() {
     return () => { cancelled = true; };
   }, [id, user, scholarshipRequested]);
 
+  // 3. Paystack Verification Callback
   useEffect(() => {
     let cancelled = false;
     if (!paystackReference || !user) return;
@@ -152,6 +167,7 @@ function CourseDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paystackReference, id, user, navigate]);
 
+  // 4. Handlers
   const handleEnrollFree = async () => {
     if (!user) { navigate('/get-started', { state: { from: { pathname: `/courses/${id}` } } }); return; }
     setProcessing(true);
@@ -168,6 +184,12 @@ function CourseDetail() {
     }
     setProcessing(false);
   };
+
+  // Variables defined here so handlePaystackCheckout can access them
+  const price = Number(course?.price ?? 0);
+  const isFree = price === 0;
+  const isScholarship = Boolean(pricing?.eligible);
+  const displayPrice = pricing?.amount ?? price;
 
   const handlePaystackCheckout = async () => {
     if (!user) { 
@@ -189,8 +211,8 @@ function CourseDetail() {
 
       const callbackUrl = `${window.location.origin}/courses/${id}?course_id=${id}`;
       
-      // FIX: Use the correct variable (isScholarship instead of isValidScholarship)
-      const finalPrice = isScholarship ? displayPrice : course.price;
+      // Use the correct price
+      const finalPrice = isScholarship ? displayPrice : price;
 
       const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/functions/v1/initialize-paystack`, {
         method: 'POST',
@@ -213,15 +235,10 @@ function CourseDetail() {
     }
   };
 
+  // 5. Render
   if (loading) return <h2 className="cd-status">Loading course...</h2>;
   if (error && !course) return <h2 className="cd-status">{error}</h2>;
   if (!course) return <h2 className="cd-status">Course not found.</h2>;
-
-  const price = Number(course.price ?? 0);
-  const isFree = price === 0;
-
-  const isScholarship = Boolean(pricing?.eligible);
-  const displayPrice = pricing?.amount ?? price;
 
   return (
     <div className="cd-page">
