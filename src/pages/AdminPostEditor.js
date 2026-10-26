@@ -33,7 +33,7 @@ function AdminPostEditor() {
       // database ORDER BY is lexicographic ("10" before "2"); sort here instead.
       const { data: catData } = await supabase
         .from('post_categories')
-        .select('*');
+        .select('*').order('created_at', { ascending: false });
       setCategories(
         [...(catData || [])].sort(
           (a, b) => (Number(a.order_index) || 0) - (Number(b.order_index) || 0)

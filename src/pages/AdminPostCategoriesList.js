@@ -14,7 +14,7 @@ function AdminPostCategoriesList() {
       if (!user) { navigate('/admin'); return; }
       const { data, error } = await supabase
         .from('post_categories')
-        .select('*');
+        .select('*').order('created_at', { ascending: false });
       if (error) {
         console.error('Failed to load categories:', error);
       } else {

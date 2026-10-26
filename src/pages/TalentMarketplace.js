@@ -30,7 +30,7 @@ function TalentMarketplace() {
 
   useEffect(() => {
     const fetchTalents = async () => {
-      const { data, error } = await supabase.from('talent').select('*');
+      const { data, error } = await supabase.from('talent').select('*').order('created_at', { ascending: false });
       if (error) console.error('Talents fetch error:', error);
       else setTalents(data || []);
       setLoading(false);

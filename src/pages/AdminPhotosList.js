@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminPhotosList.css';
+import AdminYearGroup from '../components/AdminYearGroup';
 
 function AdminPhotosList() {
   const [photos, setPhotos] = useState([]);
@@ -9,31 +10,43 @@ function AdminPhotosList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuthAndLoad = async () => {
+    const load = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate('/admin'); return; }
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('photos')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!error) setPhotos(data || []);
+      setPhotos(data || []);
       setLoading(false);
     };
-    checkAuthAndLoad();
+    load();
   }, [navigate]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this album? This will remove all photos in it.')) return;
-
-    // album_photos has no FK to photos, so delete the children explicitly.
-    await supabase.from('album_photos').delete().eq('album_id', id);
-
+    if (!window.confirm('Delete this album? All photos inside will be removed.')) return;
     const { error } = await supabase.from('photos').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setPhotos((prev) => prev.filter(p => p.id !== id));
+    else setPhotos(prev => prev.filter(p => p.id !== id));
   };
+
+  const renderPhoto = (photo) => (
+    <div key={photo.id} className="admin-list-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: '#fff', border: '1px solid #eaeaea', borderRadius: '8px', marginBottom: '10px' }}>
+      <div>
+        <strong style={{ display: 'block', color: '#333', fontSize: '16px' }}>{photo.title}</strong>
+        <span style={{ fontSize: '12px', color: '#888' }}>
+          {new Date(photo.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </span>
+      </div>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <Link to={`/admin/photos/${photo.id}/images`} className="btn-edit">Manage Images</Link>
+        <Link to={`/admin/photos/edit/${photo.id}`} className="btn-edit">Edit</Link>
+        <button onClick={() => handleDelete(photo.id)} className="btn-delete">Delete</button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="admin-list-page">
@@ -50,24 +63,11 @@ function AdminPhotosList() {
       ) : photos.length === 0 ? (
         <p className="admin-list-empty">No albums yet.</p>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr><th>Title</th><th>Created</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
-            {photos.map(p => (
-              <tr key={p.id}>
-                <td>{p.title}</td>
-                <td>{new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                <td className="admin-actions">
-                    <Link to={`/admin/photos/${p.id}/images`} className="btn-edit">Photos</Link>
-                  <Link to={`/admin/photos/edit/${p.id}`} className="btn-edit">Edit</Link>
-                  <button onClick={() => handleDelete(p.id)} className="btn-delete">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <AdminYearGroup 
+          items={photos} 
+          dateField="created_at"
+          renderItem={renderPhoto} 
+        />
       )}
     </div>
   );
