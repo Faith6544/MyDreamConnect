@@ -8,7 +8,7 @@ function parseSkills(raw) {
   if (Array.isArray(raw)) return raw.filter(Boolean);
   if (typeof raw === 'string' && raw.trim()) {
     return raw
-      .replace(/[[\]"]/g, '') // <-- FIXED REGEX
+      .replace(/[[\]"]/g, '') 
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
@@ -169,12 +169,23 @@ function TalentMarketplace() {
                   </Link>
                 </div>
 
+                {/* UPDATED PORTFOLIO GRID */}
                 <div className="talent-portfolio-grid">
-                  {[1, 2, 3, 4].map((item) => (
-                    <div className="talent-portfolio-item" key={item}>
-                      <span className="placeholder-icon">🖼️</span>
-                    </div>
-                  ))}
+                  {talent.portfolio_images && talent.portfolio_images.length > 0 ? (
+                    // Show the actual uploaded images
+                    talent.portfolio_images.slice(0, 4).map((imgUrl, index) => (
+                      <div className="talent-portfolio-item" key={index}>
+                        <ImageWithFallback src={imgUrl} alt="Portfolio Work" />
+                      </div>
+                    ))
+                  ) : (
+                    // Fallback to placeholders if they haven't uploaded anything yet
+                    [1, 2, 3, 4].map((item) => (
+                      <div className="talent-portfolio-item" key={item}>
+                        <span className="placeholder-icon">🖼️</span>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             ))}
