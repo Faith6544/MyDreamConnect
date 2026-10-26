@@ -17,6 +17,8 @@ function AdminPhotosList() {
       const { data } = await supabase
         .from('photos')
         .select('*')
+        // Sort by event_year if it exists, otherwise sort by created_at
+        .order('event_year', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false });
 
       setPhotos(data || []);
@@ -37,7 +39,7 @@ function AdminPhotosList() {
       <div>
         <strong style={{ display: 'block', color: '#333', fontSize: '16px' }}>{photo.title}</strong>
         <span style={{ fontSize: '12px', color: '#888' }}>
-          {new Date(photo.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          {photo.event_year ? `Year: ${photo.event_year}` : new Date(photo.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
         </span>
       </div>
       <div style={{ display: 'flex', gap: '10px' }}>
@@ -65,7 +67,8 @@ function AdminPhotosList() {
       ) : (
         <AdminYearGroup 
           items={photos} 
-          dateField="created_at"
+          // THIS IS THE MAGIC LINE: Use event_year for the grouping
+          dateField="event_year" 
           renderItem={renderPhoto} 
         />
       )}
