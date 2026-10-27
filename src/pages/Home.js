@@ -83,18 +83,20 @@ function Home() {
   const [instructors, setInstructors] = useState([]);
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
   const [blogs, setBlogs] = useState([]);
+  const [team, setTeam] = useState([]); // <-- New state for Team
   const [loadingCourses, setLoadingCourses] = useState(true);
+
   const [stats, setStats] = useState({ courses: 0, students: 0, instructors: 0, programs: 4 });
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        // FETCH EVERYTHING AT THE SAME TIME (The Magic Fix)
         const [
           { data: coursesData },
           { data: instrData },
           { data: testData },
           { data: blogData },
+          { data: teamData }, // Fetch Team Data
           { count: totalCourses },
           { count: totalEnrollments }
         ] = await Promise.all([
@@ -102,6 +104,7 @@ function Home() {
           supabase.from('instructors').select('*').order('order_index', { ascending: true }),
           supabase.from('testimonials').select('*').order('order_index', { ascending: true }),
           supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(6),
+          supabase.from('team_members').select('*').order('order_index', { ascending: true }).limit(4), // Limit to 4
           supabase.from('courses').select('*', { count: 'exact', head: true }),
           supabase.from('enrollments').select('*', { count: 'exact', head: true })
         ]);
@@ -110,6 +113,7 @@ function Home() {
         setInstructors(instrData || []);
         if (testData && testData.length > 0) setTestimonials(testData);
         setBlogs(blogData || []);
+        setTeam(teamData || []); // Save Team Data
         
         setStats({
           courses: totalCourses || 0,
@@ -166,7 +170,7 @@ function Home() {
           loop
           playsInline
           preload="metadata"
-          poster="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png"
+          poster="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png"
         >
           <source
             src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/hero.mp4"
@@ -198,7 +202,7 @@ function Home() {
       <section className="about-section">
         <div className="about-container">
           <div className="about-image">
-            <ImageWithFallback src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png" alt="" />
+            <ImageWithFallback src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png" alt="" />
           </div>
           <div className="about-text">
             <h2>We are a group of socially responsible young people;</h2>
@@ -260,7 +264,7 @@ function Home() {
           </div>
 
           <div className="mission-image">
-            <img src="https://media.licdn.com/dms/image/v2/D4E3DAQG-Bt2Ai1ithw/image-scale_191_1128/B4EZsNg.cRKcAk-/0/1765458316166/mydreamconnect_cover?e=1793718000&v=beta&t=hQeS2PvltTIWgSrel0xs-Km_WbYIqDaK4lSOoaoKE64" />
+            <img src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/do.png" alt="MyDreamConnect classroom" />
           </div>
         </div>
       </section>
@@ -385,6 +389,42 @@ function Home() {
           </div>
         </section>
       )}
+
+      {/* ================= TEAM PREVIEW SECTION ================= */}
+      {team.length > 0 && (
+        <section className="team-preview-section" style={{ padding: '60px 20px', background: '#f9f9f9' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            
+            <div className="section-heading-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
+              <div className="section-heading">
+                <span className="heading-lead">Meet Our</span>{' '}
+                <span className="heading-main">Leadership Team</span>
+              </div>
+              <Link to="/about/team" className="view-all-link" style={{ color: '#0a4711', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                Meet the Full Team
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '30px' }}>
+              {team.map(member => (
+                <div key={member.id} style={{ background: '#fff', borderRadius: '10px', padding: '25px', textAlign: 'center', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+                  <div style={{ width: '120px', height: '120px', margin: '0 auto 20px', borderRadius: '50%', overflow: 'hidden' }}>
+                    <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
+                  </div>
+                  <h3 style={{ fontSize: '18px', color: '#333', marginBottom: '5px', fontWeight: '700' }}>{member.name}</h3>
+                  <p style={{ fontSize: '14px', color: '#d4a017', fontWeight: '600', margin: 0 }}>{member.role}</p>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </section>
+      )}
+
     </div>
   );
 }
