@@ -3,20 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './SearchModal.css';
 
-// ADD STATIC PAGES TO MODAL TOO
-const staticPages = [
-  { title: 'Home', subtitle: 'Welcome to MyDreamConnect', url: '/', keywords: 'home start dream connect' },
-  { title: 'About Us', subtitle: 'Learn about our mission and vision', url: '/about', keywords: 'about mission vision dream connect' },
-  { title: 'Contact Us', subtitle: 'Get in touch with our team', url: '/contact', keywords: 'contact email phone message' },
-  { title: 'Donate', subtitle: 'Support our mission', url: '/donate', keywords: 'donate give money support' },
-  { title: 'Partnership', subtitle: 'Partner with us', url: '/partnership', keywords: 'partner sponsor collaborate' },
-  { title: 'Talent Marketplace', subtitle: 'Discover talented individuals', url: '/talent/all', keywords: 'talent hire freelancer marketplace' },
-  { title: 'Blogs', subtitle: 'Read our latest articles', url: '/blog', keywords: 'blog post article news' },
-  { title: 'Courses', subtitle: 'Browse our courses', url: '/courses', keywords: 'course learn academy training' },
-  { title: 'Jobs', subtitle: 'View job openings', url: '/talent/jobs', keywords: 'job work career opening' },
-  { title: 'Flyers', subtitle: 'Download media resources', url: '/media/flyers', keywords: 'flyer media download resource' },
-];
-
 function highlight(text, typed) {
   if (!text) return '';
   const start = text.toLowerCase().indexOf(typed.toLowerCase());
@@ -37,7 +23,6 @@ function SearchModal({ onClose }) {
   const [activeIndex, setActiveIndex] = useState(-1);
   const [status, setStatus] = useState('idle');
   const inputRef = useRef(null);
-  const cache = useRef({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +38,7 @@ function SearchModal({ onClose }) {
 
   useEffect(() => {
     const trimmed = query.trim();
+
     if (trimmed.length < 2) {
       setSuggestions([]);
       setActiveIndex(-1);
@@ -60,90 +46,30 @@ function SearchModal({ onClose }) {
       return;
     }
 
-    const key = trimmed.toLowerCase();
-    if (cache.current[key]) {
-      setSuggestions(cache.current[key]);
-      setActiveIndex(-1);
-      setStatus('done');
-      return;
-    }
-
     let cancelled = false;
     setStatus('loading');
 
     const timeoutId = setTimeout(async () => {
-      const term = trimmed.toLowerCase();
-
+      // Standard Search instead of AI
       try {
-        let allResults = [];
-
-        // 1. SEARCH STATIC PAGES
-        const matchedPages = staticPages.filter(page => 
-          page.title.toLowerCase().includes(term) || 
-          page.subtitle.toLowerCase().includes(term) ||
-          page.keywords.includes(term)
-        ).map(page => ({
-          type: 'Page', id: page.url, title: page.title, subtitle: page.subtitle, url: page.url
-        }));
-        allResults = [...allResults, ...matchedPages];
-
-        // 2. SEARCH DATABASE
-        // Only the columns needed for matching/preview are fetched, and the
-        // result set is capped - a full `select('*')` of every table on each
-        // keystroke is megabytes of payload.
-        const [postsRes, coursesRes, jobsRes] = await Promise.allSettled([
-          supabase.from('posts').select('id, title, excerpt').limit(200),
-          supabase.from('courses').select('id, name, excerpt').limit(200),
-          supabase.from('jobs').select('id, title, description').limit(200),
-        ]);
-
-        // Every word typed must appear somewhere, so "digital marketing"
-        // matches even when the phrase is not stored verbatim.
-        const tokens = term.split(/\s+/).filter(Boolean);
-        const matchesAllTokens = (row) => {
-          if (!row) return false;
-          const haystack = Object.values(row)
-            .filter((value) => typeof value === 'string')
-            .join(' ')
-            .toLowerCase();
-          return tokens.every((token) => haystack.includes(token));
-        };
-
-        if (postsRes.status === 'fulfilled' && postsRes.value.data) {
-          postsRes.value.data.filter(matchesAllTokens).forEach(p => {
-            allResults.push({ type: 'Post', id: p.id, title: p.title, subtitle: p.excerpt, url: `/blog/${p.id}` });
-          });
-        }
-
-        if (coursesRes.status === 'fulfilled' && coursesRes.value.data) {
-          coursesRes.value.data.filter(matchesAllTokens).forEach(c => {
-            allResults.push({ type: 'Course', id: c.id, title: c.name, subtitle: c.excerpt, url: `/courses/${c.id}` });
-          });
-        }
-
-        if (jobsRes.status === 'fulfilled' && jobsRes.value.data) {
-          jobsRes.value.data.filter(matchesAllTokens).forEach(j => {
-            // There is no /jobs/:id route.
-            allResults.push({ type: 'Job', id: j.id, title: j.title, subtitle: j.description, url: '/talent/jobs' });
-          });
-        }
+        const { data: courses } = await supabase.from('courses').select('*').ilike('name', `%${trimmed}%`).limit(5);
+        const { data: posts } = await supabase.from('posts').select('*').ilike('title', `%${trimmed}%`).limit(5);
 
         if (cancelled) return;
 
-        const finalResults = allResults.slice(0, 10); // Limit to 10
-        cache.current[key] = finalResults;
-        setSuggestions(finalResults);
+        const results = [
+          ...(courses || []).map(c => ({ type: 'Course', id: c.id, title: c.name, subtitle: c.excerpt, url: `/courses/${c.id}` })),
+          ...(posts || []).map(p => ({ type: 'Post', id: p.id, title: p.title, subtitle: p.excerpt, url: `/blog/${p.id}` }))
+        ];
+
+        setSuggestions(results);
         setStatus('done');
       } catch (err) {
-        console.error("Search error:", err);
-        if (!cancelled) {
-          setSuggestions([]);
-          setStatus('error');
-        }
-      } finally {
-        if (!cancelled) setActiveIndex(-1);
+        console.error(err);
+        setStatus('error');
       }
-    }, 150);
+      setActiveIndex(-1);
+    }, 300);
 
     return () => {
       cancelled = true;
@@ -190,7 +116,7 @@ function SearchModal({ onClose }) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search courses, pages, blog..."
+            placeholder="Search courses, blog, jobs..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -216,11 +142,6 @@ function SearchModal({ onClose }) {
                 </span>
                 <span className="sm-suggestion-word">
                   {highlight(item.title, typed)}
-                  {item.subtitle && (
-                    <span className="sm-suggestion-sub">
-                      {' — '}{item.subtitle.substring(0, 60)}
-                    </span>
-                  )}
                 </span>
               </li>
             ))}
@@ -231,7 +152,7 @@ function SearchModal({ onClose }) {
           <p className="sm-hint">Searching...</p>
         )}
         {hasQuery && status === 'done' && suggestions.length === 0 && (
-          <p className="sm-hint">Nothing found for "{typed}". Try another word.</p>
+          <p className="sm-hint">Nothing found for "{typed}".</p>
         )}
       </div>
     </div>
