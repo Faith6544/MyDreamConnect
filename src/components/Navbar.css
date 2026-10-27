@@ -24,7 +24,7 @@
   height: 55px;        /* Must be exactly the same as width */
   border-radius: 50%;  /* This makes it a circle */
   object-fit: cover;   /* Prevents stretching */
-  border: 2px solid #0a4711; /* Optional: adds a nice green border */
+  border: 2px solid white; /* Optional: adds a nice green border */
 }
 .logo img {
   max-height: 60px;
