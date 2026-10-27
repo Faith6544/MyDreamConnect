@@ -6,12 +6,14 @@
   color: #64686d;
 }
 
-.about-container {
+/* Main wrapper for the page */
+.about-content-section {
   max-width: 1200px;
   margin: 60px auto;
   padding: 0 20px;
 }
 
+/* The title sits inside the main wrapper */
 .about-title {
   font-size: 32px;
   font-weight: 700;
@@ -21,27 +23,27 @@
   border-bottom: 2px solid #eaeaea; 
 }
 
-/* Two-column layout (Grid) */
+/* The Grid Layout */
 .about-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 1fr 340px; /* Text gets flexible width, sidebar is fixed 340px */
   gap: 50px;
   align-items: start;
 }
 
-/* Main content */
-.about-content p {
+/* Main Text Content */
+.about-text p {
   font-size: 15px;
   line-height: 1.8;
   margin-bottom: 20px;
   color: #555;
 }
 
-.about-content strong {
+.about-text strong {
   color: #333;
 }
 
-/* Blockquotes */
+/* Quote Blocks */
 .about-quote {
   background: #fff8f0;
   border-left: 5px solid #e82a04;
@@ -66,7 +68,7 @@
   font-size: 14px;
 }
 
-/* Impact heading */
+/* Headings inside content */
 .about-impact-heading {
   font-size: 24px;
   color: #333;
@@ -74,7 +76,7 @@
   font-weight: 700;
 }
 
-/* SDG image */
+/* Image */
 .about-sdg-image {
   margin: 25px 0;
   text-align: center;
@@ -87,7 +89,7 @@
   border-radius: 6px;
 }
 
-/* CTA */
+/* Bottom CTA */
 .about-coach-cta {
   font-size: 22px !important;
   font-weight: 700;
@@ -106,15 +108,9 @@
   border-color: #b81c00;
 }
 
-/* Responsive */
+/* Mobile fix */
 @media (max-width: 1024px) {
   .about-layout {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .about-title {
-    font-size: 26px;
   }
 }

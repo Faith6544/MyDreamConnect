@@ -7,12 +7,13 @@ import ImageWithFallback from '../components/ImageWithFallback';
 function About() {
   return (
     <div className="about-page">
-      <div className="about-container">
+      <section className="about-content-section">
         
+        {/* Title inside the main content */}
         <h1 className="about-title">About Us</h1>
 
         <div className="about-layout">
-          <article className="about-content">
+          <article className="about-text">
             <p>
               <strong>MyDreamConnect Foundation</strong>, officially registered with CAC as <strong>MyDreamConnect Academy for Change &amp; Development Foundation</strong>, is a Nigerian-based non-profit organisation and an ecosystem for change and development committed to raising a generation of empowered, purpose-driven, and future-ready young people.
             </p>
@@ -80,12 +81,13 @@ function About() {
             <p className="about-coach-cta">
               Want to <Link to="/partnership" className="about-cta-btn">Partner With Us</Link>
             </p>
-
           </article>
 
-          <Sidebar />
+          <aside className="about-sidebar">
+            <Sidebar />
+          </aside>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
