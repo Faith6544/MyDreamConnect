@@ -53,7 +53,7 @@ import AdminPostCategoriesList from './pages/AdminPostCategoriesList';
 import AdminPostCategoryEditor from './pages/AdminPostCategoryEditor';
 import AdminPostTagsList from './pages/AdminPostTagsList';
 import AdminPostTagEditor from './pages/AdminPostTagEditor';
-
+import { Analytics } from "@vercel/analytics/react";
 import AdminCoursesList from './pages/AdminCoursesList';
 import AdminCourseEditor from './pages/AdminCourseEditor';
 import AdminLessonsList from './pages/AdminLessonsList';
@@ -204,6 +204,7 @@ function App() {
         <Footer />
         <WhatsAppButton />
       </Router>
+       <Analytics />
     </AuthProvider>
   );
 }

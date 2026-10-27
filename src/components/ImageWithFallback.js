@@ -1,28 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-function ImageWithFallback({ src, alt = '', className = '', type = 'default', ...rest }) {
-  const [failed, setFailed] = useState(false);
+export default function ImageWithFallback({ src, alt, type = 'default', ...props }) {
+  const [error, setError] = useState(false);
 
-  // Reset the failure flag when the source changes, otherwise one bad URL
-  // permanently pins this component to the placeholder.
-  useEffect(() => {
-    setFailed(false);
-  }, [src]);
+  // If no src or error, show placeholder
+  if (!src || error) {
+    return (
+      <div style={{ width: '100%', height: '100%', background: '#f1f1f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontSize: '24px', opacity: 0.3 }}>🖼️</span>
+      </div>
+    );
+  }
 
-  const fallback = type === 'human' ? '/placeholder1.webp' : '/placeholder.webp';
-  const finalSrc = failed || !src ? fallback : src;
+  // Only transform Supabase URLs
+  let finalSrc = src;
+  if (src.includes('supabase.co/storage/v1/object/public/')) {
+    // Replace the "object" route with the "render" route for transformations
+    finalSrc = src.replace('/object/public/', '/render/image/public/');
+    
+    // Add query parameters for size and format
+    // Width 600 is good for cards. Format webp is very small.
+    const separator = finalSrc.includes('?') ? '&' : '?';
+    finalSrc = `${finalSrc}${separator}width=600&quality=75&format=webp`;
+  }
 
   return (
     <img
       src={finalSrc}
-      alt={alt}
-      className={className}
-      onError={() => {
-        if (!failed) setFailed(true);
-      }}
-      {...rest}
+      alt={alt || ''}
+      loading="lazy" // This is CRUCIAL for smooth scrolling
+      onError={() => setError(true)}
+      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      {...props}
     />
   );
 }
-
-export default ImageWithFallback;
