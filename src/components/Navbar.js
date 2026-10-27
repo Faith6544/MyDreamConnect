@@ -31,7 +31,7 @@ function Navbar() {
 
           <Link to="/" className="logo" onClick={closeMenu}>
             <ImageWithFallback
-              src="https://supabase.com/dashboard/project/kzdqbqnyytgovlngfvwr/storage/files/buckets/images?path=uploads&preview=mdc-logo-transparent.png"
+              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png"
                alt="Logo" 
   className="nav-logo-circle" 
             />

@@ -166,7 +166,7 @@ function Home() {
           loop
           playsInline
           preload="metadata"
-          poster="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png"
+          poster="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png"
         >
           <source
             src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/hero.mp4"
@@ -198,7 +198,7 @@ function Home() {
       <section className="about-section">
         <div className="about-container">
           <div className="about-image">
-            <ImageWithFallback src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png" alt="" />
+            <ImageWithFallback src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png" alt="" />
           </div>
           <div className="about-text">
             <h2>We are a group of socially responsible young people;</h2>

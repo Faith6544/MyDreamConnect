@@ -15,7 +15,7 @@ function Footer() {
           {/* Column 1 — Brand */}
           <div className="footer-brand">
             <img
-              src="https://supabase.com/dashboard/project/kzdqbqnyytgovlngfvwr/storage/files/buckets/images?path=uploads&preview=mdc-logo-transparent.png"
+              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png"
               alt="MyDreamConnect"
               className="footer-logo"
             />
