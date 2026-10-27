@@ -6,14 +6,13 @@
   color: #64686d;
 }
 
-/* Container matching Jobs/Contact/Flyers */
 .about-container {
   max-width: 1200px;
   margin: 60px auto;
   padding: 0 20px;
 }
 
-/* Clean Underlined Title */
+/* Title sits above the grid */
 .about-title {
   font-size: 32px;
   font-weight: 700;
@@ -23,15 +22,14 @@
   border-bottom: 2px solid #eaeaea; 
 }
 
-/* --- TWO COLUMN LAYOUT (FIXED) --- */
+/* THE GRID FIX */
 .about-layout {
   display: grid;
-  grid-template-columns: 1fr 340px; /* 1fr takes remaining space, 340px for sidebar */
+  grid-template-columns: 1fr 340px; /* Left side flexible, Right side fixed */
   gap: 50px;
   align-items: start;
 }
 
-/* Main content */
 .about-content {
   width: 100%;
 }
@@ -47,7 +45,6 @@
   color: #333;
 }
 
-/* Blockquotes */
 .about-quote {
   background: #fff8f0;
   border-left: 5px solid #e82a04;
@@ -72,7 +69,6 @@
   font-size: 14px;
 }
 
-/* Impact heading */
 .about-impact-heading {
   font-size: 24px;
   color: #333;
@@ -80,7 +76,6 @@
   font-weight: 700;
 }
 
-/* SDG image */
 .about-sdg-image {
   margin: 25px 0;
   text-align: center;
@@ -93,7 +88,6 @@
   border-radius: 6px;
 }
 
-/* CTA */
 .about-coach-cta {
   font-size: 22px !important;
   font-weight: 700;
@@ -112,10 +106,10 @@
   border-color: #b81c00;
 }
 
-/* Responsive */
+/* Mobile view */
 @media (max-width: 1024px) {
   .about-layout {
-    grid-template-columns: 1fr; /* Stacks on mobile */
+    grid-template-columns: 1fr;
   }
 }
 
