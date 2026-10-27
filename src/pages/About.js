@@ -9,10 +9,8 @@ function About() {
     <div className="about-page">
       <div className="about-container">
         
-        {/* Clean Underlined Title */}
         <h1 className="about-title">About Us</h1>
 
-        {/* The Grid Layout starts here */}
         <div className="about-layout">
           <article className="about-content">
             <p>

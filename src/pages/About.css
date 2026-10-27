@@ -12,7 +12,6 @@
   padding: 0 20px;
 }
 
-/* Title sits above the grid */
 .about-title {
   font-size: 32px;
   font-weight: 700;
@@ -24,14 +23,15 @@
 
 /* THE GRID FIX */
 .about-layout {
-  display: grid;
-  grid-template-columns: 1fr 340px; /* Left side flexible, Right side fixed */
+  display: grid !important;
+  grid-template-columns: 1fr 340px !important; 
   gap: 50px;
   align-items: start;
 }
 
 .about-content {
-  width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 .about-content p {
@@ -106,15 +106,8 @@
   border-color: #b81c00;
 }
 
-/* Mobile view */
 @media (max-width: 1024px) {
   .about-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .about-title {
-    font-size: 26px;
+    grid-template-columns: 1fr !important;
   }
 }
