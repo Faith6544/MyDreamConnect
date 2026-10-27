@@ -83,7 +83,9 @@ function About() {
 
           </article>
 
-          <Sidebar />
+                    <div className="about-sidebar-wrapper">
+            <Sidebar />
+          </div>
         </div>
       </div>
     </div>

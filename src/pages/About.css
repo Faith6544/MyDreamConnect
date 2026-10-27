@@ -21,17 +21,18 @@
   border-bottom: 2px solid #eaeaea; 
 }
 
-/* THE GRID FIX */
+/* THE FIX: Lock the columns */
 .about-layout {
-  display: grid !important;
-  grid-template-columns: 1fr 340px !important; 
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px; /* Text takes remaining space, sidebar is fixed */
   gap: 50px;
   align-items: start;
 }
 
 .about-content {
-  width: 100% !important;
-  max-width: 100% !important;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .about-content p {
@@ -106,8 +107,20 @@
   border-color: #b81c00;
 }
 
+/* Sidebar Wrapper to keep it contained */
+.about-sidebar-wrapper {
+  width: 100%;
+}
+
+/* Responsive */
 @media (max-width: 1024px) {
   .about-layout {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-title {
+    font-size: 26px;
   }
 }
