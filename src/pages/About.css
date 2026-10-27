@@ -21,20 +21,15 @@
   border-bottom: 2px solid #eaeaea; 
 }
 
-/* THE FIX: Lock the columns */
+/* Two-column layout (Grid) */
 .about-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px; /* Text takes remaining space, sidebar is fixed */
+  grid-template-columns: 1fr 340px;
   gap: 50px;
   align-items: start;
 }
 
-.about-content {
-  width: 100%;
-  max-width: 100%;
-  overflow-wrap: break-word;
-}
-
+/* Main content */
 .about-content p {
   font-size: 15px;
   line-height: 1.8;
@@ -46,6 +41,7 @@
   color: #333;
 }
 
+/* Blockquotes */
 .about-quote {
   background: #fff8f0;
   border-left: 5px solid #e82a04;
@@ -70,6 +66,7 @@
   font-size: 14px;
 }
 
+/* Impact heading */
 .about-impact-heading {
   font-size: 24px;
   color: #333;
@@ -77,6 +74,7 @@
   font-weight: 700;
 }
 
+/* SDG image */
 .about-sdg-image {
   margin: 25px 0;
   text-align: center;
@@ -89,6 +87,7 @@
   border-radius: 6px;
 }
 
+/* CTA */
 .about-coach-cta {
   font-size: 22px !important;
   font-weight: 700;
@@ -105,11 +104,6 @@
 .about-coach-cta a:hover {
   color: #b81c00;
   border-color: #b81c00;
-}
-
-/* Sidebar Wrapper to keep it contained */
-.about-sidebar-wrapper {
-  width: 100%;
 }
 
 /* Responsive */
