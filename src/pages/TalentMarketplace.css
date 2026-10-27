@@ -3,7 +3,6 @@
 .talent-page {
   font-family: 'Poppins', sans-serif;
   background: #fff;
-  color: #333;
   min-height: 100vh;
 }
 
@@ -21,6 +20,7 @@
   margin-bottom: 40px;
 }
 
+/* Search and Sort Controls */
 .talent-controls {
   display: flex;
   gap: 15px;
@@ -44,7 +44,7 @@
 
 .talent-search-input {
   width: 100%;
-  padding: 15px 20px 15px 50px;
+  padding: 15px 45px 15px 50px;
   font-size: 15px;
   font-family: 'Poppins', sans-serif;
   border: 1px solid #e2e2e2;
@@ -52,28 +52,18 @@
   outline: none;
 }
 
-.talent-search-input:focus {
-  border-color: #0a4711;
-}
-
-/* Simple Dropdown Button */
 .talent-sort-btn {
   padding: 15px 25px;
   font-size: 15px;
-  font-family: 'Poppins', sans-serif;
   border: 1px solid #e2e2e2;
   border-radius: 50px;
   background: #fff;
   cursor: pointer;
   font-weight: 500;
-  color: #333;
   white-space: nowrap;
 }
 
-.talent-sort-btn:hover {
-  background: #f9f9f9;
-}
-
+/* Category Pills */
 .talent-categories {
   display: flex;
   flex-wrap: wrap;
@@ -83,19 +73,13 @@
 
 .talent-cat-btn {
   padding: 8px 18px;
-  background: transparent;
   border: none;
   border-radius: 50px;
-  font-family: 'Poppins', sans-serif;
   font-size: 14px;
   font-weight: 500;
+  background: transparent;
   color: #555;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.talent-cat-btn:hover {
-  color: #0a4711;
 }
 
 .talent-cat-btn.active {
@@ -109,6 +93,7 @@
   margin-bottom: 40px;
 }
 
+/* Talent List (Vertical Stack) */
 .talent-list {
   display: flex;
   flex-direction: column;
@@ -122,6 +107,7 @@
   background: #fff;
 }
 
+/* Header inside the card */
 .talent-card-header {
   display: flex;
   justify-content: space-between;
@@ -141,12 +127,7 @@
   border-radius: 50%;
   overflow: hidden;
   background: #f0f0f0;
-}
-
-.talent-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .talent-name {
@@ -159,7 +140,6 @@
 .talent-role {
   font-size: 14px;
   color: #777;
-  display: block;
 }
 
 .talent-view-btn {
@@ -172,10 +152,7 @@
   font-weight: 600;
 }
 
-.talent-view-btn:hover {
-  background: #d4a017;
-}
-
+/* Portfolio Images Grid (4 perfect boxes) */
 .talent-portfolio-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -186,6 +163,7 @@
   aspect-ratio: 1 / 1;
   background: #f8f9fa;
   border-radius: 8px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,52 +183,12 @@
 }
 
 @media (max-width: 768px) {
-  .talent-controls {
-    flex-direction: column;
+  .talent-portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
   .talent-card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
-  .talent-portfolio-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-/* Force the grid to stay exactly 4 columns */
-.talent-portfolio-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-/* Force each box to be a perfect square */
-.talent-portfolio-item {
-  aspect-ratio: 1 / 1 !important;
-  width: 100% !important;
-  height: auto !important;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #f1f1f1;
-  position: relative;
-}
-
-/* Force the image to cover the square without stretching */
-.talent-portfolio-item img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  display: block;
-}
-
-/* Keep the placeholder icons centered if they have no images */
-.placeholder-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-size: 24px;
-  opacity: 0.3;
 }

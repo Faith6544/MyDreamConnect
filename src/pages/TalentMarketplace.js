@@ -157,7 +157,13 @@ function TalentMarketplace() {
                 <div className="talent-card-header">
                   <div className="talent-profile-info">
                     <div className="talent-avatar">
-                      <ImageWithFallback src={talent.avatar_url} alt={talent.name || 'Talent'} type="human" />
+                      {/* Force the avatar to stay small and round */}
+                      <ImageWithFallback 
+                        src={talent.avatar_url} 
+                        alt={talent.name || 'Talent'} 
+                        type="human" 
+                        style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }}
+                      />
                     </div>
                     <div>
                       <h3 className="talent-name">{talent.name || 'Anonymous User'}</h3>
@@ -169,17 +175,19 @@ function TalentMarketplace() {
                   </Link>
                 </div>
 
-                {/* UPDATED PORTFOLIO GRID */}
                 <div className="talent-portfolio-grid">
                   {talent.portfolio_images && talent.portfolio_images.length > 0 ? (
-                    // Show the actual uploaded images
                     talent.portfolio_images.slice(0, 4).map((imgUrl, index) => (
                       <div className="talent-portfolio-item" key={index}>
-                        <ImageWithFallback src={imgUrl} alt="Portfolio Work" />
+                        {/* Force the portfolio images to stay inside their boxes */}
+                        <ImageWithFallback 
+                          src={imgUrl} 
+                          alt="Portfolio Work" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
                       </div>
                     ))
                   ) : (
-                    // Fallback to placeholders if they haven't uploaded anything yet
                     [1, 2, 3, 4].map((item) => (
                       <div className="talent-portfolio-item" key={item}>
                         <span className="placeholder-icon">🖼️</span>
