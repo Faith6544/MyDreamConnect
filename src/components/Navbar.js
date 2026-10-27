@@ -32,7 +32,8 @@ function Navbar() {
           <Link to="/" className="logo" onClick={closeMenu}>
             <ImageWithFallback
               src="https://supabase.com/dashboard/project/kzdqbqnyytgovlngfvwr/storage/files/buckets/images?path=uploads&preview=mdc-logo-transparent.png"
-              alt="MyDreamConnect Logo"
+               alt="Logo" 
+  className="nav-logo-circle" 
             />
           </Link>
 
