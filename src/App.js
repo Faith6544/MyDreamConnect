@@ -35,7 +35,9 @@ import Terms from './pages/Terms';
 import Search from './pages/Search';
 import NotFound from './pages/NotFound';
 import Scholarship from './pages/Scholarship';
-
+import Team from './pages/Team';
+import AdminTeamList from './pages/AdminTeamList';
+import AdminTeamEditor from './pages/AdminTeamEditor';
 /* ---------- Student (protected) ---------- */
 import MyCourses from './pages/MyCourses';
 import MyCoursePlayer from './pages/MyCoursePlayer';
@@ -163,7 +165,13 @@ function App() {
           <Route path="/admin/flyers" element={<AdminRoute><AdminFlyersList /></AdminRoute>} />
           <Route path="/admin/flyers/new" element={<AdminRoute><AdminFlyerEditor /></AdminRoute>} />
           <Route path="/admin/flyers/edit/:id" element={<AdminRoute><AdminFlyerEditor /></AdminRoute>} />
+{/* Public Team Page */}
+<Route path="/about/team" element={<Team />} />
 
+{/* Admin Team Pages */}
+<Route path="/admin/team" element={<AdminRoute><AdminTeamList /></AdminRoute>} />
+<Route path="/admin/team/new" element={<AdminRoute><AdminTeamEditor /></AdminRoute>} />
+<Route path="/admin/team/edit/:id" element={<AdminRoute><AdminTeamEditor /></AdminRoute>} />
           {/* Admin: Talent */}
           <Route path="/admin/jobs" element={<AdminRoute><AdminJobsList /></AdminRoute>} />
           <Route path="/admin/jobs/new" element={<AdminRoute><AdminJobEditor /></AdminRoute>} />

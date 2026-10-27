@@ -188,7 +188,8 @@ function AdminDashboard() {
     { label: 'Partnerships', path: '/admin/partnerships', icon: '🤝' },
     { label: 'Blog Tags', path: '/admin/post-tags', icon: '🔖' },
     { label: 'Volunteers', path: '/admin/volunteers', icon: '🙋' },
-  { label: 'Scholarships', path: '/admin/scholarships', icon: '🏆' },   ];
+  { label: 'Scholarships', path: '/admin/scholarships', icon: '🏆' },
+{ label: 'Team Members', path: '/admin/team', icon: '👥' },   ];
 
   return (
     <div className="admin-dashboard">
