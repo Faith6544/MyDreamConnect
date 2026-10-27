@@ -25,7 +25,7 @@ function About() {
         
         {/* The Massive Watermark Logo */}
         <img 
-          src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png" 
+          src="https://supabase.com/dashboard/project/kzdqbqnyytgovlngfvwr/storage/files/buckets/images?path=uploads&preview=mdc-logo-transparent.png" 
           alt="Watermark Logo" 
           className="about-bg-logo" 
         />
