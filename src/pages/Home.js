@@ -260,7 +260,7 @@ function Home() {
           </div>
 
           <div className="mission-image">
-            <img src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/do.png" alt="MyDreamConnect classroom" />
+            <img src="https://media.licdn.com/dms/image/v2/D4E3DAQG-Bt2Ai1ithw/image-scale_191_1128/B4EZsNg.cRKcAk-/0/1765458316166/mydreamconnect_cover?e=1793718000&v=beta&t=hQeS2PvltTIWgSrel0xs-Km_WbYIqDaK4lSOoaoKE64" />
           </div>
         </div>
       </section>
