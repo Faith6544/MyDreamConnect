@@ -203,7 +203,7 @@ function Home() {
         <div className="about-container">
           <div className="about-image">
             <ImageWithFallback 
-              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png" 
+              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png" 
               alt="" 
               style={{ mixBlendMode: 'multiply' }} 
             />
