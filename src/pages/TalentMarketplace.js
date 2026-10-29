@@ -154,12 +154,15 @@ function TalentMarketplace() {
           <div className="talent-list">
             {filteredTalents.map(talent => (
               <div className="talent-card" key={talent.id}>
+                
                 <div className="talent-card-header">
                   <div className="talent-profile-info">
-                    <div className="talent-avatar">
-                      {/* The CSS forces the image inside this to stay 60x60 */}
+                    
+                    {/* STRICT 60x60 CIRCLE */}
+                    <div className="talent-avatar-circle">
                       <ImageWithFallback src={talent.avatar_url} alt={talent.name || 'Talent'} type="human" />
                     </div>
+                    
                     <div>
                       <h3 className="talent-name">{talent.name || 'Anonymous User'}</h3>
                       <span className="talent-role">{talent.role || 'Talent'}</span>
