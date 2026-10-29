@@ -157,13 +157,8 @@ function TalentMarketplace() {
                 <div className="talent-card-header">
                   <div className="talent-profile-info">
                     <div className="talent-avatar">
-                      {/* Force the avatar to stay small and round */}
-                      <ImageWithFallback 
-                        src={talent.avatar_url} 
-                        alt={talent.name || 'Talent'} 
-                        type="human" 
-                        style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover' }}
-                      />
+                      {/* The CSS forces the image inside this to stay 60x60 */}
+                      <ImageWithFallback src={talent.avatar_url} alt={talent.name || 'Talent'} type="human" />
                     </div>
                     <div>
                       <h3 className="talent-name">{talent.name || 'Anonymous User'}</h3>
@@ -179,12 +174,7 @@ function TalentMarketplace() {
                   {talent.portfolio_images && talent.portfolio_images.length > 0 ? (
                     talent.portfolio_images.slice(0, 4).map((imgUrl, index) => (
                       <div className="talent-portfolio-item" key={index}>
-                        {/* Force the portfolio images to stay inside their boxes */}
-                        <ImageWithFallback 
-                          src={imgUrl} 
-                          alt="Portfolio Work" 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
+                        <ImageWithFallback src={imgUrl} alt="Portfolio Work" />
                       </div>
                     ))
                   ) : (

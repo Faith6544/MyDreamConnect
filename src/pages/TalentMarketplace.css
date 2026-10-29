@@ -7,7 +7,7 @@
 }
 
 .talent-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 60px 20px;
 }
@@ -93,10 +93,10 @@
   margin-bottom: 40px;
 }
 
-/* Talent List (Vertical Stack) */
+/* Talent List (Grid of Cards) */
 .talent-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 30px;
 }
 
@@ -105,6 +105,8 @@
   border-radius: 12px;
   padding: 25px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header inside the card */
@@ -128,6 +130,12 @@
   overflow: hidden;
   background: #f0f0f0;
   flex-shrink: 0;
+}
+
+.talent-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .talent-name {
@@ -156,7 +164,8 @@
 .talent-portfolio-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .talent-portfolio-item {
@@ -168,6 +177,12 @@
   align-items: center;
   justify-content: center;
   border: 1px solid #eee;
+}
+
+.talent-portfolio-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .placeholder-icon {
@@ -183,56 +198,7 @@
 }
 
 @media (max-width: 768px) {
-  .talent-portfolio-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .talent-list {
+    grid-template-columns: 1fr;
   }
-  .talent-card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-}
-/* --- FIX FOR TALENT CARDS --- */
-.talent-list {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important; /* 2 columns */
-  gap: 30px;
-}
-
-.talent-card {
-  background: #fff;
-  border: 1px solid #eaeaea;
-  border-radius: 12px;
-  padding: 25px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* FORCES AVATAR TO STAY A SMALL CIRCLE */
-.talent-avatar img, 
-.talent-avatar .placeholder {
-  width: 60px !important;
-  height: 60px !important;
-  border-radius: 50% !important;
-  object-fit: cover !important;
-}
-
-.talent-portfolio-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.talent-portfolio-item {
-  aspect-ratio: 1 / 1;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #f4f4f4;
-}
-
-.talent-portfolio-item img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
 }
