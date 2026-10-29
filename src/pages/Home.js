@@ -10,28 +10,28 @@ const FALLBACK_TESTIMONIALS = [
     quote: "Dear Miss Macaulay, I love your teaching today, I wish to be your friend but I know you can't stay in the school forever. But are you going to come back? If yes, please come tomorrow.",
     name: 'Jemima',
     role: 'Pearlygate Private School, Ikotun, Lagos - Student',
-    image_url: 'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png', // Fixed broken link
+    image_url: 'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/logo-transparent.png', // Fixed broken link
   },
   {
     id: 'f2',
     quote: 'I personally love the close attention paid to individual strengths and development of personal code of ethics. We hope that we guardians too will have the opportunity to enjoy from your wealth of knowledge.',
     name: 'Mr. Ajayi',
     role: 'FRICOM College, Ikotun - Principal',
-    image_url: 'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png', // Fixed broken link
+    image_url: 'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/logo-transparent.png', // Fixed broken link
   },
   {
     id: 'f3',
     quote: 'Thank you MyDreamConnect for impacting our students SO GREATLY. Our students await more encounters with you - they love all the activities especially the chess game.',
     name: 'Mr. Jatto',
     role: 'JANET Memorial Schools - Principal',
-    image_url: 'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png', // Fixed broken link
+    image_url: 'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/logo-transparent.png', // Fixed broken link
   },
   {
     id: 'f4',
     quote: 'Our students are always excited to come to your Centre, they say the atmosphere is wonderful and a place they have gained the confidence to accept new people as well.',
     name: 'Mrs. Ajibade',
     role: 'HOPEWELL College, Proprietress',
-    image_url: 'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png', // Fixed broken link
+    image_url: 'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/logo-transparent.png', // Fixed broken link
   },
 ];
 

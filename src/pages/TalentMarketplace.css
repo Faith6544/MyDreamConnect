@@ -1,152 +1,180 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-.talent-page {
-  font-family: 'Poppins', sans-serif;
+/* every class starts with tm- so it cannot clash with TalentHome.css (CSS in React is global) */
+.tm-page {
+  font-family: 'Poppins', sans-serif; /* loaded in index.html */
   background: #fff;
   min-height: 100vh;
 }
 
-.talent-container {
+.tm-container {
   max-width: 1000px;
   margin: 0 auto;
   padding: 60px 20px;
 }
 
-.talent-main-title {
+.tm-title {
   font-size: 36px;
   font-weight: 700;
   text-align: center;
   color: #111;
-  margin-bottom: 40px;
+  margin: 0 0 40px;
 }
 
-.talent-controls {
+/* search and sort */
+.tm-controls {
   display: flex;
   gap: 15px;
   margin-bottom: 30px;
   align-items: center;
 }
 
-.talent-search-wrapper {
+.tm-search {
   flex: 1;
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.search-icon {
+.tm-search-icon {
   position: absolute;
   left: 20px;
   color: #888;
-  font-size: 16px;
+  pointer-events: none; /* clicks go through to the input */
 }
 
-.talent-search-input {
+.tm-search-input {
   width: 100%;
-  padding: 15px 45px 15px 50px;
+  padding: 15px 20px 15px 50px;
   font-size: 15px;
+  font-family: inherit;
   border: 1px solid #e2e2e2;
   border-radius: 50px;
   outline: none;
 }
 
-.talent-sort-btn {
+.tm-search-input:focus,
+.tm-sort:focus {
+  border-color: #0a4711;
+  box-shadow: 0 0 0 3px rgba(10, 71, 17, 0.12);
+}
+
+.tm-sort {
   padding: 15px 25px;
   font-size: 15px;
+  font-family: inherit;
+  font-weight: 500;
   border: 1px solid #e2e2e2;
   border-radius: 50px;
   background: #fff;
   cursor: pointer;
-  font-weight: 500;
+  outline: none;
 }
 
-.talent-categories {
+/* category pills */
+.tm-categories {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 30px;
 }
 
-.talent-cat-btn {
+.tm-cat-btn {
   padding: 8px 18px;
   border: none;
   border-radius: 50px;
   font-size: 14px;
+  font-family: inherit;
   font-weight: 500;
   background: transparent;
   color: #555;
   cursor: pointer;
 }
 
-.talent-cat-btn.active {
+.tm-cat-btn:hover {
+  background: #f1f4f1;
+}
+
+.tm-cat-btn.active {
   background: #0a4711;
   color: #fff;
 }
 
-.talent-divider {
+.tm-divider {
   border: none;
   border-top: 1px solid #f0f0f0;
-  margin-bottom: 40px;
+  margin: 0 0 40px;
 }
 
-/* FORCES 2 COLUMNS */
-.talent-list {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
+/* cards, two columns on desktop */
+.tm-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 30px;
+  align-items: start; /* a short card does not stretch to match its neighbour */
 }
 
-.talent-card {
+.tm-card {
   border: 1px solid #e2e2e2;
   border-radius: 12px;
   padding: 25px;
   background: #fff;
   display: flex;
   flex-direction: column;
+  transition: box-shadow 0.2s;
 }
 
-.talent-card-header {
+.tm-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.tm-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.talent-profile-info {
+.tm-profile {
   display: flex;
   align-items: center;
   gap: 15px;
+  min-width: 0; /* lets long roles wrap instead of pushing the button out */
 }
 
-/* THIS IS THE FIX: 60X60 ROUND CIRCLE */
-.talent-avatar-circle {
-  width: 60px !important;
-  height: 60px !important;
-  border-radius: 50% !important;
-  overflow: hidden !important;
+.tm-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
   flex-shrink: 0;
   background: #f0f0f0;
 }
 
-.talent-avatar-circle img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
+.tm-avatar img,
+.tm-avatar .mdc-img-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.talent-name {
+.tm-names {
+  min-width: 0;
+}
+
+.tm-name {
   font-size: 18px;
   font-weight: 600;
   color: #111;
-  margin: 0 0 4px 0;
+  margin: 0 0 4px;
 }
 
-.talent-role {
+.tm-role {
   font-size: 14px;
   color: #777;
+  line-height: 1.4;
 }
 
-.talent-view-btn {
+.tm-view-btn {
   background: #0a4711;
   color: #fff;
   text-decoration: none;
@@ -154,38 +182,73 @@
   border-radius: 50px;
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.talent-portfolio-grid {
+.tm-view-btn:hover {
+  background: #0d5c16;
+}
+
+.tm-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.tm-availability {
+  color: #0a4711;
+  font-weight: 500;
+}
+
+/* portfolio pictures, or skills when there are none */
+.tm-portfolio {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
-.talent-portfolio-item {
+.tm-portfolio-item {
   aspect-ratio: 1 / 1;
   border-radius: 8px;
   overflow: hidden;
   background: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: 1px solid #eee;
 }
 
-.talent-portfolio-item img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
+.tm-portfolio-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.placeholder-icon {
-  font-size: 24px;
-  opacity: 0.3;
+.tm-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
 }
 
-.talent-empty {
+.tm-skill {
+  background: #eef4ee;
+  color: #0a4711;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 50px;
+}
+
+.tm-message {
+  text-align: center;
+  padding: 40px;
+  color: #555;
+}
+
+.tm-empty {
   text-align: center;
   padding: 60px 20px;
   background: #f9f9f9;
@@ -193,7 +256,32 @@
 }
 
 @media (max-width: 768px) {
-  .talent-list {
-    grid-template-columns: 1fr !important;
+  .tm-container {
+    padding: 40px 16px;
+  }
+
+  .tm-title {
+    font-size: 28px;
+    margin-bottom: 28px;
+  }
+
+  .tm-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tm-categories {
+    flex-wrap: nowrap;
+    overflow-x: auto; /* one swipeable row instead of five wrapped rows */
+    padding-bottom: 6px;
+  }
+
+  .tm-cat-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tm-list {
+    grid-template-columns: 1fr;
   }
 }

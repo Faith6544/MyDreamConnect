@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './TalentMarketplace.css';
 import ImageWithFallback from '../components/ImageWithFallback';
+import usePageTitle from '../lib/usePageTitle';
 import { supabase } from '../lib/supabase';
 
+const categories = ['All', 'Design', 'Tech', 'Writing', 'Marketing', 'Music', 'Acting & Dance', 'Business', 'Engineering', 'Consulting', 'Crafts', 'Sports', 'Teaching'];
+
+// skills can come back as an array or as a messy string like '["React","Node"]'
 function parseSkills(raw) {
   if (Array.isArray(raw)) return raw.filter(Boolean);
   if (typeof raw === 'string' && raw.trim()) {
     return raw
-      .replace(/[[\]"]/g, '') 
+      .replace(/[[\]"]/g, '')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
@@ -17,123 +21,95 @@ function parseSkills(raw) {
 }
 
 function TalentMarketplace() {
+  usePageTitle('All Talent'); // browser tab title
+
   const [talents, setTalents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState('newest');
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const categories = ['All', 'Design', 'Tech', 'Writing', 'Marketing', 'Music', 'Acting & Dance', 'Business', 'Engineering', 'Consulting', 'Crafts', 'Sports', 'Teaching'];
-
   useEffect(() => {
     const fetchTalents = async () => {
       const { data, error } = await supabase.from('talent').select('*').order('created_at', { ascending: false });
-      if (error) console.error('Talents fetch error:', error);
-      else setTalents(data || []);
+      if (error) {
+        console.error('Talents fetch error:', error);
+        setLoadError('We could not load the talents right now. Please refresh the page.');
+      } else {
+        setTalents(data || []);
+      }
       setLoading(false);
     };
     fetchTalents();
   }, []);
 
-  let filteredTalents = talents.filter((talent) => {
-    const query = searchQuery.toLowerCase().trim();
-    const skills = parseSkills(talent.skills);
+  const query = searchQuery.toLowerCase().trim();
+  const category = activeCategory.toLowerCase();
 
-    const matchesSearch =
-      String(talent.name || '').toLowerCase().includes(query) ||
-      String(talent.role || '').toLowerCase().includes(query) ||
-      skills.some((s) => s.toLowerCase().includes(query));
+  const filteredTalents = talents
+    .filter((talent) => {
+      const skills = parseSkills(talent.skills);
+      const role = String(talent.role || '').toLowerCase();
 
-    const matchesCategory =
-      activeCategory === 'All' ||
-      String(talent.role || '').toLowerCase().includes(activeCategory.toLowerCase()) ||
-      skills.some((s) => s.toLowerCase().includes(activeCategory.toLowerCase()));
+      const matchesSearch =
+        String(talent.name || '').toLowerCase().includes(query) ||
+        role.includes(query) ||
+        skills.some((s) => s.toLowerCase().includes(query));
 
-    return matchesSearch && matchesCategory;
-  });
+      const matchesCategory =
+        activeCategory === 'All' ||
+        role.includes(category) ||
+        skills.some((s) => s.toLowerCase().includes(category));
 
-  filteredTalents = [...filteredTalents].sort((a, b) => {
-    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-
-    if (sortOrder === 'newest') {
-      return dateB - dateA;
-    }
-    return dateA - dateB;
-  });
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
 
   return (
-    <div className="talent-page">
-      <div className="talent-container">
-        <h1 className="talent-main-title">Discover Talents</h1>
+    <div className="tm-page">
+      <div className="tm-container">
+        <h1 className="tm-title">Discover Talents</h1>
 
-        <div className="talent-controls">
-          <div className="talent-search-wrapper">
-            <span className="search-icon">🔍</span>
+        <div className="tm-controls">
+          <div className="tm-search">
+            <svg className="tm-search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="16.5" y1="16.5" x2="21" y2="21" />
+            </svg>
             <input
               type="text"
-              className="talent-search-input"
+              className="tm-search-input"
               placeholder="Search talents, skills..."
+              aria-label="Search talents"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className="talent-sort-btn"
-              onClick={() => setDropdownOpen((open) => !open)}
-            >
-              {sortOrder === 'newest' ? 'Newest ▼' : 'Oldest ▲'}
-            </button>
-
-            {dropdownOpen && (
-              <div style={{
-                position: 'absolute',
-                top: '110%',
-                right: 0,
-                width: '150px',
-                background: '#fff',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                zIndex: 9999,
-                padding: '5px 0'
-              }}>
-                <button
-                  type="button"
-                  style={{ display: 'block', width: '100%', padding: '12px 15px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
-                  onClick={() => {
-                    setSortOrder('newest');
-                    setDropdownOpen(false);
-                  }}
-                >
-                  Newest First
-                </button>
-                <button
-                  type="button"
-                  style={{ display: 'block', width: '100%', padding: '12px 15px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
-                  onClick={() => {
-                    setSortOrder('oldest');
-                    setDropdownOpen(false);
-                  }}
-                >
-                  Oldest First
-                </button>
-              </div>
-            )}
-          </div>
+          <select
+            className="tm-sort"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            aria-label="Sort talents"
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
         </div>
 
-        <div className="talent-categories">
-          {categories.map(cat => (
+        <div className="tm-categories">
+          {categories.map((cat) => (
             <button
+              type="button"
               key={cat}
-              className={`talent-cat-btn ${activeCategory === cat ? 'active' : ''}`}
+              className={`tm-cat-btn ${activeCategory === cat ? 'active' : ''}`}
+              aria-pressed={activeCategory === cat}
               onClick={() => setActiveCategory(cat)}
             >
               {cat}
@@ -141,55 +117,67 @@ function TalentMarketplace() {
           ))}
         </div>
 
-        <hr className="talent-divider" />
+        <hr className="tm-divider" />
 
         {loading ? (
-          <p style={{ textAlign: 'center', padding: '40px' }}>Loading...</p>
+          <p className="tm-message">Loading...</p>
+        ) : loadError ? (
+          <p className="tm-message">{loadError}</p>
         ) : filteredTalents.length === 0 ? (
-          <div className="talent-empty">
+          <div className="tm-empty">
             <h3>No talents found</h3>
             <p>Try adjusting your search or category filters.</p>
           </div>
         ) : (
-          <div className="talent-list">
-            {filteredTalents.map(talent => (
-              <div className="talent-card" key={talent.id}>
-                
-                <div className="talent-card-header">
-                  <div className="talent-profile-info">
-                    
-                    {/* STRICT 60x60 CIRCLE */}
-                    <div className="talent-avatar-circle">
-                      <ImageWithFallback src={talent.avatar_url} alt={talent.name || 'Talent'} type="human" />
-                    </div>
-                    
-                    <div>
-                      <h3 className="talent-name">{talent.name || 'Anonymous User'}</h3>
-                      <span className="talent-role">{talent.role || 'Talent'}</span>
-                    </div>
-                  </div>
-                  <Link to={`/talent/${talent.id}`} className="talent-view-btn">
-                    View Profile
-                  </Link>
-                </div>
+          <div className="tm-list">
+            {filteredTalents.map((talent) => {
+              const images = Array.isArray(talent.portfolio_images) ? talent.portfolio_images.filter(Boolean) : [];
+              const skills = parseSkills(talent.skills);
 
-                <div className="talent-portfolio-grid">
-                  {talent.portfolio_images && talent.portfolio_images.length > 0 ? (
-                    talent.portfolio_images.slice(0, 4).map((imgUrl, index) => (
-                      <div className="talent-portfolio-item" key={index}>
-                        <ImageWithFallback src={imgUrl} alt="Portfolio Work" />
+              return (
+                <div className="tm-card" key={talent.id}>
+                  <div className="tm-card-header">
+                    <div className="tm-profile">
+                      <div className="tm-avatar">
+                        <ImageWithFallback src={talent.avatar_url} alt={talent.name || 'Anonymous'} type="human" />
                       </div>
-                    ))
+                      <div className="tm-names">
+                        <h3 className="tm-name">{talent.name || 'Anonymous User'}</h3>
+                        <span className="tm-role">{talent.role || 'Talent'}</span>
+                      </div>
+                    </div>
+                    <Link to={`/talent/${talent.id}`} className="tm-view-btn">
+                      View Profile
+                    </Link>
+                  </div>
+
+                  {(talent.location || talent.availability) && (
+                    <div className="tm-meta">
+                      {talent.location && <span>📍 {talent.location}</span>}
+                      {talent.availability && <span className="tm-availability">● {talent.availability}</span>}
+                    </div>
+                  )}
+
+                  {images.length > 0 ? (
+                    <div className="tm-portfolio">
+                      {images.slice(0, 4).map((imgUrl, index) => (
+                        <div className="tm-portfolio-item" key={index}>
+                          <ImageWithFallback src={imgUrl} alt={`${talent.name || 'Talent'} portfolio work`} />
+                        </div>
+                      ))}
+                    </div>
                   ) : (
-                    [1, 2, 3, 4].map((item) => (
-                      <div className="talent-portfolio-item" key={item}>
-                        <span className="placeholder-icon">🖼️</span>
+                    skills.length > 0 && ( // no portfolio yet, so show skills instead of empty grey boxes
+                      <div className="tm-skills">
+                        {skills.slice(0, 4).map((s) => (
+                          <span className="tm-skill" key={s}>{s}</span>
+                        ))}
                       </div>
-                    ))
+                    )
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
