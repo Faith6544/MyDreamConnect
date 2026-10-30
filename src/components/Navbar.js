@@ -1,117 +1,102 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import SearchModal from './SearchModal';
 import './Navbar.css';
-import ImageWithFallback from '../components/ImageWithFallback';
-import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mediaOpen, setMediaOpen] = useState(false);
-  const [talentOpen, setTalentOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const location = useLocation();
 
-  const { user, signOut } = useAuth();
+  useEffect(() => {
+    // Check auth status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+    });
 
-  const closeMenu = () => {
-    setMobileOpen(false);
-    setMediaOpen(false);
-    setTalentOpen(false);
-  };
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
 
-  const handleSignOut = async () => {
-    await signOut();
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     window.location.href = '/';
   };
 
   return (
     <>
-      <nav className="main-navbar">
-        <div className="nav-container">
-
-          <Link to="/" className="logo" onClick={closeMenu}>
-            <ImageWithFallback
-              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png"
-               alt="Logo" 
-  className="nav-logo-circle" 
+      <header className="navbar-header">
+        <div className="navbar-container">
+          
+          {/* LOGO */}
+          <Link to="/" className="navbar-logo-link">
+            <img 
+              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png" 
+              alt="MyDreamConnect Logo" 
+              className="navbar-logo-img"
+              style={{ 
+                width: '55px', 
+                height: '55px', 
+                objectFit: 'contain', 
+                border: 'none' 
+              }} 
             />
           </Link>
 
-          <button
-            className={`hamburger ${mobileOpen ? 'open' : ''}`}
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
+          {/* MOBILE MENU TOGGLE */}
+          <button 
+            className="mobile-toggle" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <span></span>
-            <span></span>
-            <span></span>
+            ☰
           </button>
 
-          <ul className={`nav-links ${mobileOpen ? 'mobile-open' : ''}`}>
+          {/* NAVIGATION LINKS */}
+          <nav className={`navbar-links ${isMenuOpen ? 'open' : ''}`}>
+            <Link to="/">Home</Link>
+            <Link to="/about">About Us</Link>
+            <Link to="/media">Media</Link>
+            <Link to="/talent">Talent Marketplace</Link>
+            <Link to="/blog">Blogs</Link>
+            <Link to="/contact">Contact</Link>
+            
+            <button 
+              className="search-trigger" 
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Search"
+            >
+              🔍
+            </button>
 
-            <li><Link to="/" onClick={closeMenu}>Home</Link></li>
-            <li><Link to="/about" onClick={closeMenu}>About Us</Link></li>
-
-            <li className={`has-dropdown ${mediaOpen ? 'open' : ''}`}>
-              <span className="nav-parent" onClick={() => setMediaOpen(!mediaOpen)}>
-                Media <span className="caret">▾</span>
-              </span>
-              <ul className="dropdown">
-                <li><Link to="/media/photos" onClick={closeMenu}>Photos</Link></li>
-                <li><Link to="/media/videos" onClick={closeMenu}>Videos</Link></li>
-                <li><Link to="/media/flyers" onClick={closeMenu}>Flyers</Link></li>
-              </ul>
-            </li>
-
-            <li className={`has-dropdown ${talentOpen ? 'open' : ''}`}>
-              <span className="nav-parent" onClick={() => setTalentOpen(!talentOpen)}>
-                Talent Marketplace <span className="caret">▾</span>
-              </span>
-              <ul className="dropdown">
-                <li><Link to="/talent" onClick={closeMenu}>Browse Talents</Link></li>
-                <li><Link to="/talent/jobs" onClick={closeMenu}>Jobs</Link></li>
-                <li><Link to="/talent/opportunities" onClick={closeMenu}>Opportunities</Link></li>
-              </ul>
-            </li>
-<Link to="/about/team">Our Team</Link>
-            <li><Link to="/blog" onClick={closeMenu}>Blogs</Link></li>
-            <li><Link to="/contact" onClick={closeMenu}>Contact</Link></li>
-
-            <li className="search-icon-li">
-              <button
-                className="search-icon-btn"
-                onClick={() => { setSearchOpen(true); closeMenu(); }}
-                aria-label="Open search"
-              >
-                🔍
-              </button>
-            </li>
-
-            {user ? (
-              <>
-                <li className="take-course-li">
-                  <Link to="/my-courses" className="take-course-btn" onClick={closeMenu}>
-                    MY COURSES
-                  </Link>
-                </li>
-                <li className="logout-li">
-                  <button onClick={handleSignOut} className="logout-btn">Log out</button>
-                </li>
-              </>
-            ) : (
-              <li className="take-course-li">
-                <Link to="/courses" className="take-course-btn" onClick={closeMenu}>
-                  TAKE A COURSE
-                </Link>
-              </li>
-            )}
-
-          </ul>
+            <div className="nav-auth">
+              {user ? (
+                <>
+                  <Link to="/my-courses" className="nav-btn btn-dark">My Courses</Link>
+                  <button onClick={handleLogout} className="nav-btn btn-outline">Log out</button>
+                </>
+              ) : (
+                <Link to="/get-started" className="nav-btn btn-outline">Sign In</Link>
+              )}
+            </div>
+          </nav>
 
         </div>
-      </nav>
+      </header>
 
-      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
+      {/* SEARCH MODAL */}
+      {isSearchOpen && <SearchModal onClose={() => setIsSearchOpen(false)} />}
     </>
   );
 }

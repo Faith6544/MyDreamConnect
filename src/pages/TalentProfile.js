@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom'; // <-- Make sure this is here!
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import './TalentProfile.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
@@ -14,26 +14,42 @@ function parseSkills(raw) {
 
 function TalentProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [talent, setTalent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // 🚨 FIX: If the ID is missing (like "undefined"), send them to the list of all talents
+    if (!id || id === 'undefined') {
+      navigate('/talent/all');
+      return;
+    }
+
     let cancelled = false;
     const fetchTalent = async () => {
+      setLoading(true);
       const { data, error: fetchError } = await supabase.from('talent').select('*').eq('id', id).maybeSingle();
+      
       if (cancelled) return;
-      if (fetchError) setError('Could not load this profile.');
-      else setTalent(data);
+      
+      if (fetchError) {
+        setError('Could not load this profile.');
+      } else if (!data) {
+        setError('Talent not found.');
+      } else {
+        setTalent(data);
+      }
       setLoading(false);
     };
+    
     fetchTalent();
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, navigate]);
 
   if (loading) return <p style={{ textAlign: 'center', padding: '100px' }}>Loading profile...</p>;
   if (error) return <p style={{ textAlign: 'center', padding: '100px' }}>{error}</p>;
-  if (!talent) return <p style={{ textAlign: 'center', padding: '100px' }}>Profile not found.</p>;
+  if (!talent) return null;
 
   const skills = parseSkills(talent.skills);
 
@@ -47,7 +63,6 @@ function TalentProfile() {
 
         <div style={{ display: 'flex', gap: '30px', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap' }}>
           
-          {/* FIXED AVATAR */}
           <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', background: '#f0f0f0' }}>
             <ImageWithFallback 
               src={talent.avatar_url} 
