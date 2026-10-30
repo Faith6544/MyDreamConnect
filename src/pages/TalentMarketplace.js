@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import './TalentMarketplace.css';
-import ImageWithFallback from '../components/ImageWithFallback';
+import TalentCard from '../components/TalentCard';
+import { parseSkills } from '../lib/talentUtils';
 import { supabase } from '../lib/supabase';
-
-function parseSkills(raw) {
-  if (Array.isArray(raw)) return raw.filter(Boolean);
-  if (typeof raw === 'string' && raw.trim()) {
-    return raw.replace(/[[\]"]/g, '').split(',').map((s) => s.trim()).filter(Boolean);
-  }
-  return [];
-}
 
 function TalentMarketplace() {
   const [talents, setTalents] = useState([]);
@@ -91,43 +83,7 @@ function TalentMarketplace() {
         ) : (
           <div className="talent-list">
             {filteredTalents.map(talent => (
-              <div className="talent-card" key={talent.id} style={{ padding: '20px', border: '1px solid #eee', borderRadius: '10px' }}>
-                
-                <div className="talent-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                  <div className="talent-profile-info" style={{ display: 'flex', gap: '15px' }}>
-                    
-                    <div style={{ width: '60px', height: '60px', minWidth: '60px', borderRadius: '50%', overflow: 'hidden', background: '#f0f0f0' }}>
-                      <ImageWithFallback 
-                        src={talent.avatar_url} 
-                        alt={talent.name} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
-
-                    <div>
-                      <h3 className="talent-name" style={{ fontSize: '18px', margin: '0 0 5px 0' }}>{talent.name}</h3>
-                      <span className="talent-role" style={{ fontSize: '14px', color: '#777' }}>{talent.role}</span>
-                    </div>
-                  </div>
-                  <Link to={`/talent/${talent.id}`} className="talent-view-btn" style={{ padding: '8px 16px', borderRadius: '50px', background: '#0a4711', color: '#fff', textDecoration: 'none', fontSize: '14px', whiteSpace: 'nowrap' }}>View Profile</Link>
-                </div>
-
-                <div className="talent-portfolio-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
-                  {talent.portfolio_images && talent.portfolio_images.length > 0 ? (
-                    talent.portfolio_images.slice(0, 4).map((imgUrl, index) => (
-                      <div key={index} style={{ aspectRatio: '1/1', borderRadius: '8px', overflow: 'hidden', background: '#eee', width: '100%' }}>
-                        <ImageWithFallback src={imgUrl} alt="Work" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    ))
-                  ) : (
-                    [1, 2, 3, 4].map((item) => (
-                      <div key={item} style={{ aspectRatio: '1/1', background: '#f8f9fa', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee', width: '100%' }}>
-                        <span style={{ fontSize: '20px', opacity: 0.3 }}>🖼️</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+              <TalentCard talent={talent} key={talent.id} />
             ))}
           </div>
         )}

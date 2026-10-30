@@ -2,15 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import './TalentProfile.css';
 import ImageWithFallback from '../components/ImageWithFallback';
+import PortfolioGallery from '../components/PortfolioGallery';
+import { parseSkills, parseImages } from '../lib/talentUtils';
 import { supabase } from '../lib/supabase';
-
-function parseSkills(raw) {
-  if (Array.isArray(raw)) return raw.filter(Boolean);
-  if (typeof raw === 'string' && raw.trim()) {
-    return raw.replace(/[[\]"]/g, '').split(',').map((s) => s.trim()).filter(Boolean);
-  }
-  return [];
-}
 
 function TalentProfile() {
   const { id } = useParams();
@@ -52,6 +46,7 @@ function TalentProfile() {
   if (!talent) return null;
 
   const skills = parseSkills(talent.skills);
+  const images = parseImages(talent.portfolio_images);
 
   return (
     <div style={{ fontFamily: 'Poppins, sans-serif', background: '#fff', minHeight: '100vh', padding: '60px 20px' }}>
@@ -89,14 +84,8 @@ function TalentProfile() {
 
         <div>
           <h2 style={{ fontSize: '22px', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Portfolio</h2>
-          {talent.portfolio_images && talent.portfolio_images.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-              {talent.portfolio_images.map((imgUrl, index) => (
-                <div key={index} style={{ aspectRatio: '4/3', borderRadius: '10px', overflow: 'hidden', border: '1px solid #eee' }}>
-                  <ImageWithFallback src={imgUrl} alt="Work" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              ))}
-            </div>
+          {images.length > 0 ? (
+            <PortfolioGallery images={images} name={talent.name} variant="profile" />
           ) : (
             <p style={{ color: '#888' }}>No portfolio images uploaded yet.</p>
           )}

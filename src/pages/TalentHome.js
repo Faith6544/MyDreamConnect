@@ -2,19 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './TalentHome.css';
 import ImageWithFallback from '../components/ImageWithFallback';
+import TalentCard from '../components/TalentCard';
+import { parseSkills } from '../lib/talentUtils';
 import { supabase } from '../lib/supabase';
-
-function parseSkills(raw) {
-  if (Array.isArray(raw)) return raw.filter(Boolean);
-  if (typeof raw === 'string' && raw.trim()) {
-    return raw
-      .replace(/[[\]"]/g, '') // <-- FIXED REGEX
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-  return [];
-}
 
 function TalentHome() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -104,44 +94,7 @@ function TalentHome() {
         ) : (
           <div className="talents-grid">
             {filteredTalents.map(talent => (
-              <div className="talent-card" key={talent.id}>
-                <div className="talent-header">
-                  <div className="talent-info">
-                    <ImageWithFallback
-                      src={talent.avatar_url}
-                      alt={talent.name}
-                      className="talent-avatar"
-                      type="human"
-                    />
-                    <div>
-                      <h3>{talent.name}</h3>
-                      <p className="talent-role">{talent.role}</p>
-                    </div>
-                  </div>
-                  <Link to={`/talent/${talent.id}`} className="view-profile-btn">
-                    View Profile
-                  </Link>
-                </div>
-
-                <div className="talent-meta">
-                  <span>📍 {talent.location}</span>
-                  <span className="availability">● {talent.availability}</span>
-                </div>
-
-                <div className="portfolio-grid">
-                  {[1, 2, 3, 4].map(n => (
-                    <div className="portfolio-placeholder" key={n}>
-                      <span>🖼</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="skill-tags">
-                  {parseSkills(talent.skills).slice(0, 4).map((s) => (
-                    <span className="skill-tag" key={s}>{s}</span>
-                  ))}
-                </div>
-              </div>
+              <TalentCard talent={talent} key={talent.id} />
             ))}
           </div>
         )}
@@ -149,7 +102,7 @@ function TalentHome() {
 
       <section className="talent-cta">
         <ImageWithFallback
-          src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png"
+          src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/logo-transparent.png"
           alt="MyDreamConnect"
           className="cta-logo"
         />
