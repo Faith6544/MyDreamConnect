@@ -96,7 +96,6 @@ function TalentMarketplace() {
                 <div className="talent-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                   <div className="talent-profile-info" style={{ display: 'flex', gap: '15px' }}>
                     
-                    {/* FORCED 60x60 CIRCLE */}
                     <div style={{ width: '60px', height: '60px', minWidth: '60px', borderRadius: '50%', overflow: 'hidden', background: '#f0f0f0' }}>
                       <ImageWithFallback 
                         src={talent.avatar_url} 
@@ -113,7 +112,6 @@ function TalentMarketplace() {
                   <Link to={`/talent/${talent.id}`} className="talent-view-btn" style={{ padding: '8px 16px', borderRadius: '50px', background: '#0a4711', color: '#fff', textDecoration: 'none', fontSize: '14px', whiteSpace: 'nowrap' }}>View Profile</Link>
                 </div>
 
-                {/* FORCED 4 SMALL SQUARE BOXES */}
                 <div className="talent-portfolio-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                   {talent.portfolio_images && talent.portfolio_images.length > 0 ? (
                     talent.portfolio_images.slice(0, 4).map((imgUrl, index) => (
