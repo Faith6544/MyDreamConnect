@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom'; // <-- Make sure this is here!
 import './TalentProfile.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
