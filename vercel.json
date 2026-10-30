@@ -4,27 +4,27 @@
   "rewrites": [
     {
       "source": "/shape",
-      "destination": "https://origin.mydreamconnect.org.ng/shape"
+      "destination": "https://mydreamconnect.org.ng/shape"
     },
     {
       "source": "/shape/:path*",
-      "destination": "https://origin.mydreamconnect.org.ng/shape/:path*"
+      "destination": "https://mydreamconnect.org.ng/shape/:path*"
     },
     {
       "source": "/shape2",
-      "destination": "https://origin.mydreamconnect.org.ng/shape2"
+      "destination": "https://.mydreamconnect.org.ng/shape2"
     },
     {
       "source": "/shape2/:path*",
-      "destination": "https://origin.mydreamconnect.org.ng/shape2/:path*"
+      "destination": "https://mydreamconnect.org.ng/shape2/:path*"
     },
     {
       "source": "/enrolment",
-      "destination": "https://origin.mydreamconnect.org.ng/enrolment"
+      "destination": "https://mydreamconnect.org.ng/enrolment"
     },
     {
       "source": "/enrolment/:path*",
-      "destination": "https://origin.mydreamconnect.org.ng/enrolment/:path*"
+      "destination": "https://mydreamconnect.org.ng/enrolment/:path*"
     },
     {
       "source": "/(.*)",
