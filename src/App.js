@@ -1,6 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -123,7 +122,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/search" element={<Search />} />
           <Route path="/scholarship" element={<Scholarship />} />
-
+<Route path="/team" element={<Navigate to="/about/team" replace />} />
           {/* ==================== Student (protected) ==================== */}
           <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
           <Route path="/my-courses/:id" element={<ProtectedRoute><MyCoursePlayer /></ProtectedRoute>} />
