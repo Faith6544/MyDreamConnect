@@ -1,94 +1,164 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import './TalentProfile.css';
+import { Link } from 'react-router-dom';
+import './TalentHome.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
 
 function parseSkills(raw) {
   if (Array.isArray(raw)) return raw.filter(Boolean);
   if (typeof raw === 'string' && raw.trim()) {
-    return raw.replace(/[[\]"]/g, '').split(',').map((s) => s.trim()).filter(Boolean);
+    return raw
+      .replace(/[[\]"]/g, '') // <-- FIXED REGEX
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
   return [];
 }
 
-function TalentProfile() {
-  const { id } = useParams();
-  const [talent, setTalent] = useState(null);
+function TalentHome() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [talents, setTalents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+
+  const categories = [
+    'All', 'Design', 'Tech', 'Writing', 'Marketing', 'Music',
+    'Acting & Dance', 'Business', 'Engineering', 'Consulting',
+    'Crafts', 'Sports', 'Teaching', 'Entrepreneurship',
+  ];
 
   useEffect(() => {
-    let cancelled = false;
-    const fetchTalent = async () => {
-      const { data, error: fetchError } = await supabase.from('talent').select('*').eq('id', id).maybeSingle();
-      if (cancelled) return;
-      if (fetchError) setError('Could not load this profile.');
-      else setTalent(data);
+    const fetchTalents = async () => {
+      const { data, error } = await supabase
+        .from('talent')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Talent fetch error:', error);
+      } else {
+        setTalents(data || []);
+      }
       setLoading(false);
     };
-    fetchTalent();
-    return () => { cancelled = true; };
-  }, [id]);
 
-  if (loading) return <p style={{ textAlign: 'center', padding: '100px' }}>Loading profile...</p>;
-  if (error) return <p style={{ textAlign: 'center', padding: '100px' }}>{error}</p>;
-  if (!talent) return <p style={{ textAlign: 'center', padding: '100px' }}>Profile not found.</p>;
+    fetchTalents();
+  }, []);
 
-  const skills = parseSkills(talent.skills);
+  const filteredTalents = talents.filter((talent) => {
+    const skills = parseSkills(talent.skills);
+    const term = searchTerm.toLowerCase();
+    const matchesSearch =
+      (talent.name || '').toLowerCase().includes(term) ||
+      (talent.role || '').toLowerCase().includes(term) ||
+      skills.some((s) => s.toLowerCase().includes(term));
+
+    const matchesCategory =
+      activeCategory === 'All' ||
+      (talent.role || '').toLowerCase().includes(activeCategory.toLowerCase()) ||
+      skills.some((s) => s.toLowerCase().includes(activeCategory.toLowerCase()));
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div style={{ fontFamily: 'Poppins, sans-serif', background: '#fff', minHeight: '100vh', padding: '60px 20px' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        
-        <Link to="/talent/all" style={{ color: '#0a4711', textDecoration: 'none', fontWeight: 600, display: 'inline-block', marginBottom: '30px' }}>
-          ← All talents
-        </Link>
+    <div className="talent-page">
+      <section className="discover-section">
+        <h1 className="discover-title">Discover Talents</h1>
 
-        <div style={{ display: 'flex', gap: '30px', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap' }}>
-          
-          <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', background: '#f0f0f0' }}>
-            <ImageWithFallback 
-              src={talent.avatar_url} 
-              alt={talent.name} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+        <div className="search-row">
+          <div className="search-box">
+            <span className="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Search talents, skills, or services..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-
-          <div>
-            <h1 style={{ fontSize: '32px', margin: '0 0 10px 0', color: '#111' }}>{talent.name}</h1>
-            <p style={{ fontSize: '18px', color: '#d4a017', margin: '0 0 10px 0', fontWeight: 600 }}>{talent.role}</p>
-            <p style={{ fontSize: '15px', color: '#555', margin: 0 }}>📍 {talent.location || 'Remote'} &nbsp; | &nbsp; 🟢 {talent.availability || 'Available'}</p>
+          <button className="filter-btn" title="Filter">⚙</button>
+          <div className="sort-dropdown">
+            <button className="sort-btn">Newest <span className="chev">▾</span></button>
           </div>
         </div>
 
-        <div style={{ marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '22px', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Skills</h2>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {skills.map(skill => (
-              <span key={skill} style={{ background: '#eaf3eb', color: '#0a4711', padding: '6px 15px', borderRadius: '50px', fontSize: '14px', fontWeight: 600 }}>{skill}</span>
+        <div className="category-pills">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              className={activeCategory === cat ? 'pill active' : 'pill'}
+              onClick={() => setActiveCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="talents-section">
+        {loading ? (
+          <p className="no-results">Loading...</p>
+        ) : filteredTalents.length === 0 ? (
+          <p className="no-results">No talents match your search.</p>
+        ) : (
+          <div className="talents-grid">
+            {filteredTalents.map(talent => (
+              <div className="talent-card" key={talent.id}>
+                <div className="talent-header">
+                  <div className="talent-info">
+                    <ImageWithFallback
+                      src={talent.avatar_url}
+                      alt={talent.name}
+                      className="talent-avatar"
+                      type="human"
+                    />
+                    <div>
+                      <h3>{talent.name}</h3>
+                      <p className="talent-role">{talent.role}</p>
+                    </div>
+                  </div>
+                  <Link to={`/talent/${talent.id}`} className="view-profile-btn">
+                    View Profile
+                  </Link>
+                </div>
+
+                <div className="talent-meta">
+                  <span>📍 {talent.location}</span>
+                  <span className="availability">● {talent.availability}</span>
+                </div>
+
+                <div className="portfolio-grid">
+                  {[1, 2, 3, 4].map(n => (
+                    <div className="portfolio-placeholder" key={n}>
+                      <span>🖼</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="skill-tags">
+                  {parseSkills(talent.skills).slice(0, 4).map((s) => (
+                    <span className="skill-tag" key={s}>{s}</span>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
-        </div>
+        )}
+      </section>
 
-        <div>
-          <h2 style={{ fontSize: '22px', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Portfolio</h2>
-          {talent.portfolio_images && talent.portfolio_images.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-              {talent.portfolio_images.map((imgUrl, index) => (
-                <div key={index} style={{ aspectRatio: '4/3', borderRadius: '10px', overflow: 'hidden', border: '1px solid #eee' }}>
-                  <ImageWithFallback src={imgUrl} alt="Work" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={{ color: '#888' }}>No portfolio images uploaded yet.</p>
-          )}
-        </div>
-
-      </div>
+      <section className="talent-cta">
+        <ImageWithFallback
+          src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png"
+          alt="MyDreamConnect"
+          className="cta-logo"
+        />
+        <h2>Try MyDreamConnect Today</h2>
+        <p>Manage your freelance projects, connect with mentors, and grow your career.</p>
+        <Link to="/get-started" className="cta-btn">Get Started for Free</Link>
+      </section>
     </div>
   );
 }
 
-export default TalentProfile;
+export default TalentHome;
