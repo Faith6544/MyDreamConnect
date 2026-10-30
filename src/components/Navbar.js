@@ -73,7 +73,7 @@ function Navbar() {
                 <li><Link to="/talent/opportunities" onClick={closeMenu}>Opportunities</Link></li>
               </ul>
             </li>
-
+<Link to="/about/team">Our Team</Link>
             <li><Link to="/blog" onClick={closeMenu}>Blogs</Link></li>
             <li><Link to="/contact" onClick={closeMenu}>Contact</Link></li>
 
