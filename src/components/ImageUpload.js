@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { compressImage } from '../lib/compressImage';
 import './ImageUpload.css';
 
 function ImageUpload({ value, onChange, label = 'Image' }) {
@@ -8,7 +9,7 @@ function ImageUpload({ value, onChange, label = 'Image' }) {
 
   const handleFile = async (e) => {
     const input = e.target;
-    const file = input.files?.[0];
+    let file = input.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
@@ -16,6 +17,7 @@ function ImageUpload({ value, onChange, label = 'Image' }) {
       input.value = ''; // allow re-selecting the same file
       return;
     }
+    file = await compressImage(file); // shrink big phone photos before the size check
     if (file.size > 5 * 1024 * 1024) {
       setError('Image must be under 5 MB.');
       input.value = '';

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
@@ -11,81 +11,83 @@ import { AuthProvider } from './context/AuthContext';
 
 /* ---------- Public pages ---------- */
 import Home from './pages/Home';
-import About from './pages/About';
-import Courses from './pages/Courses';
-import CourseDetail from './pages/CourseDetail';
-import Blog from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import Contact from './pages/Contact';
-import GetStarted from './pages/GetStarted';
-import MediaHome from './pages/MediaHome';
-import Photos from './pages/Photos';
-import PhotoAlbum from './pages/PhotoAlbum';
-import Videos from './pages/Videos';
-import Flyers from './pages/Flyers';
-import TalentHome from './pages/TalentHome';
-import TalentMarketplace from './pages/TalentMarketplace';
-import TalentProfile from './pages/TalentProfile';
-import Jobs from './pages/Jobs';
-import Opportunities from './pages/Opportunities';
-import Donate from './pages/Donate';
-import Volunteer from './pages/Volunteer';
-import Partnership from './pages/Partnership';
-import Terms from './pages/Terms';
-import Search from './pages/Search';
-import NotFound from './pages/NotFound';
-import Scholarship from './pages/Scholarship';
-import Team from './pages/Team';
-import AdminTeamList from './pages/AdminTeamList';
-import AdminTeamEditor from './pages/AdminTeamEditor';
 /* ---------- Student (protected) ---------- */
-import MyCourses from './pages/MyCourses';
-import MyCoursePlayer from './pages/MyCoursePlayer';
 
 /* ---------- Admin ---------- */
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminScholarships from './pages/AdminScholarships';
 
-import AdminPostsList from './pages/AdminPostsList';
-import AdminPostEditor from './pages/AdminPostEditor';
-import AdminPostCategoriesList from './pages/AdminPostCategoriesList';
-import AdminPostCategoryEditor from './pages/AdminPostCategoryEditor';
-import AdminPostTagsList from './pages/AdminPostTagsList';
-import AdminPostTagEditor from './pages/AdminPostTagEditor';
 import { Analytics } from "@vercel/analytics/react";
-import AdminCoursesList from './pages/AdminCoursesList';
-import AdminCourseEditor from './pages/AdminCourseEditor';
-import AdminLessonsList from './pages/AdminLessonsList';
-import AdminLessonEditor from './pages/AdminLessonEditor';
-import AdminCategoriesList from './pages/AdminCategoriesList';
-import AdminCategoryEditor from './pages/AdminCategoryEditor';
 
-import AdminPhotosList from './pages/AdminPhotosList';
-import AdminPhotoEditor from './pages/AdminPhotoEditor';
-import AdminAlbumPhotos from './pages/AdminAlbumPhotos';
-import AdminVideosList from './pages/AdminVideosList';
-import AdminVideoEditor from './pages/AdminVideoEditor';
-import AdminFlyersList from './pages/AdminFlyersList';
-import AdminFlyerEditor from './pages/AdminFlyerEditor';
-import AdminJobsList from './pages/AdminJobsList';
-import AdminJobEditor from './pages/AdminJobEditor';
-import AdminOpportunitiesList from './pages/AdminOpportunitiesList';
-import AdminOpportunityEditor from './pages/AdminOpportunityEditor';
-import AdminTalentList from './pages/AdminTalentList';
-import AdminTalentEditor from './pages/AdminTalentEditor';
+/* ---------- Pages load on demand, so a visitor only downloads the page they open ---------- */
+const About = lazy(() => import('./pages/About'));
+const Courses = lazy(() => import('./pages/Courses'));
+const CourseDetail = lazy(() => import('./pages/CourseDetail'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+const Contact = lazy(() => import('./pages/Contact'));
+const GetStarted = lazy(() => import('./pages/GetStarted'));
+const MediaHome = lazy(() => import('./pages/MediaHome'));
+const Photos = lazy(() => import('./pages/Photos'));
+const PhotoAlbum = lazy(() => import('./pages/PhotoAlbum'));
+const Videos = lazy(() => import('./pages/Videos'));
+const Flyers = lazy(() => import('./pages/Flyers'));
+const TalentHome = lazy(() => import('./pages/TalentHome'));
+const TalentMarketplace = lazy(() => import('./pages/TalentMarketplace'));
+const TalentProfile = lazy(() => import('./pages/TalentProfile'));
+const Jobs = lazy(() => import('./pages/Jobs'));
+const Opportunities = lazy(() => import('./pages/Opportunities'));
+const Donate = lazy(() => import('./pages/Donate'));
+const Volunteer = lazy(() => import('./pages/Volunteer'));
+const Partnership = lazy(() => import('./pages/Partnership'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Search = lazy(() => import('./pages/Search'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Scholarship = lazy(() => import('./pages/Scholarship'));
+const Team = lazy(() => import('./pages/Team'));
+const AdminTeamList = lazy(() => import('./pages/AdminTeamList'));
+const AdminTeamEditor = lazy(() => import('./pages/AdminTeamEditor'));
+const MyCourses = lazy(() => import('./pages/MyCourses'));
+const MyCoursePlayer = lazy(() => import('./pages/MyCoursePlayer'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminScholarships = lazy(() => import('./pages/AdminScholarships'));
+const AdminPostsList = lazy(() => import('./pages/AdminPostsList'));
+const AdminPostEditor = lazy(() => import('./pages/AdminPostEditor'));
+const AdminPostCategoriesList = lazy(() => import('./pages/AdminPostCategoriesList'));
+const AdminPostCategoryEditor = lazy(() => import('./pages/AdminPostCategoryEditor'));
+const AdminPostTagsList = lazy(() => import('./pages/AdminPostTagsList'));
+const AdminPostTagEditor = lazy(() => import('./pages/AdminPostTagEditor'));
+const AdminCoursesList = lazy(() => import('./pages/AdminCoursesList'));
+const AdminCourseEditor = lazy(() => import('./pages/AdminCourseEditor'));
+const AdminLessonsList = lazy(() => import('./pages/AdminLessonsList'));
+const AdminLessonEditor = lazy(() => import('./pages/AdminLessonEditor'));
+const AdminCategoriesList = lazy(() => import('./pages/AdminCategoriesList'));
+const AdminCategoryEditor = lazy(() => import('./pages/AdminCategoryEditor'));
+const AdminPhotosList = lazy(() => import('./pages/AdminPhotosList'));
+const AdminPhotoEditor = lazy(() => import('./pages/AdminPhotoEditor'));
+const AdminAlbumPhotos = lazy(() => import('./pages/AdminAlbumPhotos'));
+const AdminVideosList = lazy(() => import('./pages/AdminVideosList'));
+const AdminVideoEditor = lazy(() => import('./pages/AdminVideoEditor'));
+const AdminFlyersList = lazy(() => import('./pages/AdminFlyersList'));
+const AdminFlyerEditor = lazy(() => import('./pages/AdminFlyerEditor'));
+const AdminJobsList = lazy(() => import('./pages/AdminJobsList'));
+const AdminJobEditor = lazy(() => import('./pages/AdminJobEditor'));
+const AdminOpportunitiesList = lazy(() => import('./pages/AdminOpportunitiesList'));
+const AdminOpportunityEditor = lazy(() => import('./pages/AdminOpportunityEditor'));
+const AdminTalentList = lazy(() => import('./pages/AdminTalentList'));
+const AdminTalentEditor = lazy(() => import('./pages/AdminTalentEditor'));
+const AdminInstructorsList = lazy(() => import('./pages/AdminInstructorsList'));
+const AdminInstructorEditor = lazy(() => import('./pages/AdminInstructorEditor'));
+const AdminTestimonialsList = lazy(() => import('./pages/AdminTestimonialsList'));
+const AdminTestimonialEditor = lazy(() => import('./pages/AdminTestimonialEditor'));
+const AdminEnrollments = lazy(() => import('./pages/AdminEnrollments'));
+const AdminUsers = lazy(() => import('./pages/AdminUsers'));
+const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
+const AdminMessages = lazy(() => import('./pages/AdminMessages'));
+const AdminPartnerships = lazy(() => import('./pages/AdminPartnerships'));
+const AdminVolunteers = lazy(() => import('./pages/AdminVolunteers'));
 
-import AdminInstructorsList from './pages/AdminInstructorsList';
-import AdminInstructorEditor from './pages/AdminInstructorEditor';
-import AdminTestimonialsList from './pages/AdminTestimonialsList';
-import AdminTestimonialEditor from './pages/AdminTestimonialEditor';
 
-import AdminEnrollments from './pages/AdminEnrollments';
-import AdminUsers from './pages/AdminUsers';
-import AdminSubscribers from './pages/AdminSubscribers';
-import AdminMessages from './pages/AdminMessages';
-import AdminPartnerships from './pages/AdminPartnerships';
-import AdminVolunteers from './pages/AdminVolunteers';
+
 
 function App() {
   return (
@@ -94,6 +96,7 @@ function App() {
         <ScrollToTop />
         <Navbar />
 
+        <Suspense fallback={<div style={{ minHeight: '60vh', display: 'grid', placeItems: 'center', color: '#0a4711' }}>Loading...</div>}>
         <Routes>
           {/* ==================== Public ==================== */}
           <Route path="/" element={<Home />} />
@@ -200,6 +203,7 @@ function App() {
           {/* ==================== 404 ==================== */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
 
         <Footer />
         <WhatsAppButton />

@@ -27,6 +27,14 @@ export default function Team() {
     return acc;
   }, {});
 
+  // board first, then the rest in a fixed order, anything new goes at the end
+  const order = ['Board of Directors', 'Executive Team', 'Advisors', 'Staff', 'Volunteers'];
+  const categoryList = Object.keys(grouped).sort((a, b) => {
+    const ia = order.indexOf(a) === -1 ? order.length : order.indexOf(a);
+    const ib = order.indexOf(b) === -1 ? order.length : order.indexOf(b);
+    return ia - ib;
+  });
+
   return (
     <div className="team-page">
       <div className="team-container">
@@ -36,7 +44,7 @@ export default function Team() {
         {loading ? (
           <p>Loading team...</p>
         ) : (
-          Object.keys(grouped).map(category => (
+          categoryList.map(category => (
             <div key={category} className="team-section">
               <h2 className="team-category-title">{category}</h2>
               <div className="team-grid">
