@@ -1,12 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/shape/:path*", "destination": "https://oldsite.mydreamconnect.org.ng/shape/:path*", "permanent": false },
+    { "source": "/shape2/:path*", "destination": "https://oldsite.mydreamconnect.org.ng/shape2/:path*", "permanent": false },
+    { "source": "/enrolment/:path*", "destination": "https://oldsite.mydreamconnect.org.ng/enrolment/:path*", "permanent": false }
+  ],
   "rewrites": [
-    { "source": "/shape", "destination": "https://legacy.mydreamconnect.org.ng/shape/" },
-    { "source": "/shape/:path*", "destination": "https://legacy.mydreamconnect.org.ng/shape/:path*" },
-    { "source": "/shape2", "destination": "https://legacy.mydreamconnect.org.ng/shape2/" },
-    { "source": "/shape2/:path*", "destination": "https://legacy.mydreamconnect.org.ng/shape2/:path*" },
-    { "source": "/enrolment", "destination": "https://legacy.mydreamconnect.org.ng/enrolment/" },
-    { "source": "/enrolment/:path*", "destination": "https://legacy.mydreamconnect.org.ng/enrolment/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
