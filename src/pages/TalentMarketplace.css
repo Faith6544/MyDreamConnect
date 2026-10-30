@@ -89,7 +89,6 @@
   margin-bottom: 40px;
 }
 
-/* FORCES 2 COLUMNS */
 .talent-list {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
@@ -99,90 +98,9 @@
 .talent-card {
   border: 1px solid #e2e2e2;
   border-radius: 12px;
-  padding: 25px;
   background: #fff;
   display: flex;
   flex-direction: column;
-}
-
-.talent-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.talent-profile-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-/* THIS IS THE FIX: 60X60 ROUND CIRCLE */
-.talent-avatar-circle {
-  width: 60px !important;
-  height: 60px !important;
-  border-radius: 50% !important;
-  overflow: hidden !important;
-  flex-shrink: 0;
-  background: #f0f0f0;
-}
-
-.talent-avatar-circle img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-}
-
-.talent-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111;
-  margin: 0 0 4px 0;
-}
-
-.talent-role {
-  font-size: 14px;
-  color: #777;
-}
-
-.talent-view-btn {
-  background: #0a4711;
-  color: #fff;
-  text-decoration: none;
-  padding: 10px 24px;
-  border-radius: 50px;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.talent-portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.talent-portfolio-item {
-  aspect-ratio: 1 / 1;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #eee;
-}
-
-.talent-portfolio-item img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-}
-
-.placeholder-icon {
-  font-size: 24px;
-  opacity: 0.3;
 }
 
 .talent-empty {
