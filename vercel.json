@@ -1,34 +1,12 @@
-
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    {
-      "source": "/shape",
-      "destination": "https://mydreamconnect.org.ng/shape"
-    },
-    {
-      "source": "/shape/:path*",
-      "destination": "https://mydreamconnect.org.ng/shape/:path*"
-    },
-    {
-      "source": "/shape2",
-      "destination": "https://.mydreamconnect.org.ng/shape2"
-    },
-    {
-      "source": "/shape2/:path*",
-      "destination": "https://mydreamconnect.org.ng/shape2/:path*"
-    },
-    {
-      "source": "/enrolment",
-      "destination": "https://mydreamconnect.org.ng/enrolment"
-    },
-    {
-      "source": "/enrolment/:path*",
-      "destination": "https://mydreamconnect.org.ng/enrolment/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/shape", "destination": "https://legacy.mydreamconnect.org.ng/shape/" },
+    { "source": "/shape/:path*", "destination": "https://legacy.mydreamconnect.org.ng/shape/:path*" },
+    { "source": "/shape2", "destination": "https://legacy.mydreamconnect.org.ng/shape2/" },
+    { "source": "/shape2/:path*", "destination": "https://legacy.mydreamconnect.org.ng/shape2/:path*" },
+    { "source": "/enrolment", "destination": "https://legacy.mydreamconnect.org.ng/enrolment/" },
+    { "source": "/enrolment/:path*", "destination": "https://legacy.mydreamconnect.org.ng/enrolment/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
