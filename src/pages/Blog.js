@@ -126,14 +126,11 @@ function Blog() {
                 <ImageWithFallback src={featuredImage} alt={title} />
               </div>
               <div className="blog-content">
-                <div className="blog-date">{date}</div>
                 <h3>{title}</h3>
                 <p>{excerpt}</p>
                 <div className="blog-meta">
-                  {/* Show the real category name, or default to Blogs */}
-                  <span>📂 {post.category?.name || 'Blogs'}</span>
-                  <span>🕐 3 min read</span>
-                </div>
+  <span>📂 {post.category?.name || 'Blogs'}</span>
+</div>
               </div>
             </Link>
           );
