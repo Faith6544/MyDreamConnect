@@ -1,10 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import './About.css';
 import Sidebar from '../components/Sidebar';
 import ImageWithFallback from '../components/ImageWithFallback';
+import Team from './Team';
 
 function About() {
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash !== '#team') return undefined;
+    const timer = setTimeout(() => {
+      document.getElementById('team')?.scrollIntoView({ behavior: 'smooth' }); // used by the Meet the Full Team links
+    }, 150); // short wait so the page has drawn first
+    return () => clearTimeout(timer);
+  }, [hash]);
+
   return (
     <div className="about-page">
       <section className="about-content-section">
@@ -88,6 +99,10 @@ function About() {
           </aside>
         </div>
       </section>
+
+      <div id="team">
+        <Team embedded />
+      </div>
     </div>
   );
 }

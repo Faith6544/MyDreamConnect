@@ -68,7 +68,9 @@ function AdminEnrollments() {
     setLoading(false);
   };
 
-  useEffect(() => { loadData(); /* eslint-disable-next-line */ }, [navigate]);
+  // Runs once per navigation target; loadData is recreated on every render on purpose.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadData(); }, [navigate]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Remove this enrollment?')) return;

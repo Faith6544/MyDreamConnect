@@ -50,7 +50,9 @@ function AdminAlbumPhotos() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [albumId]);
+  // Reload only when the album changes; load is recreated on every render on purpose.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [albumId]);
 
   const handleAdd = async (e) => {
     e.preventDefault();

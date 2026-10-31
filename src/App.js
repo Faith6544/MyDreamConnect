@@ -41,7 +41,6 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Search = lazy(() => import('./pages/Search'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Scholarship = lazy(() => import('./pages/Scholarship'));
-const Team = lazy(() => import('./pages/Team'));
 const AdminTeamList = lazy(() => import('./pages/AdminTeamList'));
 const AdminTeamEditor = lazy(() => import('./pages/AdminTeamEditor'));
 const MyCourses = lazy(() => import('./pages/MyCourses'));
@@ -122,7 +121,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/search" element={<Search />} />
           <Route path="/scholarship" element={<Scholarship />} />
-<Route path="/team" element={<Navigate to="/about/team" replace />} />
+          <Route path="/team" element={<Navigate to="/about#team" replace />} />
           {/* ==================== Student (protected) ==================== */}
           <Route path="/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
           <Route path="/my-courses/:id" element={<ProtectedRoute><MyCoursePlayer /></ProtectedRoute>} />
@@ -167,13 +166,13 @@ function App() {
           <Route path="/admin/flyers" element={<AdminRoute><AdminFlyersList /></AdminRoute>} />
           <Route path="/admin/flyers/new" element={<AdminRoute><AdminFlyerEditor /></AdminRoute>} />
           <Route path="/admin/flyers/edit/:id" element={<AdminRoute><AdminFlyerEditor /></AdminRoute>} />
-{/* Public Team Page */}
-<Route path="/about/team" element={<Team />} />
+          {/* Public Team Page (now embedded in /about) */}
+          <Route path="/about/team" element={<Navigate to="/about#team" replace />} />
 
-{/* Admin Team Pages */}
-<Route path="/admin/team" element={<AdminRoute><AdminTeamList /></AdminRoute>} />
-<Route path="/admin/team/new" element={<AdminRoute><AdminTeamEditor /></AdminRoute>} />
-<Route path="/admin/team/edit/:id" element={<AdminRoute><AdminTeamEditor /></AdminRoute>} />
+          {/* Admin: Team */}
+          <Route path="/admin/team" element={<AdminRoute><AdminTeamList /></AdminRoute>} />
+          <Route path="/admin/team/new" element={<AdminRoute><AdminTeamEditor /></AdminRoute>} />
+          <Route path="/admin/team/edit/:id" element={<AdminRoute><AdminTeamEditor /></AdminRoute>} />
           {/* Admin: Talent */}
           <Route path="/admin/jobs" element={<AdminRoute><AdminJobsList /></AdminRoute>} />
           <Route path="/admin/jobs/new" element={<AdminRoute><AdminJobEditor /></AdminRoute>} />

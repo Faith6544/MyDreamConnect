@@ -7,7 +7,6 @@ import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
   const [mediaOpen, setMediaOpen] = useState(false);
   const [talentOpen, setTalentOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -18,7 +17,6 @@ function Navbar() {
     setMobileOpen(false);
     setMediaOpen(false);
     setTalentOpen(false);
-    setAboutOpen(false);
   };
 
   const handleSignOut = async () => {
@@ -33,9 +31,9 @@ function Navbar() {
 
           <Link to="/" className="logo" onClick={closeMenu}>
             <ImageWithFallback
-             src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/logo-transparent.png"
-               alt="Logo" 
-  className="nav-logo-circle" 
+              src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/logo-transparent.png"
+              alt="Logo"
+              className="nav-logo-circle"
             />
           </Link>
 
@@ -52,15 +50,7 @@ function Navbar() {
           <ul className={`nav-links ${mobileOpen ? 'mobile-open' : ''}`}>
 
             <li><Link to="/" onClick={closeMenu}>Home</Link></li>
-            <li className={`has-dropdown ${aboutOpen ? 'open' : ''}`}>
-              <span className="nav-parent" onClick={() => setAboutOpen(!aboutOpen)}>
-                About Us <span className="caret">▾</span>
-              </span>
-              <ul className="dropdown">
-                <li><Link to="/about" onClick={closeMenu}>Our Story</Link></li>
-                <li><Link to="/about/team" onClick={closeMenu}>Board &amp; Team</Link></li>
-              </ul>
-            </li>
+            <li><Link to="/about" onClick={closeMenu}>About Us</Link></li>
 
             <li className={`has-dropdown ${mediaOpen ? 'open' : ''}`}>
               <span className="nav-parent" onClick={() => setMediaOpen(!mediaOpen)}>

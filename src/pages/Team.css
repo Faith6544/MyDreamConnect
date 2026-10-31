@@ -87,3 +87,6 @@
   color: #666;
   line-height: 1.6;
 }
+.team-embedded {
+  padding-bottom: 0; /* About page already has its own spacing */
+}

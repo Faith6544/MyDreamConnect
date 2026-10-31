@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import ImageWithFallback from '../components/ImageWithFallback';
 import './Team.css';
 
-export default function Team() {
+export default function Team({ embedded = false }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,9 +36,9 @@ export default function Team() {
   });
 
   return (
-    <div className="team-page">
+    <div className={embedded ? 'team-page team-embedded' : 'team-page'}>
       <div className="team-container">
-        <h1 className="team-title">Our Team</h1>
+        {embedded ? <h2 className="team-title">Our Board &amp; Team</h2> : <h1 className="team-title">Our Team</h1>}
         <p className="team-subtitle">Meet the people driving our mission forward.</p>
 
         {loading ? (
