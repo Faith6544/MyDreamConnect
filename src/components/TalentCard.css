@@ -22,6 +22,8 @@
 }
 
 .tc-profile {
+  text-decoration: none;
+  color: inherit;
   display: flex;
   align-items: center;
   gap: 14px;

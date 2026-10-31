@@ -1,0 +1,30 @@
+.ll-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ll-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid #d9e6da;
+  border-radius: 50px;
+  color: #0a4711;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  background: #fff;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.ll-link:hover,
+.ll-link:focus-visible {
+  background: #0a4711;
+  border-color: #0a4711;
+  color: #fff;
+}

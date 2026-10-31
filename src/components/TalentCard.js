@@ -13,7 +13,7 @@ export default function TalentCard({ talent }) {
   return (
     <article className="tc-card">
       <div className="tc-header">
-        <div className="tc-profile">
+        <Link to={`/talent/${talent.id}`} className="tc-profile">
           <div className="tc-avatar">
             <ImageWithFallback src={talent.avatar_url} alt={talent.name || 'Anonymous'} type="human" />
           </div>
@@ -21,7 +21,7 @@ export default function TalentCard({ talent }) {
             <h3 className="tc-name">{talent.name || 'Anonymous User'}</h3>
             <span className="tc-role">{talent.role || 'Talent'}</span>
           </div>
-        </div>
+        </Link>
         <Link to={`/talent/${talent.id}`} className="tc-view-btn">
           View Profile
         </Link>

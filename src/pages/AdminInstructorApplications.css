@@ -1,0 +1,54 @@
+.aia-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.aia-loading { text-align: center; padding: 80px; }
+.aia-back { color: #0a4711; font-weight: 600; text-decoration: none; }
+.aia-page h1 { margin: 12px 0 24px; }
+
+.aia-tabs { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.aia-tabs button {
+  border: 1px solid #ddd; background: #fff; border-radius: 50px;
+  padding: 8px 18px; cursor: pointer; font-family: inherit; font-weight: 500;
+}
+.aia-tabs button.active { background: #0a4711; color: #fff; border-color: #0a4711; }
+
+.aia-empty { color: #888; padding: 30px 0; }
+
+.aia-notice { background: #fff7e6; border: 1px solid #f0d9a8; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+.aia-notice p { margin: 0 0 8px; color: #7a5200; }
+.aia-notice input { width: 100%; box-sizing: border-box; padding: 8px 10px; font-size: 13px; }
+
+.aia-card { background: #fff; border: 1px solid #e6e6e6; border-radius: 12px; padding: 22px; margin-bottom: 18px; }
+.aia-card header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.aia-card h2 { margin: 0 0 2px; font-size: 20px; }
+.aia-course { margin: 0; color: #b8860b; font-weight: 600; font-size: 14px; }
+
+.aia-badge { padding: 4px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+.aia-badge.pending { background: #fff3cd; color: #8a6d00; }
+.aia-badge.approved { background: #dff3e1; color: #0a4711; }
+.aia-badge.declined { background: #fde2e0; color: #b81c00; }
+
+.aia-card dl { display: grid; grid-template-columns: 150px 1fr; gap: 8px 14px; margin: 18px 0; font-size: 14px; }
+.aia-card dt { color: #888; }
+.aia-card dd { margin: 0; white-space: pre-wrap; word-break: break-word; }
+
+.aia-docs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.aia-docs a, .aia-docs button {
+  background: #f1f5f1; border: none; border-radius: 8px; padding: 8px 14px; font-size: 13px;
+  color: #0a4711; text-decoration: none; cursor: pointer; font-family: inherit; font-weight: 600;
+}
+
+.aia-actions { display: flex; gap: 12px; }
+.aia-actions button { border: none; border-radius: 50px; padding: 11px 26px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.aia-actions .approve { background: #0a4711; color: #fff; }
+.aia-actions .decline { background: #fff; color: #b81c00; border: 1px solid #b81c00; }
+.aia-actions button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+  .aia-card dl { grid-template-columns: 1fr; gap: 2px; }
+  .aia-card dt { margin-top: 8px; }
+}
