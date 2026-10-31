@@ -38,22 +38,24 @@ export default function Team({ embedded = false }) {
   return (
     <div className={embedded ? 'team-page team-embedded' : 'team-page'}>
       <div className="team-container">
-        {embedded ? <h2 className="team-title">Our Board &amp; Team</h2> : <h1 className="team-title">Our Team</h1>}
-        <p className="team-subtitle">Meet the people driving our mission forward.</p>
+        {/* Change the title if embedded on Home page */}
+        {embedded ? <h2 className="team-title" style={{ textAlign: 'left' }}>Meet Our <span style={{ color: '#d4a017' }}>Leadership Team</span></h2> : <h1 className="team-title">Our Team</h1>}
+        {!embedded && <p className="team-subtitle">Meet the people driving our mission forward.</p>}
 
         {loading ? (
           <p>Loading team...</p>
         ) : (
           categoryList.map(category => (
             <div key={category} className="team-section">
-              <h2 className="team-category-title">{category}</h2>
+              {!embedded && <h2 className="team-category-title">{category}</h2>}
               <div className="team-grid">
                 {grouped[category].map(member => (
-                  <div 
-                    key={member.id} 
-                    className="team-card"
-                    onClick={() => navigate(`/team/${member.id}`)}
-                  >
+                  // Inside Team.js map function:
+<div 
+  key={member.id} 
+  className="team-card" 
+  onClick={() => navigate(`/team/${member.id}`)} // Goes to the new profile page
+>
                     <div className="team-image">
                       <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
                     </div>

@@ -1041,3 +1041,25 @@
   height: 200px !important; /* FORCES IMAGE TO STAY 200PX TALL */
   object-fit: cover !important;
 }
+/* FORCE REMOVE BOX FROM HOME PAGE */
+.team-card, .team-embedded .team-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* FORCE PERFECT CIRCLE */
+.team-image, .team-embedded .team-image {
+  width: 160px !important;
+  height: 160px !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  margin: 0 auto 15px auto !important;
+}
+
+.team-image img, .team-embedded .team-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
