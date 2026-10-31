@@ -121,3 +121,32 @@
   background: #0a4711;
   color: #fff;
 }
+.profile-links-section {
+  margin-top: 40px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.social-btn {
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #fff;
+  transition: transform 0.2s, opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.social-btn.linkedin { background-color: #0077b5; }
+.social-btn.twitter { background-color: #1da1f2; }
+.social-btn.website { background-color: #0a4711; }

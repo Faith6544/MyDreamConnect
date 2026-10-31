@@ -31,14 +31,17 @@ function AdminTeamEditor() {
         const { data, error } = await supabase.from('team_members').select('*').eq('id', id).single();
         if (error) setError('Load failed: ' + error.message);
         else if (data) setFormData({
-          name: data.name || '',
-          role: data.role || '',
-          bio: data.bio || '',
-          image_url: data.image_url || '',
-          category: data.category || 'Board of Directors',
-          order_index: data.order_index || 0,
-          show_on_home: data.show_on_home ?? true
-        });
+  name: data.name || '',
+  role: data.role || '',
+  bio: data.bio || '',
+  image_url: data.image_url || '',
+  category: data.category || 'Board of Directors',
+  order_index: data.order_index || 0,
+  show_on_home: data.show_on_home ?? true,
+  linkedin_url: data.linkedin_url || '', // <-- Add this
+  twitter_url: data.twitter_url || '',   // <-- Add this
+  website_url: data.website_url || ''    // <-- Add this
+});
       }
       setLoading(false);
     };
@@ -118,7 +121,20 @@ function AdminTeamEditor() {
           <label>Short Bio</label>
           <textarea name="bio" value={formData.bio} onChange={handleChange} rows="4" disabled={saving} placeholder="Brief background or statement..." />
         </div>
+<div className="admin-field">
+  <label>LinkedIn Profile URL</label>
+  <input type="url" name="linkedin_url" value={formData.linkedin_url} onChange={handleChange} placeholder="https://linkedin.com/in/username" disabled={saving} />
+</div>
 
+<div className="admin-field">
+  <label>Twitter / X URL</label>
+  <input type="url" name="twitter_url" value={formData.twitter_url} onChange={handleChange} placeholder="https://twitter.com/username" disabled={saving} />
+</div>
+
+<div className="admin-field">
+  <label>Personal Website / Portfolio</label>
+  <input type="url" name="website_url" value={formData.website_url} onChange={handleChange} placeholder="https://yourwebsite.com" disabled={saving} />
+</div>
         {/* NEW CHECKBOX FOR HOMEPAGE */}
         <div className="admin-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
           <input 

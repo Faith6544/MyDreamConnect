@@ -44,7 +44,24 @@ export default function TeamProfile() {
           <h2>About Me</h2>
           <p>{member.bio || 'Biography coming soon...'}</p>
         </div>
-
+{/* SOCIAL LINKS */}
+<div className="profile-links-section" style={{ marginTop: '30px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
+  {member.linkedin_url && (
+    <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className="social-btn linkedin">
+      LinkedIn
+    </a>
+  )}
+  {member.twitter_url && (
+    <a href={member.twitter_url} target="_blank" rel="noopener noreferrer" className="social-btn twitter">
+      Twitter / X
+    </a>
+  )}
+  {member.website_url && (
+    <a href={member.website_url} target="_blank" rel="noopener noreferrer" className="social-btn website">
+      Portfolio
+    </a>
+  )}
+</div>
         {/* Direct Links Section (As requested in your design tips) */}
         <div className="profile-links-section">
           {member.linkedin_url && (
