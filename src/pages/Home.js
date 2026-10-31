@@ -207,8 +207,9 @@ function Home() {
       </section>
 
       {/* ================= TEAM PREVIEW SECTION (MOVED HERE) ================= */}
+            {/* ================= TEAM PREVIEW SECTION (CLEAN WHITE BACKGROUND) ================= */}
       {team.length > 0 && (
-        <section className="team-preview-section" style={{ padding: '60px 20px', background: '#f9f9f9' }}>
+        <section className="team-preview-section" style={{ padding: '60px 20px', background: 'transparent' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             
             <div className="section-heading-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
