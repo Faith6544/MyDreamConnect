@@ -21,6 +21,7 @@ export default function Team({ embedded = false }) {
     fetchTeam();
   }, []);
 
+  // Group by category
   const grouped = members.reduce((acc, member) => {
     const cat = member.category || 'Our Team';
     if (!acc[cat]) acc[cat] = [];
@@ -38,29 +39,35 @@ export default function Team({ embedded = false }) {
   return (
     <div className={embedded ? 'team-page team-embedded' : 'team-page'}>
       <div className="team-container">
-        {/* Change the title if embedded on Home page */}
-        {embedded ? <h2 className="team-title" style={{ textAlign: 'left' }}>Meet Our <span style={{ color: '#d4a017' }}>Leadership Team</span></h2> : <h1 className="team-title">Our Team</h1>}
-        {!embedded && <p className="team-subtitle">Meet the people driving our mission forward.</p>}
+        <div className="team-header">
+          <h1 className="team-title">{embedded ? 'Meet Our Leadership' : 'Meet the People Behind Our Mission'}</h1>
+          <p className="team-subtitle">Dedicated professionals driving our vision forward.</p>
+        </div>
 
         {loading ? (
           <p>Loading team...</p>
         ) : (
           categoryList.map(category => (
             <div key={category} className="team-section">
-              {!embedded && <h2 className="team-category-title">{category}</h2>}
+              <h2 className="team-category-title">{category}</h2>
               <div className="team-grid">
                 {grouped[category].map(member => (
-                  // Inside Team.js map function:
-<div 
-  key={member.id} 
-  className="team-card" 
-  onClick={() => navigate(`/team/${member.id}`)} // Goes to the new profile page
->
+                  <div 
+                    key={member.id} 
+                    className="team-card"
+                    onClick={() => navigate(`/team/${member.id}`)}
+                  >
                     <div className="team-image">
                       <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
                     </div>
-                    <h3 className="team-name">{member.name}</h3>
-                    <p className="team-role">{member.role}</p>
+                    <div className="team-card-content">
+                      <h3 className="team-name">{member.name}</h3>
+                      <p className="team-role">{member.role}</p>
+                      <p className="team-bio-short">
+                        {member.bio ? `${member.bio.substring(0, 60)}...` : 'Click to read more'}
+                      </p>
+                      <span className="read-more-link">Read Profile →</span>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -1,4 +1,9 @@
-
+.team-profile-container {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+}
 
 .back-btn {
   background: none;
@@ -66,7 +71,7 @@
 }
 
 .profile-bio-section p {
-  color: #555;
+  color: #111111 !important; /* Forces the text to be dark/black */
   line-height: 1.8;
   font-size: 16px;
 }

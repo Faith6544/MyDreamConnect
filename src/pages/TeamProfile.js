@@ -34,8 +34,7 @@ export default function TeamProfile() {
       </div>
 
       <div className="profile-bio-section">
-        <h2>About {member.name.split(' ')[0]}</h2>
-        <p>{member.bio || 'No biography has been added for this team member yet. Please check back later!'}</p>
+<h2>About Me</h2>        <p>{member.bio || 'No biography has been added for this team member yet. Please check back later!'}</p>
       </div>
     </div>
   );

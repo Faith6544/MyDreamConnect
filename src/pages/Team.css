@@ -10,62 +10,68 @@
   padding: 60px 20px;
 }
 
+.team-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
 .team-title {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
   color: #0a4711;
-  text-align: center;
   margin-bottom: 10px;
 }
 
 .team-subtitle {
-  text-align: center;
   color: #666;
-  margin-bottom: 60px;
+  font-size: 16px;
 }
 
 .team-section {
-  margin-bottom: 60px;
+  margin-bottom: 70px;
 }
 
+/* Clean line for section headers */
 .team-category-title {
   font-size: 24px;
   color: #333;
-  border-bottom: 2px solid #d4a017;
+  border-bottom: 3px solid #d4a017;
   display: inline-block;
-  padding-bottom: 5px;
-  margin-bottom: 30px;
+  padding-bottom: 8px;
+  margin-bottom: 40px;
   font-weight: 700;
 }
 
+/* 4 columns on desktop, drops to 3, 2, or 1 based on screen size */
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 40px 20px; 
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px; 
 }
 
-/* REMOVING THE BOX */
 .team-card {
-  background: transparent !important;
-  padding: 10px !important;
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px 20px;
   text-align: center;
   cursor: pointer; 
-  transition: transform 0.2s ease;
-  box-shadow: none !important;
-  border: none !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04); /* Soft shadow */
+  border: 1px solid #eaeaea;
 }
 
 .team-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
 }
 
 .team-image {
-  width: 160px !important;
-  height: 160px !important;
-  margin: 0 auto 15px;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 20px;
   border-radius: 50%;
   overflow: hidden;
-  background: #eaeaea;
+  border: 4px solid #f0f0f0; /* Adds a nice ring around the photo */
 }
 
 .team-image img {
@@ -75,31 +81,58 @@
 }
 
 .team-name {
-  font-size: 18px !important;
-  color: #111 !important;
-  margin-bottom: 4px;
-  font-weight: 600;
+  font-size: 18px;
+  color: #111;
+  margin-bottom: 5px;
+  font-weight: 700;
 }
 
 .team-role {
-  font-size: 14px !important;
-  color: #d4a017 !important;
-  font-weight: 500;
-  margin-bottom: 0;
+  font-size: 14px;
+  color: #d4a017;
+  font-weight: 600;
+  margin-bottom: 15px;
 }
 
-.team-bio {
-  display: none !important; 
+.team-bio-short {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 15px;
 }
 
-/* Specifically target the embedded Home page version */
-.team-page.team-embedded .team-card {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
+.read-more-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0a4711;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* Specific tweaks for the Home Page */
 .team-page.team-embedded {
-  padding-bottom: 0; 
-  background: transparent !important;
+  padding-bottom: 0;
+  background: #ffffff;
+}
+
+.team-page.team-embedded .team-card {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding: 10px;
+}
+
+.team-page.team-embedded .team-card:hover {
+  transform: translateY(-5px);
+}
+
+.team-page.team-embedded .team-image {
+  width: 160px;
+  height: 160px;
+  border: none;
+}
+
+.team-page.team-embedded .team-bio-short,
+.team-page.team-embedded .read-more-link {
+  display: none; /* Hides extra text on the Home page to keep it clean */
 }
