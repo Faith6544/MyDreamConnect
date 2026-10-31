@@ -40,7 +40,7 @@ export default function Team({ embedded = false }) {
     <div className={embedded ? 'team-page team-embedded' : 'team-page'}>
       <div className="team-container">
         <div className="team-header">
-          <h1 className="team-title">{embedded ? 'Meet Our Leadership' : 'Meet the People Behind Our Mission'}</h1>
+          <h1 className="team-title">{embedded ? 'Meet Our Leadership Team' : 'Meet the People Behind Our Mission'}</h1>
           <p className="team-subtitle">Dedicated professionals driving our vision forward.</p>
         </div>
 

@@ -289,7 +289,7 @@ function Home() {
             <div className="section-heading-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
               <div className="section-heading">
                 <span className="heading-lead">Meet Our</span>{' '}
-                <span className="heading-main">Leadership Team</span>
+                <span className="heading-main">Leadership Team </span>
               </div>
               <Link to="/about/team" className="view-all-link" style={{ color: '#0a4711', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 Meet the Full Team
