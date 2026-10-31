@@ -1,34 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabase } from '../lib/supabase';
-import './AdminTeamList.css';
-import { useSortableList } from '../hooks/useSortableList';
-function AdminTeamList() {
-  const [members, setMembers] = useState([]);
+import './AdminTeamListList.css';
+
+function AdminTeamListList() {
+  const [TeamList, setTeamList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const loadData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate('/admin'); return; }
+    fetchTeamList();
+  }, []);
 
-      const { data } = await supabase
-        .from('team_members')
-        .select('*')
-        .order('order_index', { ascending: true });
+  const fetchTeamList = async () => {
+    const { data, error } = await supabase
+      .from('TeamList')
+      .select('*')
+      .order('display_order', { ascending: true }); // Sort by our custom order
 
-      setMembers(data || []);
-      setLoading(false);
-    };
-    loadData();
-  }, [navigate]);
+    if (error) console.error(error);
+    else setTeamList(data || []);
+    setLoading(false);
+  };
+
+  // Handle the Drag & Drop
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return; // Dropped outside the list
+    
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+
+    if (sourceIndex === destinationIndex) return;
+
+    // 1. Instantly reorder the UI (so it feels fast)
+    const reorderedItems = Array.from(TeamList);
+    const [movedItem] = reorderedItems.splice(sourceIndex, 1);
+    reorderedItems.splice(destinationIndex, 0, movedItem);
+    
+    setTeamList(reorderedItems);
+
+    // 2. Save the new order to Supabase in the background
+    const updates = reorderedItems.map((item, index) => ({
+      id: item.id,
+      display_order: index + 1,
+    }));
+
+    // We loop through and update each row's display_order
+    for (const update of updates) {
+      await supabase
+        .from('TeamList')
+        .update({ display_order: update.display_order })
+        .eq('id', update.id);
+    }
+  };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this team member?')) return;
-    const { error } = await supabase.from('team_members').delete().eq('id', id);
+    if (!window.confirm('Delete this course?')) return;
+    const { error } = await supabase.from('TeamList').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setMembers(members.filter(m => m.id !== id));
+    else fetchTeamList();
   };
 
   return (
@@ -36,42 +66,73 @@ function AdminTeamList() {
       <header className="admin-list-header">
         <div>
           <Link to="/admin/dashboard" className="back-link">← Dashboard</Link>
-          <h1>Team Members</h1>
+          <h1>TeamList</h1>
+          <p style={{ fontSize: '13px', color: '#666', marginTop: '5px' }}>
+            Click and hold the <strong>⠿</strong> icon to drag and reorder TeamList. Changes save automatically.
+          </p>
         </div>
-        <Link to="/admin/team/new" className="btn-new">+ New Member</Link>
+        <Link to="/admin/TeamList/new" className="btn-new">+ Add Course</Link>
       </header>
 
       {loading ? (
-        <p className="admin-list-loading">Loading...</p>
-      ) : members.length === 0 ? (
-        <p className="admin-list-empty">No team members yet.</p>
+        <p>Loading...</p>
+      ) : TeamList.length === 0 ? (
+        <p>No TeamList found.</p>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Role</th>
-              <th>Category</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map(member => (
-              <tr key={member.id}>
-                <td>{member.name}</td>
-                <td>{member.role}</td>
-                <td>{member.category}</td>
-                <td className="admin-actions">
-                  <Link to={`/admin/team/edit/${member.id}`} className="btn-edit">Edit</Link>
-                  <button onClick={() => handleDelete(member.id)} className="btn-delete">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="TeamList-list">
+            {(provided) => (
+              <table 
+                className="admin-table" 
+                {...provided.droppableProps} 
+                ref={provided.innerRef}
+              >
+                <thead>
+                  <tr>
+                    <th style={{ width: '60px' }}>Sort</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {TeamList.map((course, index) => (
+                    <Draggable key={course.id} draggableId={String(course.id)} index={index}>
+                      {(provided, snapshot) => (
+                        <tr
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={{
+                            ...provided.draggableProps.style,
+                            background: snapshot.isDragging ? '#f0fdf4' : '#fff', // Highlight when dragging
+                            boxShadow: snapshot.isDragging ? '0 5px 15px rgba(0,0,0,0.1)' : 'none',
+                            display: snapshot.isDragging ? 'table' : 'table-row', // Fixes table row dragging
+                          }}
+                        >
+                          <td style={{ fontSize: '20px', color: '#aaa', cursor: 'grab' }}>
+                            ⠿ {/* This is the drag handle icon */}
+                          </td>
+                          <td>{course.name}</td>
+                          <td>{course.price ? `₦${Number(course.price).toLocaleString()}` : 'Free'}</td>
+                          <td className="admin-actions">
+                            <Link to={`/admin/TeamList/edit/${course.id}`} className="btn-edit">Edit</Link>
+                            <Link to={`/admin/TeamList/${course.id}/lessons`} className="btn-edit" style={{ color: '#0a4711' }}>Lessons</Link>
+                            <button onClick={() => handleDelete(course.id)} className="btn-delete">Delete</button>
+                          </td>
+                        </tr>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </tbody>
+              </table>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </div>
   );
 }
 
-export default AdminTeamList;
+export default AdminTeamListList;

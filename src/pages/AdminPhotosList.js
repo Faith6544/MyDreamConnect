@@ -1,97 +1,135 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabase } from '../lib/supabase';
-import './AdminPhotosList.css'; // Keep your existing css
-import { useSortableList } from '../hooks/useSortableList';
+import './AdminPhotosList.css';
+
 function AdminPhotosList() {
-  const [photos, setPhotos] = useState([]);
+  const [Photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPhotos = async () => {
-      // Fetch all photos, we will group them by year below
-      const { data, error } = await supabase
-        .from('photos')
-        .select('*')
-        .order('year', { ascending: false }); // Latest year first
-
-      if (error) console.error(error);
-      else setPhotos(data || []);
-      setLoading(false);
-    };
     fetchPhotos();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this photo?')) return;
-    const { error } = await supabase.from('photos').delete().eq('id', id);
-    if (error) alert('Delete failed: ' + error.message);
-    else setPhotos(photos.filter(p => p.id !== id));
+  const fetchPhotos = async () => {
+    const { data, error } = await supabase
+      .from('Photos')
+      .select('*')
+      .order('display_order', { ascending: true }); // Sort by our custom order
+
+    if (error) console.error(error);
+    else setPhotos(data || []);
+    setLoading(false);
   };
 
-  // Group the photos by Year
-  const groupedByYear = photos.reduce((acc, photo) => {
-    const year = photo.year || new Date(photo.created_at).getFullYear();
-    if (!acc[year]) acc[year] = [];
-    acc[year].push(photo);
-    return acc;
-  }, {});
+  // Handle the Drag & Drop
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return; // Dropped outside the list
+    
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
 
-  // Sort the years from latest to oldest
-  const sortedYears = Object.keys(groupedByYear).sort((a, b) => b - a);
+    if (sourceIndex === destinationIndex) return;
+
+    // 1. Instantly reorder the UI (so it feels fast)
+    const reorderedItems = Array.from(Photos);
+    const [movedItem] = reorderedItems.splice(sourceIndex, 1);
+    reorderedItems.splice(destinationIndex, 0, movedItem);
+    
+    setPhotos(reorderedItems);
+
+    // 2. Save the new order to Supabase in the background
+    const updates = reorderedItems.map((item, index) => ({
+      id: item.id,
+      display_order: index + 1,
+    }));
+
+    // We loop through and update each row's display_order
+    for (const update of updates) {
+      await supabase
+        .from('Photos')
+        .update({ display_order: update.display_order })
+        .eq('id', update.id);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this course?')) return;
+    const { error } = await supabase.from('Photos').delete().eq('id', id);
+    if (error) alert('Delete failed: ' + error.message);
+    else fetchPhotos();
+  };
 
   return (
     <div className="admin-list-page">
       <header className="admin-list-header">
         <div>
           <Link to="/admin/dashboard" className="back-link">← Dashboard</Link>
-          <h1>Manage Photos</h1>
+          <h1>Photos</h1>
+          <p style={{ fontSize: '13px', color: '#666', marginTop: '5px' }}>
+            Click and hold the <strong>⠿</strong> icon to drag and reorder Photos. Changes save automatically.
+          </p>
         </div>
-        <Link to="/admin/photos/new" className="btn-new">+ Add Photo</Link>
+        <Link to="/admin/Photos/new" className="btn-new">+ Add Course</Link>
       </header>
 
       {loading ? (
         <p>Loading...</p>
-      ) : sortedYears.length === 0 ? (
-        <p>No photos uploaded yet.</p>
+      ) : Photos.length === 0 ? (
+        <p>No Photos found.</p>
       ) : (
-        sortedYears.map(year => (
-          <div key={year} className="admin-year-section">
-            {/* This uses the CSS classes from your global CSS */}
-            <h2 className="admin-year-header">{year}</h2>
-            
-            <div className="admin-month-section">
-              <div className="admin-items-list">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Image</th>
-                      <th>Title</th>
-                      <th>Album</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {groupedByYear[year].map(photo => (
-                      <tr key={photo.id}>
-                        <td>
-                          <img src={photo.image_url} alt="preview" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
-                        </td>
-                        <td>{photo.title}</td>
-                        <td>{photo.album_name || 'N/A'}</td>
-                        <td className="admin-actions">
-                          <Link to={`/admin/photos/edit/${photo.id}`} className="btn-edit">Edit</Link>
-                          <button onClick={() => handleDelete(photo.id)} className="btn-delete">Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        ))
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="Photos-list">
+            {(provided) => (
+              <table 
+                className="admin-table" 
+                {...provided.droppableProps} 
+                ref={provided.innerRef}
+              >
+                <thead>
+                  <tr>
+                    <th style={{ width: '60px' }}>Sort</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Photos.map((course, index) => (
+                    <Draggable key={course.id} draggableId={String(course.id)} index={index}>
+                      {(provided, snapshot) => (
+                        <tr
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          style={{
+                            ...provided.draggableProps.style,
+                            background: snapshot.isDragging ? '#f0fdf4' : '#fff', // Highlight when dragging
+                            boxShadow: snapshot.isDragging ? '0 5px 15px rgba(0,0,0,0.1)' : 'none',
+                            display: snapshot.isDragging ? 'table' : 'table-row', // Fixes table row dragging
+                          }}
+                        >
+                          <td style={{ fontSize: '20px', color: '#aaa', cursor: 'grab' }}>
+                            ⠿ {/* This is the drag handle icon */}
+                          </td>
+                          <td>{course.name}</td>
+                          <td>{course.price ? `₦${Number(course.price).toLocaleString()}` : 'Free'}</td>
+                          <td className="admin-actions">
+                            <Link to={`/admin/Photos/edit/${course.id}`} className="btn-edit">Edit</Link>
+                            <Link to={`/admin/Photos/${course.id}/lessons`} className="btn-edit" style={{ color: '#0a4711' }}>Lessons</Link>
+                            <button onClick={() => handleDelete(course.id)} className="btn-delete">Delete</button>
+                          </td>
+                        </tr>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </tbody>
+              </table>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </div>
   );

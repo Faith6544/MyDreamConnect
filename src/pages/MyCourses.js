@@ -8,6 +8,7 @@ import './MyCourses.css';
 function MyCourses() {
   const { user } = useAuth();
   const [enrollments, setEnrollments] = useState([]);
+  const [featuredCourses, setFeaturedCourses] = useState([]); // NEW STATE
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +33,8 @@ function MyCourses() {
 
       if (enrollData.length === 0) {
         setEnrollments([]);
-        setLoading(false);
+        // Even if they have no enrollments, we still want to fetch featured courses
+        fetchFeaturedCourses();
         return;
       }
 
@@ -76,6 +78,30 @@ function MyCourses() {
       );
 
       setEnrollments(enriched);
+      fetchFeaturedCourses(courseIds); // Fetch featured courses, excluding the ones they already own
+    };
+
+    // NEW FUNCTION TO FETCH TOP 3 FEATURED COURSES
+    const fetchFeaturedCourses = async (excludeIds = []) => {
+      // Fetch all courses and their enrollment counts
+      const { data: allCourses } = await supabase
+        .from('courses')
+        .select('*, enrollments(count)');
+
+      if (allCourses) {
+        // Sort by enrollment count descending
+        const sorted = allCourses.sort((a, b) => {
+          const countA = a.enrollments?.[0]?.count || 0;
+          const countB = b.enrollments?.[0]?.count || 0;
+          return countB - countA;
+        });
+        
+        // Filter out courses the user is already enrolled in
+        const filtered = sorted.filter(c => !excludeIds.includes(c.id));
+        
+        // Grab top 3
+        setFeaturedCourses(filtered.slice(0, 3));
+      }
       setLoading(false);
     };
 
@@ -94,7 +120,7 @@ function MyCourses() {
 
         <section className="mycourses-content">
           {loading ? (
-            <p style={{ textAlign: 'center', color: '#888' }}>Loading your courses...</p>
+            <p style={{ textAlign: 'center', color: '#888' }}>Loading your dashboard...</p>
           ) : enrollments.length === 0 ? (
             <div className="mycourses-empty">
               <h2>You're not enrolled in any courses yet</h2>
@@ -155,15 +181,51 @@ function MyCourses() {
                   );
                 })}
               </div>
-
-              {/* EXPLORE MORE COURSES BUTTON */}
-              <div className="explore-more-wrapper">
-                <Link to="/courses" className="explore-more-btn">
-                  Explore More Courses →
-                </Link>
-              </div>
             </>
           )}
+
+          {/* --- NEW: FEATURED COURSES SECTION --- */}
+          {!loading && featuredCourses.length > 0 && (
+            <div style={{ marginTop: '60px', paddingTop: '40px', borderTop: '1px solid #eee' }}>
+              <h2 className="mycourses-heading" style={{ marginBottom: '20px' }}>Featured Courses 🔥</h2>
+              <p style={{ color: '#666', marginBottom: '30px' }}>Most popular courses people are enrolling in right now.</p>
+              
+              <div className="mycourses-grid">
+                {featuredCourses.map(course => (
+                  <Link
+                    to={`/courses/${course.id}`}
+                    key={course.id}
+                    className="mycourse-card"
+                  >
+                    <div className="mycourse-image">
+                      <ImageWithFallback src={course.image_url} alt={course.name} />
+                    </div>
+                    <div className="mycourse-body">
+                      <h3>{course.name}</h3>
+                      <p>{course.excerpt?.substring(0, 80) || 'Explore this course...'}</p>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                        <span style={{ fontWeight: '700', color: '#0a4711' }}>
+                          {course.price ? `₦${Number(course.price).toLocaleString()}` : 'Free'}
+                        </span>
+                        <span className="mycourse-cta">View Course →</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* EXPLORE MORE COURSES BUTTON (Now pushed to the very bottom) */}
+          {!loading && (
+            <div className="explore-more-wrapper" style={{ marginTop: '80px', paddingBottom: '40px', textAlign: 'center' }}>
+              <Link to="/courses" className="explore-more-btn">
+                Explore More Courses →
+              </Link>
+            </div>
+          )}
+          
         </section>
       </div>
     </div>

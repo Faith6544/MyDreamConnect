@@ -7,20 +7,16 @@ import './MyCoursePlayer.css';
 
 function extractYouTubeId(url = '') {
   try {
-    // youtu.be/ID
     if (url.includes('youtu.be/')) {
       const id = url.split('youtu.be/')[1].split(/[?#]/)[0];
       return id || null;
     }
-    // youtube.com/watch?v=ID
     if (url.includes('watch')) {
       const match = url.match(/[?&]v=([^&#]+)/);
       if (match) return match[1];
     }
-    // youtube.com/embed/ID or /shorts/ID
     const match = url.match(/(?:embed|shorts)\/([^?#/]+)/);
     if (match) return match[1];
-    // fallback: last path segment if it looks like an id
     const parts = url.split('/').filter(Boolean);
     const last = parts[parts.length - 1];
     if (last && /^[A-Za-z0-9_-]{11}$/.test(last.split(/[?#]/)[0])) {
@@ -50,18 +46,12 @@ function MyCoursePlayer() {
     let cancelled = false;
 
     const load = async () => {
-      // If there is no user yet, wait - AuthContext still loading in some
-      // flows. Only redirect/abort once we know the user state.
-      if (user === undefined) {
-        return;
-      }
-
+      if (user === undefined) return;
       if (!user) {
         setLoading(false);
         return;
       }
 
-      // Check enrollment
       const { data: enrollment } = await supabase
         .from('enrollments')
         .select('id')
@@ -105,11 +95,8 @@ function MyCoursePlayer() {
       const completedList = (progressData || []).map(p => p.lesson_id);
       setCompletedIds(new Set(completedList));
 
-      // Check for 100% completion → load or create certificate
       const allIds = loadedLessons.map(l => l.id);
-      const isComplete =
-        allIds.length > 0 &&
-        allIds.every(lid => completedList.includes(lid));
+      const isComplete = allIds.length > 0 && allIds.every(lid => completedList.includes(lid));
 
       if (isComplete) {
         const { data: certData } = await supabase
@@ -131,9 +118,7 @@ function MyCoursePlayer() {
             .single();
 
           if (cancelled) return;
-          if (!certError) {
-            setCertificate(newCert);
-          }
+          if (!certError) setCertificate(newCert);
         }
       }
 
@@ -165,17 +150,8 @@ function MyCoursePlayer() {
       } else {
         next.delete(lessonId);
         setCompletedIds(next);
-        // If they un-complete, delete and remove certificate so the UI stays
-        // consistent with "100% complete" requirements.
         if (certificate?.id) {
-          const { error: certDelError } = await supabase
-            .from('certificates')
-            .delete()
-            .eq('id', certificate.id)
-            .eq('user_id', user.id);
-          if (certDelError) {
-            setError(certDelError.message);
-          }
+          await supabase.from('certificates').delete().eq('id', certificate.id).eq('user_id', user.id);
         }
         setCertificate(null);
       }
@@ -194,7 +170,6 @@ function MyCoursePlayer() {
         next.add(lessonId);
         setCompletedIds(next);
 
-        // If this marks the course 100% complete, create certificate
         const allIds = lessons.map(l => l.id);
         const nowComplete = allIds.length > 0 && allIds.every(lid => next.has(lid));
 
@@ -215,11 +190,8 @@ function MyCoursePlayer() {
               .select()
               .single();
 
-            if (certError) {
-              setError(certError.message);
-            } else {
-              setCertificate(newCert);
-            }
+            if (certError) setError(certError.message);
+            else setCertificate(newCert);
           }
         }
       }
@@ -230,10 +202,7 @@ function MyCoursePlayer() {
 
   const handleDownloadCertificate = () => {
     downloadCertificate({
-      studentName:
-        user?.user_metadata?.full_name ||
-        user?.email?.split('@')[0] ||
-        'Student',
+      studentName: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student',
       courseName: course?.name || 'Course',
       issuedDate: new Date(certificate?.issued_at || Date.now()).toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric',
@@ -257,16 +226,23 @@ function MyCoursePlayer() {
     );
   }
 
-  // Clamp the active index in case lessons were reordered/deleted while open.
   const safeIndex = Math.min(Math.max(activeIndex, 0), lessons.length - 1);
   const activeLesson = lessons[safeIndex];
   const completed = completedIds.size;
   const percent = Math.min(100, Math.round((completed / lessons.length) * 100));
   const isActiveDone = completedIds.has(activeLesson.id);
 
+  // --- NEW LOCK LOGIC ---
+  // A lesson is unlocked if it's the first one, OR if the previous lesson is completed
+  const isLessonUnlocked = (index) => {
+    if (index === 0) return true;
+    return completedIds.has(lessons[index - 1].id);
+  };
+
+  const nextUnlocked = safeIndex < lessons.length - 1 && isLessonUnlocked(safeIndex + 1);
+
   return (
     <div className="mcp-page">
-
       <header className="mcp-header">
         <div className="mcp-header-top">
           <Link to="/my-courses" className="mcp-back">← My Courses</Link>
@@ -296,21 +272,26 @@ function MyCoursePlayer() {
       )}
 
       <div className="mcp-layout">
-
-        {/* Sidebar — lesson list */}
         <aside className="mcp-sidebar">
           <h3>Lessons</h3>
           <ul className="mcp-lesson-list">
             {lessons.map((l, i) => {
               const done = completedIds.has(l.id);
               const active = i === safeIndex;
+              const unlocked = isLessonUnlocked(i); // Check if unlocked
+
               return (
                 <li
                   key={l.id}
                   className={`mcp-lesson-item ${active ? 'active' : ''} ${done ? 'done' : ''}`}
-                  onClick={() => setActiveIndex(i)}
+                  onClick={() => unlocked && setActiveIndex(i)} // Only allow click if unlocked
+                  style={{ 
+                    cursor: unlocked ? 'pointer' : 'not-allowed', 
+                    opacity: unlocked ? 1 : 0.5 
+                  }}
                 >
-                  <span className="mcp-lesson-check">{done ? '✅' : '⭕'}</span>
+                  {/* Show lock icon if not unlocked */}
+                  <span className="mcp-lesson-check">{!unlocked ? '🔒' : (done ? '✅' : '⭕')}</span>
                   <span className="mcp-lesson-title">
                     <small>Lesson {i + 1}</small>
                     {l.title}
@@ -321,14 +302,12 @@ function MyCoursePlayer() {
           </ul>
         </aside>
 
-        {/* Main — active lesson */}
         <main className="mcp-main">
           <div className="mcp-lesson-head">
             <small>Lesson {safeIndex + 1} of {lessons.length}</small>
             <h2>{activeLesson.title}</h2>
           </div>
 
-          {/* MULTIPLE YOUTUBE VIDEOS SECTION */}
           {Array.isArray(activeLesson.video_urls) && activeLesson.video_urls.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
               {activeLesson.video_urls.map((url, index) => {
@@ -379,16 +358,17 @@ function MyCoursePlayer() {
               {saving ? 'Saving...' : isActiveDone ? '✅ Mark as Incomplete' : 'Mark as Complete'}
             </button>
 
+            {/* NEXT BUTTON IS DISABLED IF NEXT LESSON IS LOCKED */}
             <button
               className="mcp-nav-btn"
               onClick={() => setActiveIndex(Math.min(lessons.length - 1, safeIndex + 1))}
-              disabled={safeIndex === lessons.length - 1}
+              disabled={safeIndex === lessons.length - 1 || !nextUnlocked}
+              title={!nextUnlocked ? "Complete this lesson to unlock the next one" : ""}
             >
-              Next →
+              {!nextUnlocked && safeIndex !== lessons.length - 1 ? '🔒 Next →' : 'Next →'}
             </button>
           </div>
         </main>
-
       </div>
     </div>
   );
