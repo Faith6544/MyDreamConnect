@@ -114,4 +114,57 @@
   .talent-list {
     grid-template-columns: 1fr !important;
   }
+}/* Custom Grid for Talents */
+.talent-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.talent-card-custom {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.talent-card-custom:hover {
+  transform: translateY(-5px);
+}
+
+.talent-card-img-wrapper {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #eaeaea;
+}
+
+.talent-card-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.talent-card-name {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.talent-card-role {
+  font-size: 14px;
+  color: #d4a017;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.talent-card-skills {
+  font-size: 13px;
+  color: #666;
 }

@@ -40,23 +40,26 @@
 
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 40px 20px; 
 }
 
 .team-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 25px;
+  background: transparent;
+  padding: 10px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  border: 1px solid #eaeaea;
+  cursor: pointer; 
+  transition: transform 0.2s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
 }
 
 .team-image {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 20px;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 15px;
   border-radius: 50%;
   overflow: hidden;
   background: #eaeaea;
@@ -69,24 +72,23 @@
 }
 
 .team-name {
-  font-size: 18px;
-  color: #333;
-  margin-bottom: 5px;
-  font-weight: 700;
+  font-size: 16px;
+  color: #111;
+  margin-bottom: 4px;
+  font-weight: 600;
 }
 
 .team-role {
-  font-size: 14px;
+  font-size: 13px;
   color: #d4a017;
-  font-weight: 600;
-  margin-bottom: 15px;
+  font-weight: 500;
+  margin-bottom: 0;
 }
 
 .team-bio {
-  font-size: 13px;
-  color: #666;
-  line-height: 1.6;
+  display: none; 
 }
+
 .team-embedded {
-  padding-bottom: 0; /* About page already has its own spacing */
+  padding-bottom: 0;
 }

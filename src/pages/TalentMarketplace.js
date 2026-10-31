@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './TalentMarketplace.css';
-import TalentCard from '../components/TalentCard';
 import { parseSkills } from '../lib/talentUtils';
 import { supabase } from '../lib/supabase';
 
@@ -11,6 +11,7 @@ function TalentMarketplace() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState('newest');
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   const categories = ['All', 'Design', 'Tech', 'Writing', 'Marketing', 'Music', 'Acting & Dance', 'Business', 'Engineering', 'Consulting', 'Crafts', 'Sports', 'Teaching'];
 
@@ -60,9 +61,9 @@ function TalentMarketplace() {
               {sortOrder === 'newest' ? 'Newest ▼' : 'Oldest ▲'}
             </button>
             {dropdownOpen && (
-              <div style={{ position: 'absolute', top: '110%', right: 0, width: '150px', background: '#fff', border: '1px solid #ccc', borderRadius: '8px', zIndex: 9999, padding: '5px 0' }}>
-                <button type="button" style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'left', background: 'none', border: 'none' }} onClick={() => { setSortOrder('newest'); setDropdownOpen(false); }}>Newest</button>
-                <button type="button" style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'left', background: 'none', border: 'none' }} onClick={() => { setSortOrder('oldest'); setDropdownOpen(false); }}>Oldest</button>
+              <div style={{ position: 'absolute', top: '110%', right: 0, width: '150px', background: '#fff', border: '1px solid #ccc', borderRadius: '8px', zIndex: 9999, padding: '5px 0', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <button type="button" style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => { setSortOrder('newest'); setDropdownOpen(false); }}>Newest</button>
+                <button type="button" style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => { setSortOrder('oldest'); setDropdownOpen(false); }}>Oldest</button>
               </div>
             )}
           </div>
@@ -82,8 +83,24 @@ function TalentMarketplace() {
           <div className="talent-empty"><h3>No talents found</h3></div>
         ) : (
           <div className="talent-list">
+            {/* TalentCard built directly into the page since the file doesn't exist */}
             {filteredTalents.map(talent => (
-              <TalentCard talent={talent} key={talent.id} />
+              <div 
+                key={talent.id} 
+                className="talent-card-custom"
+                onClick={() => navigate(`/talent/${talent.id}`)}
+              >
+                <div className="talent-card-img-wrapper">
+                  <img 
+                    src={talent.image_url || 'https://via.placeholder.com/150'} 
+                    alt={talent.name} 
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
+                  />
+                </div>
+                <h3 className="talent-card-name">{talent.name}</h3>
+                <p className="talent-card-role">{talent.role}</p>
+                <p className="talent-card-skills">{parseSkills(talent.skills).slice(0, 3).join(', ')}...</p>
+              </div>
             ))}
           </div>
         )}

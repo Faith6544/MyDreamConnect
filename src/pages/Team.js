@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import ImageWithFallback from '../components/ImageWithFallback';
 import './Team.css';
@@ -6,6 +7,7 @@ import './Team.css';
 export default function Team({ embedded = false }) {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -19,7 +21,6 @@ export default function Team({ embedded = false }) {
     fetchTeam();
   }, []);
 
-  // Group by category (Board of Directors, etc.)
   const grouped = members.reduce((acc, member) => {
     const cat = member.category || 'Our Team';
     if (!acc[cat]) acc[cat] = [];
@@ -27,7 +28,6 @@ export default function Team({ embedded = false }) {
     return acc;
   }, {});
 
-  // board first, then the rest in a fixed order, anything new goes at the end
   const order = ['Board of Directors', 'Executive Team', 'Advisors', 'Staff', 'Volunteers'];
   const categoryList = Object.keys(grouped).sort((a, b) => {
     const ia = order.indexOf(a) === -1 ? order.length : order.indexOf(a);
@@ -49,13 +49,16 @@ export default function Team({ embedded = false }) {
               <h2 className="team-category-title">{category}</h2>
               <div className="team-grid">
                 {grouped[category].map(member => (
-                  <div key={member.id} className="team-card">
+                  <div 
+                    key={member.id} 
+                    className="team-card"
+                    onClick={() => navigate(`/team/${member.id}`)}
+                  >
                     <div className="team-image">
                       <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
                     </div>
                     <h3 className="team-name">{member.name}</h3>
                     <p className="team-role">{member.role}</p>
-                    {member.bio && <p className="team-bio">{member.bio}</p>}
                   </div>
                 ))}
               </div>

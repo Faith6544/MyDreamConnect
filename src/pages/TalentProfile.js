@@ -1,99 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import './TalentProfile.css';
-import ImageWithFallback from '../components/ImageWithFallback';
-import PortfolioGallery from '../components/PortfolioGallery';
-import { parseSkills, parseImages } from '../lib/talentUtils';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { parseSkills } from '../lib/talentUtils';
+import './TalentProfile.css';
 
-function TalentProfile() {
+export default function TalentProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [talent, setTalent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
-    // 🚨 FIX: If the ID is missing (like "undefined"), send them to the list of all talents
-    if (!id || id === 'undefined') {
-      navigate('/talent/all');
-      return;
-    }
-
-    let cancelled = false;
     const fetchTalent = async () => {
-      setLoading(true);
-      const { data, error: fetchError } = await supabase.from('talent').select('*').eq('id', id).maybeSingle();
-      
-      if (cancelled) return;
-      
-      if (fetchError) {
-        setError('Could not load this profile.');
-      } else if (!data) {
-        setError('Talent not found.');
-      } else {
-        setTalent(data);
-      }
+      const { data, error } = await supabase.from('talent').select('*').eq('id', id).single();
+      if (error) console.error(error);
+      else setTalent(data);
       setLoading(false);
     };
-    
     fetchTalent();
-    return () => { cancelled = true; };
-  }, [id, navigate]);
+  }, [id]);
 
-  if (loading) return <p style={{ textAlign: 'center', padding: '100px' }}>Loading profile...</p>;
-  if (error) return <p style={{ textAlign: 'center', padding: '100px' }}>{error}</p>;
-  if (!talent) return null;
+  if (loading) return <p style={{ textAlign: 'center', padding: '50px' }}>Loading profile...</p>;
+  if (!talent) return <p style={{ textAlign: 'center', padding: '50px' }}>Talent not found.</p>;
 
   const skills = parseSkills(talent.skills);
-  const images = parseImages(talent.portfolio_images);
+  
+  // Assuming you save portfolio links as a JSON array in Supabase: [{"title": "GitHub", "url": "https://..."}]
+  // If it's stored as a string, we safely try to parse it.
+  let portfolioLinks = [];
+  try {
+    portfolioLinks = typeof talent.portfolio_links === 'string' 
+      ? JSON.parse(talent.portfolio_links) 
+      : (talent.portfolio_links || []);
+  } catch (e) {
+    console.log("No valid portfolio links found");
+  }
 
   return (
-    <div style={{ fontFamily: 'Poppins, sans-serif', background: '#fff', minHeight: '100vh', padding: '60px 20px' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-        
-        <Link to="/talent/all" style={{ color: '#0a4711', textDecoration: 'none', fontWeight: 600, display: 'inline-block', marginBottom: '30px' }}>
-          ← All talents
-        </Link>
+    <div className="talent-profile-page">
+      <button onClick={() => navigate(-1)} className="back-btn">← Back to Marketplace</button>
+      
+      <div className="profile-header">
+        <img src={talent.image_url} alt={talent.name} className="profile-avatar" />
+        <h1>{talent.name}</h1>
+        <h3>{talent.role}</h3>
+        <p className="profile-bio">{talent.bio}</p>
+      </div>
 
-        <div style={{ display: 'flex', gap: '30px', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap' }}>
-          
-          <div style={{ width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden', background: '#f0f0f0' }}>
-            <ImageWithFallback 
-              src={talent.avatar_url} 
-              alt={talent.name} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-            />
-          </div>
-
-          <div>
-            <h1 style={{ fontSize: '32px', margin: '0 0 10px 0', color: '#111' }}>{talent.name}</h1>
-            <p style={{ fontSize: '18px', color: '#d4a017', margin: '0 0 10px 0', fontWeight: 600 }}>{talent.role}</p>
-            <p style={{ fontSize: '15px', color: '#555', margin: 0 }}>📍 {talent.location || 'Remote'} &nbsp; | &nbsp; 🟢 {talent.availability || 'Available'}</p>
-          </div>
-        </div>
-
-        <div style={{ marginBottom: '40px' }}>
-          <h2 style={{ fontSize: '22px', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Skills</h2>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {skills.map(skill => (
-              <span key={skill} style={{ background: '#eaf3eb', color: '#0a4711', padding: '6px 15px', borderRadius: '50px', fontSize: '14px', fontWeight: 600 }}>{skill}</span>
+      <div className="profile-content">
+        <div className="profile-section">
+          <h2>Skills</h2>
+          <div className="skills-grid">
+            {skills.map((skill, i) => (
+              <span key={i} className="skill-pill">{skill}</span>
             ))}
           </div>
         </div>
 
-        <div>
-          <h2 style={{ fontSize: '22px', borderBottom: '2px solid #eee', paddingBottom: '10px', marginBottom: '20px' }}>Portfolio</h2>
-          {images.length > 0 ? (
-            <PortfolioGallery images={images} name={talent.name} variant="profile" />
+        <div className="profile-section">
+          <h2>Portfolio & Links</h2>
+          {portfolioLinks.length > 0 ? (
+            <div className="portfolio-links">
+              {portfolioLinks.map((link, index) => (
+                <a 
+                  key={index} 
+                  href={link.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="portfolio-link-btn"
+                >
+                  🔗 {link.title || link.url}
+                </a>
+              ))}
+            </div>
           ) : (
-            <p style={{ color: '#888' }}>No portfolio images uploaded yet.</p>
+            <p>No portfolio links provided.</p>
           )}
         </div>
-
       </div>
     </div>
   );
 }
-
-export default TalentProfile;
