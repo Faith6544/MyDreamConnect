@@ -5,60 +5,32 @@ import { supabase } from '../lib/supabase';
 import './AdminInstructorsList.css';
 
 function AdminInstructorsList() {
-  const [Instructors, setInstructors] = useState([]);
+  const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchInstructors();
-  }, []);
+  useEffect(() => { fetchInstructors(); }, []);
 
   const fetchInstructors = async () => {
-    const { data, error } = await supabase
-      .from('Instructors')
-      .select('*')
-      .order('display_order', { ascending: true }); // Sort by our custom order
-
-    if (error) console.error(error);
-    else setInstructors(data || []);
+    const { data } = await supabase.from('instructors').select('*').order('display_order', { ascending: true });
+    setInstructors(data || []);
     setLoading(false);
   };
 
-  // Handle the Drag & Drop
   const handleDragEnd = async (result) => {
-    if (!result.destination) return; // Dropped outside the list
-    
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
-
-    if (sourceIndex === destinationIndex) return;
-
-    // 1. Instantly reorder the UI (so it feels fast)
-    const reorderedItems = Array.from(Instructors);
-    const [movedItem] = reorderedItems.splice(sourceIndex, 1);
-    reorderedItems.splice(destinationIndex, 0, movedItem);
-    
-    setInstructors(reorderedItems);
-
-    // 2. Save the new order to Supabase in the background
-    const updates = reorderedItems.map((item, index) => ({
-      id: item.id,
-      display_order: index + 1,
-    }));
-
-    // We loop through and update each row's display_order
-    for (const update of updates) {
-      await supabase
-        .from('Instructors')
-        .update({ display_order: update.display_order })
-        .eq('id', update.id);
+    if (!result.destination) return;
+    const items = Array.from(instructors);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    setInstructors(items);
+    for (let i = 0; i < items.length; i++) {
+      await supabase.from('instructors').update({ display_order: i + 1 }).eq('id', items[i].id);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this course?')) return;
-    const { error } = await supabase.from('Instructors').delete().eq('id', id);
-    if (error) alert('Delete failed: ' + error.message);
-    else fetchInstructors();
+    if (!window.confirm('Delete this instructor?')) return;
+    await supabase.from('instructors').delete().eq('id', id);
+    fetchInstructors();
   };
 
   return (
@@ -67,58 +39,29 @@ function AdminInstructorsList() {
         <div>
           <Link to="/admin/dashboard" className="back-link">← Dashboard</Link>
           <h1>Instructors</h1>
-          <p style={{ fontSize: '13px', color: '#666', marginTop: '5px' }}>
-            Click and hold the <strong>⠿</strong> icon to drag and reorder Instructors. Changes save automatically.
-          </p>
+          <p style={{ fontSize: '13px', color: '#666', marginTop: '5px' }}>Drag to reorder instructors.</p>
         </div>
-        <Link to="/admin/Instructors/new" className="btn-new">+ Add Course</Link>
+        <Link to="/admin/instructors/new" className="btn-new">+ Add Instructor</Link>
       </header>
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : Instructors.length === 0 ? (
-        <p>No Instructors found.</p>
-      ) : (
+      {loading ? <p>Loading...</p> : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="Instructors-list">
+          <Droppable droppableId="instructors-list">
             {(provided) => (
-              <table 
-                className="admin-table" 
-                {...provided.droppableProps} 
-                ref={provided.innerRef}
-              >
-                <thead>
-                  <tr>
-                    <th style={{ width: '60px' }}>Sort</th>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
+              <table className="admin-table" {...provided.droppableProps} ref={provided.innerRef}>
+                <thead><tr><th style={{ width: '60px' }}>Sort</th><th>Image</th><th>Name</th><th>Role</th><th>Actions</th></tr></thead>
                 <tbody>
-                  {Instructors.map((course, index) => (
-                    <Draggable key={course.id} draggableId={String(course.id)} index={index}>
+                  {instructors.map((inst, index) => (
+                    <Draggable key={inst.id} draggableId={String(inst.id)} index={index}>
                       {(provided, snapshot) => (
-                        <tr
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{
-                            ...provided.draggableProps.style,
-                            background: snapshot.isDragging ? '#f0fdf4' : '#fff', // Highlight when dragging
-                            boxShadow: snapshot.isDragging ? '0 5px 15px rgba(0,0,0,0.1)' : 'none',
-                            display: snapshot.isDragging ? 'table' : 'table-row', // Fixes table row dragging
-                          }}
-                        >
-                          <td style={{ fontSize: '20px', color: '#aaa', cursor: 'grab' }}>
-                            ⠿ {/* This is the drag handle icon */}
-                          </td>
-                          <td>{course.name}</td>
-                          <td>{course.price ? `₦${Number(course.price).toLocaleString()}` : 'Free'}</td>
+                        <tr ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
+                          style={{ ...provided.draggableProps.style, background: snapshot.isDragging ? '#f0fdf4' : '#fff', display: snapshot.isDragging ? 'table' : 'table-row' }}>
+                          <td style={{ fontSize: '20px', color: '#aaa', cursor: 'grab' }}>⠿</td>
+                          <td><img src={inst.image_url} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '50%' }} /></td>
+                          <td>{inst.name}</td>
+                          <td>{inst.role}</td>
                           <td className="admin-actions">
-                            <Link to={`/admin/Instructors/edit/${course.id}`} className="btn-edit">Edit</Link>
-                            <Link to={`/admin/Instructors/${course.id}/lessons`} className="btn-edit" style={{ color: '#0a4711' }}>Lessons</Link>
-                            <button onClick={() => handleDelete(course.id)} className="btn-delete">Delete</button>
+                            <Link to={`/admin/instructors/edit/${inst.id}`} className="btn-edit">Edit</Link>
+                            <button onClick={() => handleDelete(inst.id)} className="btn-delete">Delete</button>
                           </td>
                         </tr>
                       )}
@@ -134,5 +77,4 @@ function AdminInstructorsList() {
     </div>
   );
 }
-
 export default AdminInstructorsList;
