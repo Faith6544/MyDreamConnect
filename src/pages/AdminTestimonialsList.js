@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminTestimonialsList.css';
+import { useSortableList } from '../hooks/useSortableList';
 
 function AdminTestimonialsList() {
   const [items, setItems] = useState([]);

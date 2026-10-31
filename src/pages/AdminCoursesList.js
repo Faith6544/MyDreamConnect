@@ -1,53 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminCoursesList.css';
+import { useSortableList } from '../hooks/useSortableList';
 
 function AdminCoursesList() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuthAndLoad = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate('/admin'); return; }
+    fetchCourses();
+  }, []);
 
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .order('created_at', { ascending: false });
+  const fetchCourses = async () => {
+    // Fetch ordered by the new display_order column
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .order('display_order', { ascending: true });
 
-      if (!error) setCourses(data || []);
-      setLoading(false);
-    };
-    checkAuthAndLoad();
-  }, [navigate]);
+    if (error) console.error(error);
+    else setCourses(data || []);
+    setLoading(false);
+  };
+
+  // USE THE REUSABLE HOOK HERE (This replaces all the manual code)
+  const { moveUp, moveDown } = useSortableList('courses', courses, setCourses);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this course? This will also remove its lessons, enrollments, certificates and progress.')) return;
-
-    // There are no FK cascades from lessons/enrollments/certificates/progress
-    // back to courses, so clean up children explicitly (best effort).
-    const { data: lessonRows } = await supabase
-      .from('lessons')
-      .select('id')
-      .eq('course_id', id);
-
-    const lessonIds = (lessonRows || []).map(l => l.id);
-
-    if (lessonIds.length > 0) {
-      await supabase.from('lesson_progress').delete().in('lesson_id', lessonIds);
-    }
-
-    await supabase.from('lesson_progress').delete().eq('course_id', id);
-    await supabase.from('lessons').delete().eq('course_id', id);
-    await supabase.from('enrollments').delete().eq('course_id', id);
-    await supabase.from('certificates').delete().eq('course_id', id);
-
+    if (!window.confirm('Delete this course?')) return;
     const { error } = await supabase.from('courses').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
-    else setCourses((prev) => prev.filter(c => c.id !== id));
+    else fetchCourses(); // Refresh list after delete to fix order
   };
 
   return (
@@ -57,34 +41,54 @@ function AdminCoursesList() {
           <Link to="/admin/dashboard" className="back-link">← Dashboard</Link>
           <h1>Courses</h1>
         </div>
-        <Link to="/admin/courses/new" className="btn-new">+ New Course</Link>
-        
+        <Link to="/admin/courses/new" className="btn-new">+ Add Course</Link>
       </header>
 
       {loading ? (
-        <p className="admin-list-loading">Loading...</p>
+        <p>Loading...</p>
       ) : courses.length === 0 ? (
-        <p className="admin-list-empty">No courses yet.</p>
+        <p>No courses found.</p>
       ) : (
         <table className="admin-table">
           <thead>
             <tr>
+              <th style={{ width: '80px' }}>Order</th>
               <th>Name</th>
               <th>Price</th>
-              <th>Created</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {courses.map(c => (
-              <tr key={c.id}>
-                <td>{c.name}</td>
-                <td>{c.price === 0 || !c.price ? 'Free' : `₦${c.price.toLocaleString()}`}</td>
-                <td>{new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+            {courses.map((course, index) => (
+              <tr key={course.id}>
+                
+                {/* UP/DOWN BUTTONS */}
+                <td>
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <button 
+                      onClick={() => moveUp(index)} 
+                      disabled={index === 0}
+                      style={{ padding: '5px 10px', cursor: index === 0 ? 'not-allowed' : 'pointer', opacity: index === 0 ? 0.3 : 1 }}
+                    >
+                      ↑
+                    </button>
+                    <button 
+                      onClick={() => moveDown(index)} 
+                      disabled={index === courses.length - 1}
+                      style={{ padding: '5px 10px', cursor: index === courses.length - 1 ? 'not-allowed' : 'pointer', opacity: index === courses.length - 1 ? 0.3 : 1 }}
+                    >
+                      ↓
+                    </button>
+                  </div>
+                </td>
+
+                <td>{course.name}</td>
+                <td>{course.price ? `₦${Number(course.price).toLocaleString()}` : 'Free'}</td>
+                
                 <td className="admin-actions">
-                  <Link to={`/admin/courses/edit/${c.id}`} className="btn-edit">Edit</Link>
-                  <Link to={`/admin/courses/${c.id}/lessons`} className="btn-edit">Lessons</Link>
-                  <button onClick={() => handleDelete(c.id)} className="btn-delete">Delete</button>
+                  <Link to={`/admin/courses/edit/${course.id}`} className="btn-edit">Edit</Link>
+                  <Link to={`/admin/courses/${course.id}/lessons`} className="btn-edit" style={{ color: '#0a4711' }}>Lessons</Link>
+                  <button onClick={() => handleDelete(course.id)} className="btn-delete">Delete</button>
                 </td>
               </tr>
             ))}

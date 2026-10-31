@@ -8,10 +8,12 @@ function Videos() {
 
   useEffect(() => {
     const fetchVideos = async () => {
-      const { data, error } = await supabase
-        .from('videos')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Change the .order() part to sort by year, then created_at
+const { data, error } = await supabase
+  .from('photos')
+  .select('*')
+  .order('year', { ascending: false }) // Newest year first
+  .order('created_at', { ascending: false }); // If same year, newest upload first
 
       if (error) {
         console.error('Videos fetch error:', error);

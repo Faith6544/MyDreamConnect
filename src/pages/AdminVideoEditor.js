@@ -65,7 +65,19 @@ function AdminVideoEditor() {
           <label>Title *</label>
           <input type="text" name="title" value={formData.title} onChange={handleChange} required disabled={saving} />
         </div>
-
+<div className="admin-field">
+  <label>Year (for sorting)</label>
+  <select 
+    name="year" 
+    value={formData.year || new Date().getFullYear()} 
+    onChange={handleChange}
+  >
+    {/* Generates years from current year down to 2010 */}
+    {Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => new Date().getFullYear() - i).map(y => (
+      <option key={y} value={y}>{y}</option>
+    ))}
+  </select>
+</div>
         <div className="admin-field">
           <label>YouTube Video ID * <small>(the part after watch?v= in the URL)</small></label>
           <input type="text" name="youtube_id" value={formData.youtube_id} onChange={handleChange} placeholder="e.g. dQw4w9WgXcQ" required disabled={saving} />

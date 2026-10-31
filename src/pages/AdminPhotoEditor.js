@@ -68,7 +68,19 @@ function AdminPhotoEditor() {
           <label>Album Title *</label>
           <input type="text" name="title" value={formData.title} onChange={handleChange} required disabled={saving} />
         </div>
-
+<div className="admin-field">
+  <label>Year (for sorting)</label>
+  <select 
+    name="year" 
+    value={formData.year || new Date().getFullYear()} 
+    onChange={handleChange}
+  >
+    {/* Generates years from current year down to 2010 */}
+    {Array.from({ length: new Date().getFullYear() - 2009 }, (_, i) => new Date().getFullYear() - i).map(y => (
+      <option key={y} value={y}>{y}</option>
+    ))}
+  </select>
+</div>
         <ImageUpload
           label="Album Cover"
           value={formData.cover_url}
