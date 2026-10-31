@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminTeamList.css';
-import { useSortableList } from '../hooks/useSortableList';
+
 function AdminTeamList() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +31,18 @@ function AdminTeamList() {
     else setMembers(members.filter(m => m.id !== id));
   };
 
+  // Quick toggle right from the list view
+  const toggleHomepage = async (id, currentStatus) => {
+    const { error } = await supabase
+      .from('team_members')
+      .update({ show_on_home: !currentStatus })
+      .eq('id', id);
+      
+    if (!error) {
+      setMembers(members.map(m => m.id === id ? { ...m, show_on_home: !currentStatus } : m));
+    }
+  };
+
   return (
     <div className="admin-list-page">
       <header className="admin-list-header">
@@ -52,6 +64,7 @@ function AdminTeamList() {
               <th>Name</th>
               <th>Role</th>
               <th>Category</th>
+              <th>Homepage</th> {/* NEW COLUMN */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -61,6 +74,16 @@ function AdminTeamList() {
                 <td>{member.name}</td>
                 <td>{member.role}</td>
                 <td>{member.category}</td>
+                <td>
+                  {/* CLICKABLE TOGGLE */}
+                  <button 
+                    onClick={() => toggleHomepage(member.id, member.show_on_home)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px' }}
+                    title={member.show_on_home ? "Showing on Homepage" : "Hidden from Homepage"}
+                  >
+                    {member.show_on_home ? '✅' : '❌'}
+                  </button>
+                </td>
                 <td className="admin-actions">
                   <Link to={`/admin/team/edit/${member.id}`} className="btn-edit">Edit</Link>
                   <button onClick={() => handleDelete(member.id)} className="btn-delete">Delete</button>

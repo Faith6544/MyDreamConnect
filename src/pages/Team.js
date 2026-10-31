@@ -11,15 +11,24 @@ export default function Team({ embedded = false }) {
 
   useEffect(() => {
     const fetchTeam = async () => {
+      // Fetch everyone, ordered by priority
       const { data } = await supabase
         .from('team_members')
         .select('*')
         .order('order_index', { ascending: true });
-      setMembers(data || []);
+        
+      let fetchedData = data || [];
+
+      // IF THIS IS THE HOMEPAGE (embedded), FILTER OUT THE HIDDEN ONES
+      if (embedded) {
+        fetchedData = fetchedData.filter(member => member.show_on_home === true);
+      }
+
+      setMembers(fetchedData);
       setLoading(false);
     };
     fetchTeam();
-  }, []);
+  }, [embedded]); // Added embedded as dependency
 
   // Group by category
   const grouped = members.reduce((acc, member) => {
@@ -52,25 +61,25 @@ export default function Team({ embedded = false }) {
               <h2 className="team-category-title">{category}</h2>
               <div className="team-grid">
                 {grouped[category].map(member => (
-                  // Inside the map function:
-<div 
-  key={member.id} 
-  className="team-card"
-  onClick={() => navigate(`/team/${member.id}`)}
->
-  <div className="team-image">
-    <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
-  </div>
-  <div className="team-card-content">
-    <h3 className="team-name">{member.name}</h3>
-    <p className="team-role">{member.role}</p>
-    {/* This snippet shows the 2-3 sentence short bio */}
-    <p className="team-bio-short">
-      {member.bio ? `${member.bio.substring(0, 60)}...` : 'Click to read more'}
-    </p>
-    <span className="read-more-link">Read Profile →</span>
-  </div>
-</div>
+                  <div 
+                    key={member.id} 
+                    className="team-card"
+                    onClick={() => navigate(`/team/${member.id}`)}
+                  >
+                    <div className="team-image">
+                      <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
+                    </div>
+                    <div className="team-card-content">
+                      <h3 className="team-name">{member.name}</h3>
+                      <p className="team-role">{member.role}</p>
+                      {!embedded && (
+                         <p className="team-bio-short">
+                           {member.bio ? `${member.bio.substring(0, 60)}...` : 'Click to read more'}
+                         </p>
+                      )}
+                      {!embedded && <span className="read-more-link">Read Profile →</span>}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

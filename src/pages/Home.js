@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
@@ -66,7 +66,7 @@ function TestimonialsCarousel({ testimonials }) {
 }
 
 function Home() {
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const programs = [
     { title: 'SHAPE', desc: 'Life Skills training for teenagers for personal development.', color: '#8e44ad', link: '/about' },
     { title: 'STAR', desc: 'Tech, digital & leadership training for educators, youth & managers.', color: '#e84393', link: '/about' },
@@ -105,7 +105,8 @@ function Home() {
           supabase.from('instructors').select('*').order('order_index', { ascending: true }),
           supabase.from('testimonials').select('*').order('order_index', { ascending: true }),
           supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(6),
-          supabase.from('team_members').select('*').order('order_index', { ascending: true }).limit(4), 
+          // ONLY FETCH TEAM MEMBERS WHO ARE SET TO SHOW ON HOME
+          supabase.from('team_members').select('*').eq('show_on_home', true).order('order_index', { ascending: true }).limit(4), 
           supabase.from('courses').select('*', { count: 'exact', head: true }),
           supabase.from('enrollments').select('*', { count: 'exact', head: true })
         ]);
@@ -205,6 +206,58 @@ function Home() {
         </div>
       </section>
 
+      {/* ================= TEAM PREVIEW SECTION (MOVED HERE) ================= */}
+      {team.length > 0 && (
+        <section className="team-preview-section" style={{ padding: '60px 20px', background: '#f9f9f9' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            
+            <div className="section-heading-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
+              <div className="section-heading">
+                <span className="heading-lead">Meet Our</span>{' '}
+                <span className="heading-main">Leadership Team</span>
+              </div>
+              <Link to="/team" className="view-all-link" style={{ color: '#0a4711', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                Meet the Full Team
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </Link>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '30px' }}>
+              {team.map(member => (
+                <div 
+                  key={member.id} 
+                  onClick={() => navigate(`/team/${member.id}`)}
+                  style={{ 
+                    background: 'transparent',
+                    padding: '10px', 
+                    textAlign: 'center', 
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                  <div style={{ width: '160px', height: '160px', margin: '0 auto 15px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#eaeaea' }}>
+                    <ImageWithFallback 
+                      src={member.image_url} 
+                      alt={member.name} 
+                      type="human"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  </div>
+                  <h3 style={{ fontSize: '18px', color: '#111', marginBottom: '4px', fontWeight: '600' }}>{member.name}</h3>
+                  <p style={{ fontSize: '14px', color: '#d4a017', fontWeight: '500', margin: 0 }}>{member.role}</p>
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </section>
+      )}
+
       {/* COURSES */}
       <section className="courses-preview">
         <div className="section-heading-row">
@@ -277,60 +330,6 @@ function Home() {
                 <h3>{b.title}</h3>
               </Link>
             ))}
-          </div>
-        </section>
-      )}
-
-      {/* ================= FIXED TEAM PREVIEW SECTION ================= */}
-      {team.length > 0 && (
-        <section className="team-preview-section" style={{ padding: '60px 20px', background: '#f9f9f9' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            
-            <div className="section-heading-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
-              <div className="section-heading">
-                <span className="heading-lead">Meet Our</span>{' '}
-                <span className="heading-main">Leadership Team </span>
-              </div>
-              <Link to="/about/team" className="view-all-link" style={{ color: '#0a4711', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                Meet the Full Team
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                  <polyline points="12 5 19 12 12 19" />
-                </svg>
-              </Link>
-            </div>
-
-            {/* Grid with no boxes */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '30px' }}>
-              {team.map(member => (
-                <div 
-                  key={member.id} 
-                  onClick={() => navigate(`/team/${member.id}`)} // CLICK TO GO TO PROFILE
-                  style={{ 
-                    background: 'transparent', // NO BOX
-                    padding: '10px', 
-                    textAlign: 'center', 
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                >
-                  {/* Perfect Circle */}
-                  <div style={{ width: '160px', height: '160px', margin: '0 auto 15px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#eaeaea' }}>
-                    <ImageWithFallback 
-                      src={member.image_url} 
-                      alt={member.name} 
-                      type="human"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                    />
-                  </div>
-                  <h3 style={{ fontSize: '18px', color: '#111', marginBottom: '4px', fontWeight: '600' }}>{member.name}</h3>
-                  <p style={{ fontSize: '14px', color: '#d4a017', fontWeight: '500', margin: 0 }}>{member.role}</p>
-                </div>
-              ))}
-            </div>
-
           </div>
         </section>
       )}

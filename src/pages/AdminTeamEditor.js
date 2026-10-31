@@ -15,7 +15,8 @@ function AdminTeamEditor() {
     bio: '',
     image_url: '',
     category: 'Board of Directors',
-    order_index: 0
+    order_index: 0,
+    show_on_home: true // Default to true
   });
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -35,7 +36,8 @@ function AdminTeamEditor() {
           bio: data.bio || '',
           image_url: data.image_url || '',
           category: data.category || 'Board of Directors',
-          order_index: data.order_index || 0
+          order_index: data.order_index || 0,
+          show_on_home: data.show_on_home ?? true
         });
       }
       setLoading(false);
@@ -115,6 +117,18 @@ function AdminTeamEditor() {
         <div className="admin-field">
           <label>Short Bio</label>
           <textarea name="bio" value={formData.bio} onChange={handleChange} rows="4" disabled={saving} placeholder="Brief background or statement..." />
+        </div>
+
+        {/* NEW CHECKBOX FOR HOMEPAGE */}
+        <div className="admin-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+          <input 
+            type="checkbox" 
+            name="show_on_home" 
+            checked={formData.show_on_home} 
+            onChange={(e) => setFormData(prev => ({ ...prev, show_on_home: e.target.checked }))}
+            style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+          />
+          <label style={{ margin: 0, cursor: 'pointer' }}>Show this member on the Homepage</label>
         </div>
 
         <div className="admin-editor-actions">
