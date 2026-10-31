@@ -1,4 +1,3 @@
-// src/pages/TeamProfile.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -8,29 +7,35 @@ export default function TeamProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [member, setMember] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMember = async () => {
-      const { data } = await supabase.from('team_members').select('*').eq('id', id).single();
-      setMember(data);
+      const { data, error } = await supabase.from('team_members').select('*').eq('id', id).single();
+      if (error) console.error(error);
+      else setMember(data);
+      setLoading(false);
     };
     fetchMember();
   }, [id]);
 
-  if (!member) return <p style={{ textAlign: 'center', padding: '50px' }}>Loading...</p>;
+  if (loading) return <p style={{ textAlign: 'center', padding: '50px' }}>Loading profile...</p>;
+  if (!member) return <p style={{ textAlign: 'center', padding: '50px' }}>Team member not found.</p>;
 
   return (
     <div className="team-profile-container">
-      <button onClick={() => navigate(-1)} className="back-btn">← Back to Team</button>
+      <button onClick={() => navigate(-1)} className="back-btn">← Back</button>
+      
       <div className="profile-header">
-        <img src={member.image_url} alt={member.name} className="profile-img" />
+        <img src={member.image_url || 'https://via.placeholder.com/200'} alt={member.name} className="profile-img" />
         <h1>{member.name}</h1>
-        <h3 style={{ color: '#d4a017' }}>{member.role}</h3>
-        <p className="profile-category">{member.category}</p>
+        <h3 className="profile-role">{member.role}</h3>
+        <span className="profile-category">{member.category || 'Team'}</span>
       </div>
+
       <div className="profile-bio-section">
         <h2>About {member.name.split(' ')[0]}</h2>
-        <p>{member.bio || 'No biography provided yet.'}</p>
+        <p>{member.bio || 'No biography has been added for this team member yet. Please check back later!'}</p>
       </div>
     </div>
   );
