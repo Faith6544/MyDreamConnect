@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminUsers.css';
 
+// Helper to ensure 'admin', ' Admin', or 'ADMIN' all evaluate correctly
 function normalizeRole(role) {
-  return String(role || '').replace(/^'+|'+$/g, '').toLowerCase();
+  return String(role || '').replace(/^'+|'+$/g, '').trim().toLowerCase();
 }
 
 function AdminUsers() {
@@ -20,6 +21,7 @@ function AdminUsers() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate('/admin'); return; }
 
+      // Fetch all users
       const { data: profiles } = await supabase
         .from('profiles')
         .select('*')
@@ -48,12 +50,15 @@ function AdminUsers() {
     const newRole = normalized === 'admin' ? 'student' : 'admin';
 
     const { data: { user: currentUser } } = await supabase.auth.getUser();
+    
+    // Safety check: Don't let admins accidentally demote themselves
     if (currentUser && currentUser.id === id && newRole === 'student') {
       if (!window.confirm('You are about to remove your own admin privileges. You will lose access to admin pages. Continue?')) return;
     } else {
       if (!window.confirm(`Change this user's role to "${newRole}"?`)) return;
     }
 
+    // Update Supabase
     const { error } = await supabase
       .from('profiles')
       .update({ role: newRole })
@@ -62,7 +67,10 @@ function AdminUsers() {
     if (error) {
       alert('Update failed: ' + error.message);
     } else {
+      // Update UI instantly without refreshing
       setUsers(users.map(u => u.id === id ? { ...u, role: newRole } : u));
+      
+      // If they demoted themselves, kick them out of the admin panel
       if (currentUser && currentUser.id === id && newRole === 'student') {
         window.location.href = '/';
       }

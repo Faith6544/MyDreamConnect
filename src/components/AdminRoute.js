@@ -1,42 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
-// ONLY these emails can access the admin dashboard
-const ADMIN_EMAILS = [
-  'atigahfaith44@gmail.com',
-  'fthferanmi@gmail.com',
-  'mydreamconnectlc@gmail.com'
-];
-
 export default function AdminRoute({ children }) {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(null); // null means "Checking..."
 
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>;
-  }
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
 
-  // If not logged in, go to the admin login page
-  if (!user) {
-    return <Navigate to="/admin" replace />;
-  }
+      // Fetch their role from the database
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
 
-  // If logged in, but email is NOT in the list, block them
-  if (!ADMIN_EMAILS.includes(user.email)) {
-    return (
-      <div style={{ textAlign: 'center', padding: '100px 20px', fontFamily: 'Poppins, sans-serif' }}>
-        <h2 style={{ color: '#b81c00' }}>Access Denied</h2>
-        <p style={{ color: '#666' }}>You do not have permission to view the Admin Dashboard.</p>
-        <button 
-          onClick={() => window.location.href = '/'} 
-          style={{ marginTop: '20px', padding: '10px 20px', background: '#0a4711', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-        >
-          Return to Home
-        </button>
-      </div>
-    );
-  }
+      if (data && data.role === 'admin') {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+    };
 
-  // If they are logged in and their email is in the list, let them in
-  return children;
+    checkAdmin();
+  }, [user]);
+
+  if (isAdmin === null) return <p>Verifying access...</p>; // Show loading
+  if (isAdmin === false) return <Navigate to="/" replace />; // Kick them out!
+
+  return children; // Let them in
 }
