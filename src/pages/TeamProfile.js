@@ -19,22 +19,46 @@ export default function TeamProfile() {
     fetchMember();
   }, [id]);
 
-  if (loading) return <p style={{ textAlign: 'center', padding: '50px' }}>Loading profile...</p>;
-  if (!member) return <p style={{ textAlign: 'center', padding: '50px' }}>Team member not found.</p>;
+  if (loading) return <p style={{ textAlign: 'center', padding: '100px', fontSize: '20px' }}>Loading profile...</p>;
+  if (!member) return <p style={{ textAlign: 'center', padding: '100px', fontSize: '20px' }}>Team member not found.</p>;
 
   return (
-    <div className="team-profile-container">
-      <button onClick={() => navigate(-1)} className="back-btn">← Back</button>
-      
-      <div className="profile-header">
-        <img src={member.image_url || 'https://via.placeholder.com/200'} alt={member.name} className="profile-img" />
-        <h1>{member.name}</h1>
-        <h3 className="profile-role">{member.role}</h3>
-        <span className="profile-category">{member.category || 'Team'}</span>
-      </div>
+    <div className="profile-page">
+      <div className="profile-container">
+        
+        {/* Header Section */}
+        <div className="profile-header">
+          <button onClick={() => navigate(-1)} className="back-btn">← Back</button>
+          
+          <div className="profile-image-wrapper">
+            <img src={member.image_url || 'https://via.placeholder.com/200'} alt={member.name} />
+          </div>
+          
+          <h1>{member.name}</h1>
+          <h3 className="profile-role">{member.role}</h3>
+          <span className="profile-category">{member.category || 'Team Member'}</span>
+        </div>
 
-      <div className="profile-bio-section">
-<h2>About Me</h2>        <p>{member.bio || 'No biography has been added for this team member yet. Please check back later!'}</p>
+        {/* Bio Section */}
+        <div className="profile-bio-section">
+          <h2>About Me</h2>
+          <p>{member.bio || 'Biography coming soon...'}</p>
+        </div>
+
+        {/* Direct Links Section (As requested in your design tips) */}
+        <div className="profile-links-section">
+          {member.linkedin_url && (
+            <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className="profile-btn linkedin-btn">
+              Connect on LinkedIn
+            </a>
+          )}
+          {member.email && (
+            <a href={`mailto:${member.email}`} className="profile-btn email-btn">
+              Send an Email
+            </a>
+          )}
+        </div>
+
       </div>
     </div>
   );

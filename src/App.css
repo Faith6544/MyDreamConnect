@@ -108,6 +108,11 @@ video {
     font-size: 15px;
   }
 }
+
+/* ============================================
+   ADMIN SECTION STYLES
+   ============================================ */
+
 .admin-year-section {
   margin-bottom: 40px;
 }
@@ -127,7 +132,7 @@ video {
 
 .admin-month-header {
   font-size: 18px;
-  color: #666;
+  color: #111111 !important; /* FIXED: Changed from #666 (gray) to dark black */
   font-weight: 600;
   margin-bottom: 15px;
   text-transform: uppercase;
@@ -138,4 +143,49 @@ video {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* ============================================
+   GLOBAL TEXT FORCE OVERRIDES (Fixes Grey Text)
+   ============================================ */
+
+/* Force paragraphs, spans, and list items to be dark */
+p, span, li {
+  color: #222222 !important; 
+}
+
+/* Force headings to be very dark */
+h1, h2, h3, h4, h5, h6 {
+  color: #111111 !important;
+}
+
+/* Fix Admin Tables and Lists */
+table, th, td, tr {
+  color: #111111 !important;
+}
+
+/* Fix Admin Form Labels */
+label {
+  color: #111111 !important;
+  font-weight: 600 !important;
+}
+
+/* Fix text inside input boxes */
+input, select, textarea {
+  color: #111111 !important; 
+  background-color: #ffffff !important;
+}
+
+/* Fix placeholder text inside inputs */
+::placeholder {
+  color: #888888 !important;
+}
+
+/* Specific fix for Courses Cards */
+.course-card h3, 
+.course-card p, 
+.course-excerpt,
+.course-meta span,
+.course-price {
+  color: #111111 !important;
 }

@@ -52,23 +52,25 @@ export default function Team({ embedded = false }) {
               <h2 className="team-category-title">{category}</h2>
               <div className="team-grid">
                 {grouped[category].map(member => (
-                  <div 
-                    key={member.id} 
-                    className="team-card"
-                    onClick={() => navigate(`/team/${member.id}`)}
-                  >
-                    <div className="team-image">
-                      <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
-                    </div>
-                    <div className="team-card-content">
-                      <h3 className="team-name">{member.name}</h3>
-                      <p className="team-role">{member.role}</p>
-                      <p className="team-bio-short">
-                        {member.bio ? `${member.bio.substring(0, 60)}...` : 'Click to read more'}
-                      </p>
-                      <span className="read-more-link">Read Profile →</span>
-                    </div>
-                  </div>
+                  // Inside the map function:
+<div 
+  key={member.id} 
+  className="team-card"
+  onClick={() => navigate(`/team/${member.id}`)}
+>
+  <div className="team-image">
+    <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
+  </div>
+  <div className="team-card-content">
+    <h3 className="team-name">{member.name}</h3>
+    <p className="team-role">{member.role}</p>
+    {/* This snippet shows the 2-3 sentence short bio */}
+    <p className="team-bio-short">
+      {member.bio ? `${member.bio.substring(0, 60)}...` : 'Click to read more'}
+    </p>
+    <span className="read-more-link">Read Profile →</span>
+  </div>
+</div>
                 ))}
               </div>
             </div>
