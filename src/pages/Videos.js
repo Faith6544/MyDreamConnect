@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Videos.css';
-import { supabase } from '../lib/supabase';
+import { fetchInOrder } from '../lib/fetchOrdered';
 
 function Videos() {
   const [videos, setVideos] = useState([]);
@@ -8,12 +8,9 @@ function Videos() {
 
   useEffect(() => {
     const fetchVideos = async () => {
-      // Change the .order() part to sort by year, then created_at
-const { data, error } = await supabase
-  .from('photos')
-  .select('*')
-  .order('year', { ascending: false }) // Newest year first
-  .order('created_at', { ascending: false }); // If same year, newest upload first
+      // Respects the admin drag-and-drop order (`display_order`). Until the
+      // order-column migration runs, falls back to newest-first.
+      const { data, error } = await fetchInOrder('videos');
 
       if (error) {
         console.error('Videos fetch error:', error);

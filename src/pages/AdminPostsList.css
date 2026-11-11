@@ -1,4 +1,4 @@
- 
+
 
 .admin-list-page {
   min-height: 100vh;
@@ -17,6 +17,13 @@
   flex-wrap: wrap;
 }
 
+.admin-list-subtitle {
+  font-size: 13px;
+  color: #66706a;
+  margin: 5px 0 0;
+  line-height: 1.5;
+}
+
 .back-link {
   font-size: 13px;
   color: #0a4711;
@@ -24,9 +31,11 @@
   display: inline-block;
   margin-bottom: 8px;
   font-weight: 600;
+  transition: color 0.2s ease;
 }
 
 .back-link:hover {
+  color: #d4a017;
   text-decoration: underline;
 }
 
@@ -45,11 +54,13 @@
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
-  transition: background 0.2s;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .btn-new:hover {
   background: #d4a017;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(212, 160, 23, 0.35);
 }
 
 .admin-table {
@@ -60,7 +71,7 @@
   border-radius: 8px;
   border-collapse: collapse;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .admin-table th {
@@ -78,7 +89,17 @@
   padding: 14px 18px;
   border-bottom: 1px solid #f1f1f1;
   font-size: 14px;
-  color: #333;
+  color: #222; /* readable — no washed-out gray */
+  vertical-align: middle;
+}
+
+.admin-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+/* Hover state so it's always obvious which row you're on */
+.admin-table tbody tr:hover {
+  background: #f4f9f4;
 }
 
 .admin-table tr:last-child td {
@@ -99,7 +120,7 @@
   border: none;
   font-family: 'Poppins', sans-serif;
   text-decoration: none;
-  transition: opacity 0.2s;
+  transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 }
 
 .btn-edit {
@@ -109,6 +130,7 @@
 
 .btn-edit:hover {
   background: #d0e5d3;
+  transform: translateY(-1px);
 }
 
 .btn-delete {
@@ -118,12 +140,144 @@
 
 .btn-delete:hover {
   background: #f9d5d0;
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   DRAG-AND-DROP
+   ============================================================ */
+
+.td-sort {
+  width: 56px;
+  text-align: center;
+}
+
+.drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  color: #93a39a;
+  font-size: 20px;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.drag-handle:hover {
+  background: #eaf3eb;
+  color: #0a4711;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Row being dragged floats above the table */
+.admin-table tr.is-dragging {
+  background: #f0fdf4 !important;
+  box-shadow: 0 8px 20px rgba(10, 71, 17, 0.15);
+  border-radius: 8px;
+}
+
+/* ============================================================
+   SHARED EDITOR PIECES (sticky save bar, grouped fields)
+   ============================================================ */
+
+.admin-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+/* Sticky save bar — always reachable without scrolling */
+.admin-editor-actions.is-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  background: #ffffff;
+  border-top: 1px solid #eee;
+  margin: 20px -30px -30px; /* bleeds to the card edges */
+  padding: 16px 30px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.btn-save {
+  background: #0a4711;
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 6px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-save:hover:not(:disabled) {
+  background: #d4a017;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(212, 160, 23, 0.35);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  color: #66706a;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.btn-cancel:hover {
+  color: #b81c00;
+}
+
+.admin-error {
+  background: #fdecea;
+  color: #b81c00;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border-left: 4px solid #e74c3c;
+}
+
+.admin-fieldset {
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-fieldset legend {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0a4711;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 0 8px;
 }
 
 .admin-list-loading,
 .admin-list-empty {
   text-align: center;
-  color: #888;
+  color: #66706a;
   font-size: 14px;
   margin-top: 60px;
 }

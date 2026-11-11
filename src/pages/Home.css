@@ -17,39 +17,6 @@
 }
 
 /* ============================================================
-   FIXED BACKGROUND VIDEO — visible behind the hero only
-   ============================================================ */
-
-.home-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.home-bg-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: cover;
-}
-
-.home-bg-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(10, 31, 13, 0.35);
-}
-
-/* ============================================================
    HERO
    ============================================================ */
 
@@ -61,19 +28,25 @@
   justify-content: center;
   overflow: hidden;
   z-index: 2;
+  /* Poster shown while the video loads / on mobile */
+  background: #0a1f0d center / cover no-repeat;
 }
 
 .hero-video {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate3d(-50%, -50%, 0);
   min-width: 100%;
   min-height: 100%;
   width: auto;
   height: auto;
   object-fit: cover;
   z-index: 1;
+  /* Keep the video on its own compositor layer so scrolling the page
+     never has to repaint it. */
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .hero-overlay {
@@ -127,7 +100,8 @@
   border-radius: 8px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
 }
 
 .btn-primary:hover {
@@ -135,6 +109,10 @@
   color: #fff;
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
 }
 
 /* ============================================================
@@ -169,7 +147,7 @@
   flex-direction: column;
   justify-content: space-between;
   min-height: 180px;
-  transition: filter 0.3s;
+  transition: filter 0.3s ease;
 }
 
 .program-card:hover {
@@ -198,6 +176,11 @@
   align-self: flex-end;
   margin-top: 15px;
   opacity: 0.95;
+  transition: transform 0.3s ease;
+}
+
+.program-card:hover .card-arrow {
+  transform: translateX(5px);
 }
 
 /* ============================================================
@@ -238,7 +221,7 @@
 
 .about-text p {
   font-size: 15px;
-  color: #666;
+  color: #555;
   line-height: 1.8;
   margin: 0 0 20px;
 }
@@ -321,7 +304,7 @@
 
 .stat-item p {
   font-size: 12px;
-  color: #666;
+  color: #555;
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -346,7 +329,7 @@
 .mission-content > p {
   font-size: 15.5px;
   line-height: 1.75;
-  color: #666;
+  color: #555;
   margin: 0 0 30px;
 }
 
@@ -362,7 +345,7 @@
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .mission-content .btn-donate:hover {
@@ -441,7 +424,7 @@
   text-decoration: none;
   padding-bottom: 4px;
   border-bottom: 2px solid transparent;
-  transition: color 0.2s, border-color 0.2s, gap 0.2s;
+  transition: color 0.2s ease, border-color 0.2s ease, gap 0.2s ease;
   white-space: nowrap;
 }
 
@@ -452,11 +435,96 @@
 }
 
 .view-all-link svg {
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
 
 .view-all-link:hover svg {
   transform: translateX(3px);
+}
+
+.preview-status {
+  text-align: center;
+  padding: 40px;
+  color: #555;
+}
+
+/* ============================================================
+   TEAM PREVIEW — transparent, human, circle photos
+   Sits between the Mission section and Courses.
+   ============================================================ */
+
+.team-preview-section {
+  padding: 60px 20px;
+  background: transparent; /* clean white, no gray boxes */
+}
+
+.team-preview-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.team-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+.team-preview-card {
+  background: transparent;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+.team-preview-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+.team-preview-card:focus-visible {
+  outline: 3px solid #d4a017;
+  outline-offset: 3px;
+}
+
+.team-preview-photo {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 15px;
+  border-radius: 50%; /* perfect circle */
+  overflow: hidden;
+  background-color: #eaeaea;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.team-preview-card:hover .team-preview-photo {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  border-color: #f5efdc;
+}
+
+.team-preview-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.team-preview-name {
+  font-size: 18px;
+  color: #111;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.team-preview-role {
+  font-size: 14px;
+  color: #b8860b;
+  font-weight: 500;
+  margin: 0;
 }
 
 /* ============================================================
@@ -483,7 +551,7 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   border: 1px solid #f0f0f0;
 }
 
@@ -519,7 +587,7 @@
 
 .course-excerpt {
   font-size: 13px;
-  color: #666;
+  color: #555;
   line-height: 1.6;
   margin: 0 0 15px;
 }
@@ -529,7 +597,7 @@
   flex-wrap: wrap;
   gap: 12px;
   font-size: 12px;
-  color: #888;
+  color: #777;
   margin-bottom: 15px;
 }
 
@@ -555,16 +623,22 @@
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
-  transition: background 0.3s;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .course-btn:hover {
   background: #b88a0f;
   color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(184, 138, 15, 0.35);
 }
 
 /* ============================================================
    TESTIMONIALS — infinite scroll
+   The track animates translate3d(-50%, 0, 0) so the loop is
+   seamless no matter how many testimonials exist, and the
+   whole marquee runs on the GPU compositor (no layout / paint
+   work while scrolling).
    ============================================================ */
 
 .testimonials-section {
@@ -613,11 +687,15 @@
 
 .testimonials-track {
   display: flex;
-  gap: 28px;
+  /* Spacing lives on the cards (margin-right) instead of `gap` so the
+     track is exactly twice the width of one set of cards — required
+     for the seamless -50% loop. */
   padding: 20px 0;
   width: max-content;
   animation: infiniteScroll 60s linear infinite;
+  transform: translate3d(0, 0, 0);
   will-change: transform;
+  backface-visibility: hidden;
 }
 
 .testimonials-fade:hover .testimonials-track {
@@ -626,7 +704,16 @@
 
 @keyframes infiniteScroll {
   from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-1952px, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonials-track {
+    animation: none;
+  }
+  .testimonials-fade {
+    overflow-x: auto;
+  }
 }
 
 .testimonials-track .testimonial-card {
@@ -646,7 +733,8 @@
   overflow: hidden;
   user-select: none;
   border-left: 5px solid #d4a017;
-  transition: transform 0.3s, box-shadow 0.3s;
+  margin-right: 28px; /* spacing that travels with the -50% loop */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .testimonials-track .testimonial-card:hover {
@@ -704,7 +792,7 @@
 
 .testimonials-track .testimonial-author span {
   font-size: 13px;
-  color: #888;
+  color: #777;
   line-height: 1.4;
   display: block;
 }
@@ -733,7 +821,7 @@
   background: #f9f9f9;
   border-radius: 12px;
   padding: 25px;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .instructor-card:hover {
@@ -760,7 +848,7 @@
 
 .instructor-card span {
   font-size: 13px;
-  color: #888;
+  color: #777;
 }
 
 /* ============================================================
@@ -775,22 +863,23 @@
 }
 
 .blogs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
   max-width: 1200px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
 }
 
 .blog-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .blog-card:hover {
@@ -800,7 +889,7 @@
 
 .blog-card img {
   width: 100%;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
 }
 
@@ -811,11 +900,20 @@
   padding: 18px;
   margin: 0;
   line-height: 1.4;
-  transition: color 0.3s;
+  transition: color 0.3s ease;
 }
 
 .blog-card:hover h3 {
   color: #d4a017;
+}
+
+/* --- FIX FOR TESTIMONIAL LOGOS --- */
+.testimonial-author img {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  flex-shrink: 0;
 }
 
 /* ============================================================
@@ -868,12 +966,10 @@
    ============================================================ */
 
 @media (max-width: 768px) {
-  .home-bg {
-    display: none;
-  }
-
   .hero {
     min-height: 70vh;
+    /* The .hero background already shows the poster image while
+       the video is not downloaded on small screens. */
   }
 
   .hero-overlay {
@@ -889,6 +985,16 @@
 
   .view-all-link {
     font-size: 13.5px;
+  }
+
+  .team-preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .team-preview-photo {
+    width: 130px;
+    height: 130px;
   }
 }
 
@@ -985,15 +1091,12 @@
     padding: 60px 0;
   }
 
-  .testimonials-track {
-    gap: 16px;
-  }
-
   .testimonials-track .testimonial-card {
     flex: 0 0 310px;
     width: 310px;
     min-height: 240px;
     padding: 26px 22px;
+    margin-right: 16px;
   }
 
   .testimonials-track .testimonial-quote {
@@ -1005,61 +1108,7 @@
     height: 44px;
   }
 
-  @keyframes infiniteScroll {
-    from { transform: translate3d(0, 0, 0); }
-    to   { transform: translate3d(-1288px, 0, 0); }
+  .team-preview-grid {
+    grid-template-columns: 1fr;
   }
-}
-/* --- FIX FOR TESTIMONIAL LOGOS --- */
-.testimonial-author img {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 50% !important;
-  object-fit: cover !important;
-  flex-shrink: 0;
-}
-
-/* --- FIX FOR BLOG CARDS --- */
-.blogs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
-}
-
-.blog-card {
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  text-decoration: none;
-}
-
-.blog-card img {
-  width: 100%;
-  height: 200px !important; /* FORCES IMAGE TO STAY 200PX TALL */
-  object-fit: cover !important;
-}
-/* FORCE REMOVE BOX FROM HOME PAGE */
-.team-card, .team-embedded .team-card {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 0 !important;
-}
-
-/* FORCE PERFECT CIRCLE */
-.team-image, .team-embedded .team-image {
-  width: 160px !important;
-  height: 160px !important;
-  border-radius: 50% !important;
-  overflow: hidden !important;
-  margin: 0 auto 15px auto !important;
-}
-
-.team-image img, .team-embedded .team-image img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
 }

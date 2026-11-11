@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminPostTagEditor.css';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 
 function AdminPostTagEditor() {
   const { id } = useParams();
@@ -12,6 +14,7 @@ function AdminPostTagEditor() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     const load = async () => {
@@ -48,8 +51,15 @@ function AdminPostTagEditor() {
       ? supabase.from('post_tags').update(formData).eq('id', id)
       : supabase.from('post_tags').insert([formData]);
     const { error } = await op;
-    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-    else navigate('/admin/post-tags');
+    if (error) {
+      setError('Save failed: ' + error.message);
+      showToast('Save failed: ' + error.message, 'error');
+      setSaving(false);
+    } else {
+      // Friendly confirmation, then back to the list.
+      showToast(isEdit ? 'Tag updated ✓' : 'Tag created ✓');
+      setTimeout(() => navigate('/admin/post-tags'), 900);
+    }
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -72,13 +82,14 @@ function AdminPostTagEditor() {
           <label>Slug *</label>
           <input type="text" name="slug" value={formData.slug} onChange={handleChange} required disabled={saving} />
         </div>
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/post-tags" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

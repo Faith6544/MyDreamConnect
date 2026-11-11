@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminCategoryEditor.css';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 
 function AdminCategoryEditor() {
   const { id } = useParams();
@@ -12,6 +14,7 @@ function AdminCategoryEditor() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     let cancelled = false;
@@ -72,8 +75,15 @@ function AdminCategoryEditor() {
       ? supabase.from('categories').update(formData).eq('id', id)
       : supabase.from('categories').insert([formData]);
     const { error } = await op;
-    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-    else navigate('/admin/categories');
+    if (error) {
+      setError('Save failed: ' + error.message);
+      showToast('Save failed: ' + error.message, 'error');
+      setSaving(false);
+    } else {
+      // Friendly confirmation, then back to the list.
+      showToast(isEdit ? 'Category updated ✓' : 'Category created ✓');
+      setTimeout(() => navigate('/admin/categories'), 900);
+    }
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -100,13 +110,14 @@ function AdminCategoryEditor() {
           <label>Order (lower = shown first)</label>
           <input type="number" name="order_index" value={formData.order_index} onChange={handleChange} disabled={saving} />
         </div>
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/categories" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

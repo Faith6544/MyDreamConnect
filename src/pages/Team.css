@@ -1,6 +1,6 @@
 .team-page {
   font-family: 'Poppins', sans-serif;
-  background: #f9f9f9;
+  background: #ffffff;
   padding-bottom: 80px;
 }
 
@@ -20,10 +20,11 @@
   font-weight: 700;
   color: #0a4711;
   margin-bottom: 10px;
+  letter-spacing: -0.02em;
 }
 
 .team-subtitle {
-  color: #666;
+  color: #555;
   font-size: 16px;
 }
 
@@ -34,7 +35,7 @@
 /* Clean line for section headers */
 .team-category-title {
   font-size: 24px;
-  color: #333;
+  color: #1a1a1a;
   border-bottom: 3px solid #d4a017;
   display: inline-block;
   padding-bottom: 8px;
@@ -46,57 +47,76 @@
 .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 30px; 
+  gap: 30px;
 }
 
+/* No heavy white boxes — just the person, floating on the page. */
 .team-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 30px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  padding: 10px;
   text-align: center;
-  cursor: pointer; 
+  cursor: pointer;
+  box-shadow: none;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.04); /* Soft shadow */
-  border: 1px solid #eaeaea;
+  will-change: transform;
 }
 
-.team-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+.team-card:hover,
+.team-card:focus-visible {
+  transform: translateY(-6px); /* gentle lift */
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08); /* soft shadow */
+  outline: none;
 }
 
+.team-card:focus-visible {
+  outline: 3px solid #d4a017;
+  outline-offset: 3px;
+}
+
+/* Perfect circle photo with a light ring */
 .team-image {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 20px;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 18px;
   border-radius: 50%;
   overflow: hidden;
-  border: 4px solid #f0f0f0; /* Adds a nice ring around the photo */
+  border: 4px solid #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  background: #eaeaea;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.team-card:hover .team-image {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+  transform: scale(1.03);
 }
 
 .team-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .team-name {
   font-size: 18px;
-  color: #111;
+  color: #1a1a1a; /* dark & readable */
   margin-bottom: 5px;
   font-weight: 700;
 }
 
 .team-role {
   font-size: 14px;
-  color: #d4a017;
+  color: #b8860b;
   font-weight: 600;
   margin-bottom: 15px;
 }
 
 .team-bio-short {
   font-size: 13px;
-  color: #666;
+  color: #555;
   line-height: 1.5;
   margin-bottom: 15px;
 }
@@ -107,32 +127,20 @@
   color: #0a4711;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transition: color 0.3s ease;
 }
 
-/* Specific tweaks for the Home Page */
+.team-card:hover .read-more-link {
+  color: #d4a017;
+}
+
+/* Specific tweaks for the embedded grid (About page) */
 .team-page.team-embedded {
   padding-bottom: 0;
   background: #ffffff;
 }
 
-.team-page.team-embedded .team-card {
-  background: transparent;
-  box-shadow: none;
-  border: none;
-  padding: 10px;
-}
-
-.team-page.team-embedded .team-card:hover {
-  transform: translateY(-5px);
-}
-
-.team-page.team-embedded .team-image {
-  width: 160px;
-  height: 160px;
-  border: none;
-}
-
 .team-page.team-embedded .team-bio-short,
 .team-page.team-embedded .read-more-link {
-  display: none; /* Hides extra text on the Home page to keep it clean */
+  display: none; /* keeps the embedded grid clean */
 }

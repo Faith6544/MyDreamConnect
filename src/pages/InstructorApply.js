@@ -30,6 +30,9 @@ export default function InstructorApply() {
   useEffect(() => {
     let cancelled = false;
 
+    // ProtectedRoute guarantees a session, but never crash if one slips through.
+    if (!user) { setLoading(false); return; }
+
     const load = async () => {
       const { data: courseData } = await supabase.from('courses').select('id, name').eq('id', id).maybeSingle();
       const { data: apps } = await supabase
@@ -48,7 +51,7 @@ export default function InstructorApply() {
 
     load();
     return () => { cancelled = true; };
-  }, [id, user.id]);
+  }, [id, user]);
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 

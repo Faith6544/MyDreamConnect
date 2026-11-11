@@ -39,6 +39,8 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Search = lazy(() => import('./pages/Search'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Scholarship = lazy(() => import('./pages/Scholarship'));
+const InstructorApply = lazy(() => import('./pages/InstructorApply'));
+const InstructorConfirm = lazy(() => import('./pages/InstructorConfirm'));
 const AdminTeamList = lazy(() => import('./pages/AdminTeamList'));
 const AdminTeamEditor = lazy(() => import('./pages/AdminTeamEditor'));
 const MyCourses = lazy(() => import('./pages/MyCourses'));
@@ -121,6 +123,10 @@ function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/search" element={<Search />} />
             <Route path="/scholarship" element={<Scholarship />} />
+
+            {/* Instructor application flow — the approval email links to /instructor/confirm/<token> */}
+            <Route path="/instructor/apply/:id" element={<ProtectedRoute><InstructorApply /></ProtectedRoute>} />
+            <Route path="/instructor/confirm/:token" element={<InstructorConfirm />} />
 
             {/* Redirect /about/team to the main about page's #team section */}
             <Route path="/about/team" element={<Navigate to="/about#team" replace />} />

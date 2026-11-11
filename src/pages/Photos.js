@@ -10,12 +10,13 @@ function Photos() {
 
   useEffect(() => {
     const fetchAlbums = async () => {
-      // Change the .order() part to sort by year, then created_at
-const { data, error } = await supabase
-  .from('photos')
-  .select('*')
-  .order('year', { ascending: false }) // Newest year first
-  .order('created_at', { ascending: false }); // If same year, newest upload first
+      // Newest year first; inside a year, the admin's drag-and-drop
+      // order (`display_order`) decides the sequence.
+      const { data, error } = await supabase
+        .from('photos')
+        .select('*')
+        .order('year', { ascending: false })
+        .order('display_order', { ascending: true });
 
       if (!error) setAlbums(data || []);
       setLoading(false);

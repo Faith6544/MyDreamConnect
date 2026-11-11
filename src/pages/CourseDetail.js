@@ -363,6 +363,12 @@ function CourseDetail() {
                 </Link>
               )}
 
+              {!enrolled && (
+                <Link to={`/instructor/apply/${course.id}`} className="scholarship-apply-link">
+                  Interested in teaching this course? Apply here →
+                </Link>
+              )}
+
               <p className="cd-buy-note">🔒 Secure payment powered by Paystack</p>
             </div>
           </aside>

@@ -15,7 +15,7 @@ export default function AdminRoute({ children }) {
       }
 
       // Fetch their role from the database
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)

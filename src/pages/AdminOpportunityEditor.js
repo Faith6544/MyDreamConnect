@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminOpportunityEditor.css';
 import ImageUpload from '../components/ImageUpload';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 function AdminOpportunityEditor() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -12,6 +14,7 @@ function AdminOpportunityEditor() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -45,8 +48,15 @@ function AdminOpportunityEditor() {
       ? supabase.from('opportunities').update(formData).eq('id', id)
       : supabase.from('opportunities').insert([formData]);
     const { error } = await op;
-    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-    else navigate('/admin/opportunities');
+    if (error) {
+      setError('Save failed: ' + error.message);
+      showToast('Save failed: ' + error.message, 'error');
+      setSaving(false);
+    } else {
+      // Friendly confirmation, then back to the list.
+      showToast(isEdit ? 'Opportunity updated ✓' : 'Opportunity created ✓');
+      setTimeout(() => navigate('/admin/opportunities'), 900);
+    }
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -78,13 +88,14 @@ function AdminOpportunityEditor() {
           <label>External URL (where "Read More" goes)</label>
           <input type="text" name="url" value={formData.url} onChange={handleChange} placeholder="https://..." disabled={saving} />
         </div>
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/opportunities" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

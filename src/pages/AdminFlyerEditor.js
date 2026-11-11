@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminFlyerEditor.css';
 import ImageUpload from '../components/ImageUpload';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 function AdminFlyerEditor() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -14,6 +16,7 @@ function AdminFlyerEditor() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -48,8 +51,15 @@ function AdminFlyerEditor() {
       ? supabase.from('flyers').update(formData).eq('id', id)
       : supabase.from('flyers').insert([formData]);
     const { error } = await op;
-    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-    else navigate('/admin/flyers');
+    if (error) {
+      setError('Save failed: ' + error.message);
+      showToast('Save failed: ' + error.message, 'error');
+      setSaving(false);
+    } else {
+      // Friendly confirmation, then back to the list.
+      showToast(isEdit ? 'Flyer updated ✓' : 'Flyer created ✓');
+      setTimeout(() => navigate('/admin/flyers'), 900);
+    }
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -92,13 +102,14 @@ function AdminFlyerEditor() {
           <label>PDF URL</label>
           <input type="text" name="pdf_url" value={formData.pdf_url} onChange={handleChange} placeholder="https://..." disabled={saving} />
         </div>
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/flyers" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update Flyer' : 'Create Flyer'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

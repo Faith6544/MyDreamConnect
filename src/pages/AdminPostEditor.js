@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminPostEditor.css';
 import ImageUpload from '../components/ImageUpload';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 
 function AdminPostEditor() {
   const { id } = useParams();
@@ -20,6 +22,7 @@ function AdminPostEditor() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -91,18 +94,23 @@ function AdminPostEditor() {
 
       if (error) {
         setError('Save failed: ' + error.message);
+        showToast('Save failed: ' + error.message, 'error');
         setSaving(false);
       } else {
-        navigate('/admin/posts');
+        // Friendly confirmation, then back to the list.
+        showToast('Post updated ✓');
+        setTimeout(() => navigate('/admin/posts'), 900);
       }
     } else {
       const { error } = await supabase.from('posts').insert([formData]);
 
       if (error) {
         setError('Save failed: ' + error.message);
+        showToast('Save failed: ' + error.message, 'error');
         setSaving(false);
       } else {
-        navigate('/admin/posts');
+        showToast('Post created ✓');
+        setTimeout(() => navigate('/admin/posts'), 900);
       }
     }
   };
@@ -177,13 +185,14 @@ function AdminPostEditor() {
           />
         </div>
 
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/posts" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update Post' : 'Create Post'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabase } from '../lib/supabase';
+import { fetchInOrder, saveOrder } from '../lib/fetchOrdered';
 import './AdminLessonsList.css';
-import { useSortableList } from '../hooks/useSortableList';
+
 function AdminLessonsList() {
   const { courseId } = useParams();
   const [lessons, setLessons] = useState([]);
@@ -25,22 +27,35 @@ function AdminLessonsList() {
       if (courseError) setError('Load failed: ' + courseError.message);
       else setCourse(courseData);
 
-      const { data, error } = await supabase
-        .from('lessons')
-        .select('*')
-        .eq('course_id', courseId)
-        .order('order_index', { ascending: true });
-
-      if (error) {
-        setError('Load failed: ' + error.message);
+      const { data, error: loadError } = await fetchInOrder('lessons', 'order_index');
+      // Keep only this course's lessons (fetchInOrder can't filter + keep
+      // per-course numbering, so filter client-side).
+      const forCourse = (data || []).filter((l) => l.course_id === courseId);
+      if (loadError) {
+        setError('Load failed: ' + loadError.message);
         setLessons([]);
       } else {
-        setLessons(data || []);
+        setLessons(forCourse);
       }
       setLoading(false);
     };
     checkAuthAndLoad();
   }, [courseId, navigate]);
+
+  const handleDragEnd = async (result) => {
+    if (!result.destination || result.destination.index === result.source.index) return;
+
+    const reordered = Array.from(lessons);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+
+    // Optimistic update — feels instant.
+    setLessons(reordered);
+
+    const results = (await saveOrder('lessons', reordered, 'order_index')) || [];
+    const failed = results.find((r) => r.error);
+    if (failed) setError('Could not save the new order: ' + failed.error.message);
+  };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this lesson?')) return;
@@ -59,6 +74,7 @@ function AdminLessonsList() {
         <div>
           <Link to="/admin/courses" className="back-link">← All Courses</Link>
           <h1>Lessons — {course?.name || 'Loading...'}</h1>
+          <p className="admin-list-subtitle">Drag the ⠿ handle to reorder — saves automatically.</p>
         </div>
         <Link to={`/admin/courses/${courseId}/lessons/new`} className="btn-new">+ New Lesson</Link>
       </header>
@@ -70,23 +86,50 @@ function AdminLessonsList() {
       ) : lessons.length === 0 ? (
         <p className="admin-list-empty">No lessons yet. Add one to get started.</p>
       ) : (
-        <table className="admin-table">
-          <thead>
-            <tr><th>#</th><th>Title</th><th>Actions</th></tr>
-          </thead>
-          <tbody>
-            {lessons.map(l => (
-              <tr key={l.id}>
-                <td>{l.order_index}</td>
-                <td>{l.title}</td>
-                <td className="admin-actions">
-                  <Link to={`/admin/courses/${courseId}/lessons/edit/${l.id}`} className="btn-edit">Edit</Link>
-                  <button onClick={() => handleDelete(l.id)} className="btn-delete">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="lessons-list">
+            {(provided) => (
+              <table className="admin-table" {...provided.droppableProps} ref={provided.innerRef}>
+                <thead>
+                  <tr>
+                    <th className="td-sort">Sort</th>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lessons.map((l, index) => (
+                    <Draggable key={l.id} draggableId={String(l.id)} index={index}>
+                      {(provided, snapshot) => (
+                        <tr
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={snapshot.isDragging ? 'is-dragging' : ''}
+                          style={{
+                            ...provided.draggableProps.style,
+                            display: snapshot.isDragging ? 'table' : 'table-row',
+                          }}
+                        >
+                          <td className="td-sort">
+                            <span className="drag-handle" {...provided.dragHandleProps} title="Drag to reorder">⠿</span>
+                          </td>
+                          <td>{index + 1}</td>
+                          <td>{l.title}</td>
+                          <td className="admin-actions">
+                            <Link to={`/admin/courses/${courseId}/lessons/edit/${l.id}`} className="btn-edit">Edit</Link>
+                            <button onClick={() => handleDelete(l.id)} className="btn-delete">Delete</button>
+                          </td>
+                        </tr>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </tbody>
+              </table>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
     </div>
   );

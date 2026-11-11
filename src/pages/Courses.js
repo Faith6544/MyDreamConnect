@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import './Courses.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
+import { fetchInOrder } from '../lib/fetchOrdered';
+
+
 
 // `courses.price` is nullable and may come back as a numeric string.
 const toPrice = (value) => {
@@ -21,16 +24,15 @@ function Courses() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState('featured');
   const [filterCategory, setFilterCategory] = useState('all');
 
   useEffect(() => {
     const fetchAll = async () => {
-      // 1. Fetch courses WITHOUT the join
-      const { data: coursesData, error: coursesErr } = await supabase
-        .from('courses')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // 1. Fetch courses in the admin's drag-and-drop order
+      //    (`display_order`; falls back to newest-first if the column
+      //    is missing).
+      const { data: coursesData, error: coursesErr } = await fetchInOrder('courses');
 
       if (coursesErr) console.error("Courses Error:", coursesErr);
 
@@ -74,6 +76,10 @@ function Courses() {
   };
 
   const sortedCourses = [...filteredCourses].sort((a, b) => {
+    // 'featured' = curated order from the admin dashboard (drag-and-drop).
+    // Keep the fetched order — Array.prototype.sort is stable, so
+    // returning 0 preserves it exactly.
+    if (sortBy === 'featured') return 0;
     if (sortBy === 'newest') return safeTime(b.created_at) - safeTime(a.created_at);
     if (sortBy === 'oldest') return safeTime(a.created_at) - safeTime(b.created_at);
     if (sortBy === 'price-low') return toPrice(a.price) - toPrice(b.price);
@@ -118,6 +124,7 @@ function Courses() {
             onChange={(e) => setSortBy(e.target.value)}
             className="sort-select"
           >
+            <option value="featured">Featured</option>
             <option value="newest">Newly published</option>
             <option value="oldest">Oldest first</option>
             <option value="price-low">Price: Low to High</option>

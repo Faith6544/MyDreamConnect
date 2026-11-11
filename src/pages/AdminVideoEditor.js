@@ -2,16 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminVideoEditor.css';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 
 function AdminVideoEditor() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ title: '', youtube_id: '', duration: '' });
+  const [formData, setFormData] = useState({ title: '', youtube_id: '', duration: '', year: '' });
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -21,7 +24,7 @@ function AdminVideoEditor() {
       if (isEdit) {
         const { data, error } = await supabase.from('videos').select('*').eq('id', id).single();
         if (error) setError('Could not load video: ' + error.message);
-        else if (data) setFormData({ title: data.title || '', youtube_id: data.youtube_id || '', duration: data.duration || '' });
+        else if (data) setFormData({ title: data.title || '', youtube_id: data.youtube_id || '', duration: data.duration || '', year: data.year != null ? String(data.year) : '' });
         setLoading(false);
       }
     };
@@ -38,13 +41,27 @@ function AdminVideoEditor() {
     setSaving(true);
     setError('');
 
+    // The year select shows the current year by default, so save that same
+    // value even when the admin never touches the dropdown.
+    const payload = {
+      ...formData,
+      year: formData.year ? Number(formData.year) : new Date().getFullYear(),
+    };
+
     const op = isEdit
-      ? supabase.from('videos').update(formData).eq('id', id)
-      : supabase.from('videos').insert([formData]);
+      ? supabase.from('videos').update(payload).eq('id', id)
+      : supabase.from('videos').insert([payload]);
 
     const { error } = await op;
-    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-    else navigate('/admin/videos');
+    if (error) {
+      setError('Save failed: ' + error.message);
+      showToast('Save failed: ' + error.message, 'error');
+      setSaving(false);
+    } else {
+      // Friendly confirmation, then back to the list.
+      showToast(isEdit ? 'Video updated ✓' : 'Video created ✓');
+      setTimeout(() => navigate('/admin/videos'), 900);
+    }
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -88,13 +105,14 @@ function AdminVideoEditor() {
           <input type="text" name="duration" value={formData.duration} onChange={handleChange} disabled={saving} />
         </div>
 
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/videos" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update Video' : 'Create Video'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

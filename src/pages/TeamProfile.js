@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import ImageWithFallback from '../components/ImageWithFallback';
 import './TeamProfile.css';
 
 export default function TeamProfile() {
@@ -31,7 +32,7 @@ export default function TeamProfile() {
           <button onClick={() => navigate(-1)} className="back-btn">← Back</button>
           
           <div className="profile-image-wrapper">
-            <img src={member.image_url || 'https://via.placeholder.com/200'} alt={member.name} />
+            <ImageWithFallback src={member.image_url} alt={member.name} type="human" />
           </div>
           
           <h1>{member.name}</h1>

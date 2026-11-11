@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminJobEditor.css';
 import ImageUpload from '../components/ImageUpload';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 function AdminJobEditor() {
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -12,6 +14,7 @@ function AdminJobEditor() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -44,8 +47,15 @@ function AdminJobEditor() {
       ? supabase.from('jobs').update(formData).eq('id', id)
       : supabase.from('jobs').insert([formData]);
     const { error } = await op;
-    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-    else navigate('/admin/jobs');
+    if (error) {
+      setError('Save failed: ' + error.message);
+      showToast('Save failed: ' + error.message, 'error');
+      setSaving(false);
+    } else {
+      // Friendly confirmation, then back to the list.
+      showToast(isEdit ? 'Job updated ✓' : 'Job created ✓');
+      setTimeout(() => navigate('/admin/jobs'), 900);
+    }
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -73,13 +83,14 @@ function AdminJobEditor() {
           <label>Description</label>
           <textarea name="description" value={formData.description} onChange={handleChange} rows="8" disabled={saving} />
         </div>
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/jobs" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update Job' : 'Create Job'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Jobs.css';
 import ImageWithFallback from '../components/ImageWithFallback';
-import { supabase } from '../lib/supabase';
+import { fetchInOrder } from '../lib/fetchOrdered';
 
 const APPLY_EMAIL = 'info@mydreamconnect.org.ng';
 
@@ -11,10 +11,9 @@ function Jobs() {
 
   useEffect(() => {
     const fetchJobs = async () => {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Respects the admin drag-and-drop order (`display_order`). Until
+      // the order-column migration runs, falls back to newest-first.
+      const { data, error } = await fetchInOrder('jobs');
 
       if (error) {
         console.error('Jobs fetch error:', error);

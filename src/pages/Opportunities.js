@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Opportunities.css';
 import ImageWithFallback from '../components/ImageWithFallback';
-import { supabase } from '../lib/supabase';
+import { fetchInOrder } from '../lib/fetchOrdered';
 
 function Opportunities() {
   const [opportunities, setOpportunities] = useState([]);
@@ -9,10 +9,9 @@ function Opportunities() {
 
   useEffect(() => {
     const fetchOpportunities = async () => {
-      const { data, error } = await supabase
-        .from('opportunities')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Respects the admin drag-and-drop order (`display_order`). Until
+      // the order-column migration runs, falls back to newest-first.
+      const { data, error } = await fetchInOrder('opportunities');
 
       if (error) {
         console.error('Opportunities fetch error:', error);

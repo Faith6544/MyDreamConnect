@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Home.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
+
+const HERO_POSTER =
+  'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png';
+const HERO_VIDEO =
+  'https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/hero.mp4';
 
 const FALLBACK_TESTIMONIALS = [
   {
@@ -35,7 +40,80 @@ const FALLBACK_TESTIMONIALS = [
   },
 ];
 
+/**
+ * Hero background video, tuned for smooth scrolling:
+ * - On small screens the heavy mp4 is never downloaded; the poster
+ *   image is shown instead (saves mobile data + CPU).
+ * - On desktop the video is paused as soon as the hero scrolls out of
+ *   view, so it stops competing with scrolling for CPU/GPU.
+ */
+function HeroVideo() {
+  const videoRef = useRef(null);
+  const heroRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Poster-only on phones: matchMedia keeps it in sync on rotation/resize.
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const update = () => setIsMobile(mq.matches);
+    update();
+    if (mq.addEventListener) {
+      mq.addEventListener('change', update);
+      return () => mq.removeEventListener('change', update);
+    }
+    return undefined;
+  }, []);
+
+  // Pause the video once the hero leaves the viewport (desktop only).
+  useEffect(() => {
+    if (isMobile) return undefined;
+    const video = videoRef.current;
+    const hero = heroRef.current;
+    if (!video || !hero || !('IntersectionObserver' in window)) return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.25 }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  return (
+    <section className="hero" ref={heroRef}>
+      <video
+        ref={videoRef}
+        className="hero-video"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster={HERO_POSTER}
+      >
+        {/* The <source> is omitted on mobile so the browser shows the
+            poster without downloading ~megabytes of video. */}
+        {!isMobile && <source src={HERO_VIDEO} type="video/mp4" />}
+      </video>
+      <div className="hero-overlay">
+        <h4>Welcome to MyDreamConnect!</h4>
+        <h1>Be educated so that<br />you can change the world.</h1>
+        <p>Having the right COACHING &amp; TRAINING broadens your understanding, it's essential for your personal and professional growth.</p>
+        <Link to="/get-started" className="btn-primary">GET STARTED NOW! →</Link>
+      </div>
+    </section>
+  );
+}
+
 function TestimonialsCarousel({ testimonials }) {
+  // The list is duplicated once so the track can animate exactly -50%
+  // and loop seamlessly, no matter how many testimonials exist.
   const items = [...testimonials, ...testimonials];
 
   return (
@@ -84,7 +162,7 @@ function Home() {
   const [instructors, setInstructors] = useState([]);
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
   const [blogs, setBlogs] = useState([]);
-  const [team, setTeam] = useState([]); 
+  const [team, setTeam] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
 
   const [stats, setStats] = useState({ courses: 0, students: 0, instructors: 0, programs: 4 });
@@ -97,16 +175,17 @@ function Home() {
           { data: instrData },
           { data: testData },
           { data: blogData },
-          { data: teamData }, 
+          { data: teamData },
           { count: totalCourses },
           { count: totalEnrollments }
         ] = await Promise.all([
-          supabase.from('courses').select('*').order('created_at', { ascending: false }).limit(5),
+          // Respect the order set with drag-and-drop in the admin panel.
+          supabase.from('courses').select('*').order('display_order', { ascending: true }).limit(5),
           supabase.from('instructors').select('*').order('order_index', { ascending: true }),
           supabase.from('testimonials').select('*').order('order_index', { ascending: true }),
-          supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(6),
+          supabase.from('posts').select('*').order('display_order', { ascending: true }).limit(6),
           // ONLY FETCH TEAM MEMBERS WHO ARE SET TO SHOW ON HOME
-          supabase.from('team_members').select('*').eq('show_on_home', true).order('order_index', { ascending: true }).limit(4), 
+          supabase.from('team_members').select('*').eq('show_on_home', true).order('order_index', { ascending: true }).limit(4),
           supabase.from('courses').select('*', { count: 'exact', head: true }),
           supabase.from('enrollments').select('*', { count: 'exact', head: true })
         ]);
@@ -115,8 +194,8 @@ function Home() {
         setInstructors(instrData || []);
         if (testData && testData.length > 0) setTestimonials(testData);
         setBlogs(blogData || []);
-        setTeam(teamData || []); 
-        
+        setTeam(teamData || []);
+
         setStats({
           courses: totalCourses || 0,
           students: totalEnrollments || 0,
@@ -143,17 +222,7 @@ function Home() {
   return (
     <div className="home-page">
       {/* HERO */}
-      <section className="hero">
-        <video className="hero-video" autoPlay muted loop playsInline preload="metadata" poster="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo.png">
-          <source src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/hero.mp4" type="video/mp4" />
-        </video>
-        <div className="hero-overlay">
-          <h4>Welcome to MyDreamConnect!</h4>
-          <h1>Be educated so that<br />you can change the world.</h1>
-          <p>Having the right COACHING &amp; TRAINING broadens your understanding, it's essential for your personal and professional growth.</p>
-          <Link to="/get-started" className="btn-primary">GET STARTED NOW! →</Link>
-        </div>
-      </section>
+      <HeroVideo />
 
       {/* 4 PROGRAM CARDS */}
       <section className="programs-wrapper">
@@ -206,18 +275,16 @@ function Home() {
         </div>
       </section>
 
-      {/* ================= TEAM PREVIEW SECTION (MOVED HERE) ================= */}
-            {/* ================= TEAM PREVIEW SECTION (CLEAN WHITE BACKGROUND) ================= */}
+      {/* ================= TEAM PREVIEW SECTION ================= */}
       {team.length > 0 && (
-        <section className="team-preview-section" style={{ padding: '60px 20px', background: 'transparent' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            
-            <div className="section-heading-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '40px' }}>
+        <section className="team-preview-section">
+          <div className="team-preview-container">
+            <div className="section-heading-row">
               <div className="section-heading">
                 <span className="heading-lead">Meet Our</span>{' '}
                 <span className="heading-main">Leadership Team</span>
               </div>
-              <Link to="/team" className="view-all-link" style={{ color: '#0a4711', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Link to="/team" className="view-all-link">
                 Meet the Full Team
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12" />
@@ -226,35 +293,30 @@ function Home() {
               </Link>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '30px' }}>
+            <div className="team-preview-grid">
               {team.map(member => (
-                <div 
-                  key={member.id} 
+                <div
+                  key={member.id}
+                  className="team-preview-card"
                   onClick={() => navigate(`/team/${member.id}`)}
-                  style={{ 
-                    background: 'transparent',
-                    padding: '10px', 
-                    textAlign: 'center', 
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease'
+                  role="link"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') navigate(`/team/${member.id}`);
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
-                  <div style={{ width: '160px', height: '160px', margin: '0 auto 15px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#eaeaea' }}>
-                    <ImageWithFallback 
-                      src={member.image_url} 
-                      alt={member.name} 
+                  <div className="team-preview-photo">
+                    <ImageWithFallback
+                      src={member.image_url}
+                      alt={member.name}
                       type="human"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                     />
                   </div>
-                  <h3 style={{ fontSize: '18px', color: '#111', marginBottom: '4px', fontWeight: '600' }}>{member.name}</h3>
-                  <p style={{ fontSize: '14px', color: '#d4a017', fontWeight: '500', margin: 0 }}>{member.role}</p>
+                  <h3 className="team-preview-name">{member.name}</h3>
+                  <p className="team-preview-role">{member.role}</p>
                 </div>
               ))}
             </div>
-
           </div>
         </section>
       )}
@@ -269,8 +331,8 @@ function Home() {
           <Link to="/courses" className="view-all-link">View All Courses <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg></Link>
         </div>
 
-        {loadingCourses && <p style={{ textAlign: 'center', padding: '40px' }}>Loading courses...</p>}
-        {!loadingCourses && courses.length === 0 && <p style={{ textAlign: 'center', padding: '40px' }}>No courses yet.</p>}
+        {loadingCourses && <p className="preview-status">Loading courses...</p>}
+        {!loadingCourses && courses.length === 0 && <p className="preview-status">No courses yet.</p>}
 
         {!loadingCourses && courses.length > 0 && (
           <div className="courses-grid">

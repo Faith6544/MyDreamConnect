@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Flyers.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import Sidebar from '../components/Sidebar'; // Added Sidebar
-import { supabase } from '../lib/supabase';
+import { fetchInOrder } from '../lib/fetchOrdered';
 
 function Flyers() {
   const [flyers, setFlyers] = useState([]);
@@ -11,10 +11,9 @@ function Flyers() {
 
   useEffect(() => {
     const fetchFlyers = async () => {
-      const { data, error } = await supabase
-        .from('flyers')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Respects the admin drag-and-drop order (`display_order`). Until
+      // the order-column migration runs, falls back to newest-first.
+      const { data, error } = await fetchInOrder('flyers');
 
       if (error) {
         console.error('Flyers fetch error:', error);

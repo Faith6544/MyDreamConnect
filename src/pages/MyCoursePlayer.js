@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { downloadCertificate } from '../lib/certificate';
 import './MyCoursePlayer.css';
+
+const LOCK_HINT = 'Complete this lesson to unlock the next one.';
 
 function extractYouTubeId(url = '') {
   try {
@@ -46,6 +48,20 @@ function MyCoursePlayer() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [isStaff, setIsStaff] = useState(false); // confirmed instructors and admins preview the course, no payment needed
+  const [lockNotice, setLockNotice] = useState(false); // friendly nudge when tapping a locked lesson
+  const lockTimer = useRef(null);
+
+  // Show the lock explanation for a few seconds, then fade away.
+  const showLockNotice = () => {
+    setLockNotice(true);
+    if (lockTimer.current) clearTimeout(lockTimer.current);
+    lockTimer.current = setTimeout(() => setLockNotice(false), 3500);
+  };
+
+  useEffect(() => () => {
+    if (lockTimer.current) clearTimeout(lockTimer.current);
+  }, []);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -333,18 +349,36 @@ function MyCoursePlayer() {
         {/* Sidebar — lesson list */}
         <aside className="mcp-sidebar">
           <h3>Lessons</h3>
+
+          {lockNotice && (
+            <div className="mcp-lock-notice" role="status">
+              <span className="mcp-lock-notice-icon">🔒</span>
+              <span>
+                <strong>Almost there!</strong> {LOCK_HINT}
+              </span>
+            </div>
+          )}
+
           <ul className="mcp-lesson-list">
             {lessons.map((l, i) => {
               const done = completedIds.has(l.id);
               const active = i === safeIndex;
+              const locked = i > unlockedUntil;
               return (
                 <li
                   key={l.id}
-                  className={`mcp-lesson-item ${active ? 'active' : ''} ${done ? 'done' : ''} ${i > unlockedUntil ? 'locked' : ''}`}
-                  onClick={() => { if (i <= unlockedUntil) setActiveIndex(i); }}
-                  title={i > unlockedUntil ? 'Finish the lessons before this one to unlock it' : undefined}
+                  className={`mcp-lesson-item ${active ? 'active' : ''} ${done ? 'done' : ''} ${locked ? 'locked' : ''}`}
+                  onClick={() => {
+                    if (locked) {
+                      // Friendly explanation instead of a silent dead click.
+                      showLockNotice();
+                      return;
+                    }
+                    setActiveIndex(i);
+                  }}
+                  title={locked ? LOCK_HINT : undefined}
                 >
-                  <span className="mcp-lesson-check">{i > unlockedUntil ? '🔒' : done ? '✅' : '⭕'}</span>
+                  <span className="mcp-lesson-check">{locked ? '🔒' : done ? '✅' : '⭕'}</span>
                   <span className="mcp-lesson-title">
                     <small>Lesson {i + 1}</small>
                     {l.title}
@@ -418,16 +452,20 @@ function MyCoursePlayer() {
             )}
 
             <button
-              className="mcp-nav-btn"
+              className={`mcp-nav-btn ${nextIsLocked ? 'locked' : ''}`}
               onClick={() => setActiveIndex(Math.min(lessons.length - 1, safeIndex + 1))}
               disabled={safeIndex === lessons.length - 1 || nextIsLocked}
+              title={nextIsLocked ? LOCK_HINT : undefined}
             >
-              Next →
+              {nextIsLocked ? '🔒 Next' : 'Next →'}
             </button>
           </div>
 
           {!isStaff && nextIsLocked && safeIndex < lessons.length - 1 && (
-            <p className="mcp-lock-hint">🔒 Mark this lesson as complete to unlock the next one.</p>
+            <p className="mcp-lock-hint">
+              <span className="mcp-lock-hint-icon">🔒</span>
+              Complete this lesson to unlock the next one — you're making great progress!
+            </p>
           )}
         </main>
 

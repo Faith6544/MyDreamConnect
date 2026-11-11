@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './TalentMarketplace.css';
 import { parseSkills } from '../lib/talentUtils';
-import { supabase } from '../lib/supabase';
+import { fetchInOrder } from '../lib/fetchOrdered';
+import ImageWithFallback from '../components/ImageWithFallback';
 
 function TalentMarketplace() {
   const [talents, setTalents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
-  const [sortOrder, setSortOrder] = useState('newest');
+  const [sortOrder, setSortOrder] = useState('featured');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -17,7 +18,9 @@ function TalentMarketplace() {
 
   useEffect(() => {
     const fetchTalents = async () => {
-      const { data, error } = await supabase.from('talent').select('*').order('created_at', { ascending: false });
+      // Respects the admin drag-and-drop order (`display_order`). Until
+      // the order-column migration runs, falls back to newest-first.
+      const { data, error } = await fetchInOrder('talent');
       if (error) console.error('Talents fetch error:', error);
       else setTalents(data || []);
       setLoading(false);
@@ -40,6 +43,9 @@ function TalentMarketplace() {
   });
 
   filteredTalents = [...filteredTalents].sort((a, b) => {
+    // 'featured' = curated order from the admin dashboard (drag-and-drop).
+    // Array.prototype.sort is stable, so returning 0 keeps the fetched order.
+    if (sortOrder === 'featured') return 0;
     const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
     const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
     if (sortOrder === 'newest') return dateB - dateA;
@@ -58,10 +64,11 @@ function TalentMarketplace() {
           </div>
           <div style={{ position: 'relative' }}>
             <button type="button" className="talent-sort-btn" onClick={() => setDropdownOpen(!dropdownOpen)}>
-              {sortOrder === 'newest' ? 'Newest ▼' : 'Oldest ▲'}
+              {sortOrder === 'featured' ? 'Featured ▼' : sortOrder === 'newest' ? 'Newest ▼' : 'Oldest ▲'}
             </button>
             {dropdownOpen && (
               <div style={{ position: 'absolute', top: '110%', right: 0, width: '150px', background: '#fff', border: '1px solid #ccc', borderRadius: '8px', zIndex: 9999, padding: '5px 0', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <button type="button" style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => { setSortOrder('featured'); setDropdownOpen(false); }}>Featured</button>
                 <button type="button" style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => { setSortOrder('newest'); setDropdownOpen(false); }}>Newest</button>
                 <button type="button" style={{ display: 'block', width: '100%', padding: '12px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => { setSortOrder('oldest'); setDropdownOpen(false); }}>Oldest</button>
               </div>
@@ -91,11 +98,9 @@ function TalentMarketplace() {
                 onClick={() => navigate(`/talent/${talent.id}`)}
               >
                 <div className="talent-card-img-wrapper">
-                  <img 
-                    src={talent.image_url || 'https://via.placeholder.com/150'} 
-                    alt={talent.name} 
-                    onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
-                  />
+                  {/* the column is avatar_url (not image_url) — via.placeholder.com is a dead
+                      service, so people without photos get their initials instead */}
+                  <ImageWithFallback src={talent.avatar_url} alt={talent.name} type="human" />
                 </div>
                 <h3 className="talent-card-name">{talent.name}</h3>
                 <p className="talent-card-role">{talent.role}</p>

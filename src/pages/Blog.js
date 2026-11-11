@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import './Blog.css';
 import ImageWithFallback from '../components/ImageWithFallback';
 import { supabase } from '../lib/supabase';
+import { fetchInOrder } from '../lib/fetchOrdered';
 
 function Blog() {
   const [posts, setPosts] = useState([]);
@@ -16,18 +17,20 @@ function Blog() {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const { data: postsData } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Posts in the admin's drag-and-drop order (`display_order`,
+      // with a newest-first fallback if the column is missing).
+      const { data: postsData } = await fetchInOrder('posts');
 
-      const { data: catsData } = await supabase
-        .from('post_categories')
-        .select('*')
-        .order('order_index', { ascending: true });
+      // `post_categories.order_index` is stored as TEXT, so a DB-side
+      // sort would be lexicographic ("10" before "2"). Sort numerically
+      // on the client instead — same thing the admin list does.
+      const { data: catsData } = await supabase.from('post_categories').select('*');
+      const sortedCats = [...(catsData || [])].sort(
+        (a, b) => Number(a.order_index || 0) - Number(b.order_index || 0)
+      );
 
       const catMap = {};
-      (catsData || []).forEach(c => { catMap[c.id] = c; });
+      sortedCats.forEach(c => { catMap[c.id] = c; });
 
       const postsWithCat = (postsData || []).map(p => ({
         ...p,
@@ -35,7 +38,7 @@ function Blog() {
       }));
 
       setPosts(postsWithCat);
-      setCategories(catsData || []);
+      setCategories(sortedCats);
       setLoading(false);
     };
 
@@ -110,9 +113,6 @@ function Blog() {
       <div className="blog-grid">
         {currentPosts.map(post => {
           const featuredImage = post.image_url || null;
-          const date = new Date(post.created_at).toLocaleDateString('en-US', {
-            year: 'numeric', month: 'long', day: 'numeric'
-          });
           const title = post.title || 'Untitled';
           const excerpt = post.excerpt
             ? post.excerpt.substring(0, 110) + '...'

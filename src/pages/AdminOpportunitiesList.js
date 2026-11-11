@@ -2,61 +2,50 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabase } from '../lib/supabase';
+import { fetchInOrder, saveOrder } from '../lib/fetchOrdered';
 import './AdminOpportunitiesList.css';
 
 function AdminOpportunitiesList() {
-  const [Opportunities, setOpportunities] = useState([]);
+  const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchOpportunities();
-  }, []);
+  useEffect(() => { fetchOpportunities(); }, []);
 
   const fetchOpportunities = async () => {
-    const { data, error } = await supabase
-      .from('Opportunities')
-      .select('*')
-      .order('display_order', { ascending: true }); // Sort by our custom order
-
-    if (error) console.error(error);
-    else setOpportunities(data || []);
+    // The `opportunities` table needs the `display_order` column (see
+    // supabase/migrations/20261111000000_add_display_order_columns.sql).
+    // Until that migration runs, this gracefully falls back to
+    // newest-first instead of showing an empty page.
+    const { data, error } = await fetchInOrder('opportunities');
+    if (error) setError('Load failed: ' + error.message);
+    setOpportunities(data || []);
     setLoading(false);
   };
 
-  // Handle the Drag & Drop
   const handleDragEnd = async (result) => {
-    if (!result.destination) return; // Dropped outside the list
-    
-    const sourceIndex = result.source.index;
-    const destinationIndex = result.destination.index;
+    if (!result.destination || result.destination.index === result.source.index) return;
 
-    if (sourceIndex === destinationIndex) return;
+    const reordered = Array.from(opportunities);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
 
-    // 1. Instantly reorder the UI (so it feels fast)
-    const reorderedItems = Array.from(Opportunities);
-    const [movedItem] = reorderedItems.splice(sourceIndex, 1);
-    reorderedItems.splice(destinationIndex, 0, movedItem);
-    
-    setOpportunities(reorderedItems);
+    // Optimistic update — feels instant.
+    setOpportunities(reordered);
 
-    // 2. Save the new order to Supabase in the background
-    const updates = reorderedItems.map((item, index) => ({
-      id: item.id,
-      display_order: index + 1,
-    }));
-
-    // We loop through and update each row's display_order
-    for (const update of updates) {
-      await supabase
-        .from('Opportunities')
-        .update({ display_order: update.display_order })
-        .eq('id', update.id);
+    const results = (await saveOrder('opportunities', reordered)) || [];
+    const failed = results.find((r) => r.error);
+    if (failed) {
+      setError(
+        'Could not save the new order. Make sure the `display_order` migration ' +
+        '(supabase/migrations/20261111000000_add_display_order_columns.sql) has been run.'
+      );
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this course?')) return;
-    const { error } = await supabase.from('Opportunities').delete().eq('id', id);
+    if (!window.confirm('Delete this opportunity?')) return;
+    const { error } = await supabase.from('opportunities').delete().eq('id', id);
     if (error) alert('Delete failed: ' + error.message);
     else fetchOpportunities();
   };
@@ -67,58 +56,59 @@ function AdminOpportunitiesList() {
         <div>
           <Link to="/admin/dashboard" className="back-link">← Dashboard</Link>
           <h1>Opportunities</h1>
-          <p style={{ fontSize: '13px', color: '#666', marginTop: '5px' }}>
-            Click and hold the <strong>⠿</strong> icon to drag and reorder Opportunities. Changes save automatically.
-          </p>
+          <p className="admin-list-subtitle">Drag the ⠿ handle to reorder — saves automatically.</p>
         </div>
-        <Link to="/admin/Opportunities/new" className="btn-new">+ Add Course</Link>
+        <Link to="/admin/opportunities/new" className="btn-new">+ Add Opportunity</Link>
       </header>
 
+      {error && <div className="admin-error">❌ {error}</div>}
+
       {loading ? (
-        <p>Loading...</p>
-      ) : Opportunities.length === 0 ? (
-        <p>No Opportunities found.</p>
+        <p className="admin-list-loading">Loading...</p>
+      ) : opportunities.length === 0 ? (
+        <p className="admin-list-empty">No opportunities found.</p>
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="Opportunities-list">
+          <Droppable droppableId="opportunities-list">
             {(provided) => (
-              <table 
-                className="admin-table" 
-                {...provided.droppableProps} 
-                ref={provided.innerRef}
-              >
+              <table className="admin-table" {...provided.droppableProps} ref={provided.innerRef}>
                 <thead>
                   <tr>
-                    <th style={{ width: '60px' }}>Sort</th>
-                    <th>Name</th>
-                    <th>Price</th>
+                    <th className="td-sort">Sort</th>
+                    <th>Title</th>
+                    <th>Link</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Opportunities.map((course, index) => (
-                    <Draggable key={course.id} draggableId={String(course.id)} index={index}>
+                  {opportunities.map((opp, index) => (
+                    <Draggable key={opp.id} draggableId={String(opp.id)} index={index}>
                       {(provided, snapshot) => (
                         <tr
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          {...provided.dragHandleProps}
+                          className={snapshot.isDragging ? 'is-dragging' : ''}
                           style={{
                             ...provided.draggableProps.style,
-                            background: snapshot.isDragging ? '#f0fdf4' : '#fff', // Highlight when dragging
-                            boxShadow: snapshot.isDragging ? '0 5px 15px rgba(0,0,0,0.1)' : 'none',
-                            display: snapshot.isDragging ? 'table' : 'table-row', // Fixes table row dragging
+                            display: snapshot.isDragging ? 'table' : 'table-row',
                           }}
                         >
-                          <td style={{ fontSize: '20px', color: '#aaa', cursor: 'grab' }}>
-                            ⠿ {/* This is the drag handle icon */}
+                          <td className="td-sort">
+                            <span className="drag-handle" {...provided.dragHandleProps} title="Drag to reorder">⠿</span>
                           </td>
-                          <td>{course.name}</td>
-                          <td>{course.price ? `₦${Number(course.price).toLocaleString()}` : 'Free'}</td>
+                          <td>{opp.title}</td>
+                          <td>
+                            {opp.url ? (
+                              <a href={opp.url} target="_blank" rel="noreferrer" className="table-link">
+                                {opp.url.substring(0, 34)}…
+                              </a>
+                            ) : (
+                              '—'
+                            )}
+                          </td>
                           <td className="admin-actions">
-                            <Link to={`/admin/Opportunities/edit/${course.id}`} className="btn-edit">Edit</Link>
-                            <Link to={`/admin/Opportunities/${course.id}/lessons`} className="btn-edit" style={{ color: '#0a4711' }}>Lessons</Link>
-                            <button onClick={() => handleDelete(course.id)} className="btn-delete">Delete</button>
+                            <Link to={`/admin/opportunities/edit/${opp.id}`} className="btn-edit">Edit</Link>
+                            <button onClick={() => handleDelete(opp.id)} className="btn-delete">Delete</button>
                           </td>
                         </tr>
                       )}

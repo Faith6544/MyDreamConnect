@@ -1,1 +1,10 @@
 @import './AdminPostsList.css';
+
+.instructor-row-photo {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%; /* perfect circle */
+  display: block;
+  border: 2px solid #eaf3eb;
+}

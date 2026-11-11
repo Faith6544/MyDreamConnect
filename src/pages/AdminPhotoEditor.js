@@ -3,16 +3,19 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminPhotoEditor.css';
 import ImageUpload from '../components/ImageUpload';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 
 function AdminPhotoEditor() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({ title: '', cover_url: '' });
+  const [formData, setFormData] = useState({ title: '', cover_url: '', year: '' });
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     const checkAuthAndLoad = async () => {
@@ -22,7 +25,7 @@ function AdminPhotoEditor() {
       if (isEdit) {
         const { data, error } = await supabase.from('photos').select('*').eq('id', id).single();
         if (error) setError('Could not load album: ' + error.message);
-        else if (data) setFormData({ title: data.title || '', cover_url: data.cover_url || '' });
+        else if (data) setFormData({ title: data.title || '', cover_url: data.cover_url || '', year: data.year != null ? String(data.year) : '' });
         setLoading(false);
       } else {
         setLoading(false);
@@ -41,13 +44,27 @@ function AdminPhotoEditor() {
     setSaving(true);
     setError('');
 
+    // The year select shows the current year by default, so save that same
+    // value even when the admin never touches the dropdown.
+    const payload = {
+      ...formData,
+      year: formData.year ? Number(formData.year) : new Date().getFullYear(),
+    };
+
     const op = isEdit
-      ? supabase.from('photos').update(formData).eq('id', id)
-      : supabase.from('photos').insert([formData]);
+      ? supabase.from('photos').update(payload).eq('id', id)
+      : supabase.from('photos').insert([payload]);
 
     const { error } = await op;
-    if (error) { setError('Save failed: ' + error.message); setSaving(false); }
-    else navigate('/admin/photos');
+    if (error) {
+      setError('Save failed: ' + error.message);
+      showToast('Save failed: ' + error.message, 'error');
+      setSaving(false);
+    } else {
+      // Friendly confirmation, then back to the list.
+      showToast(isEdit ? 'Album updated ✓' : 'Album created ✓');
+      setTimeout(() => navigate('/admin/photos'), 900);
+    }
   };
 
   if (loading) return <div className="admin-editor-loading">Loading...</div>;
@@ -87,13 +104,14 @@ function AdminPhotoEditor() {
           onChange={(url) => setFormData((prev) => ({ ...prev, cover_url: url }))}
         />
 
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/photos" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update Album' : 'Create Album'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

@@ -33,9 +33,18 @@ function BlogPost() {
         .from('posts').select('*').neq('id', id).order('created_at', { ascending: false }).limit(3);
       setRelated(relatedData || []);
 
-      const { data: tagsData } = await supabase
-        .from('post_tag_links').select('post_tags(name)').eq('post_id', id);
-      setTags((tagsData || []).map(l => l.post_tags).filter(Boolean));
+      // post_tag_links has no FK to post_tags in the live database, so the
+      // `post_tags(name)` embed fails (PGRST200). Join in JS instead.
+      const { data: linksData } = await supabase
+        .from('post_tag_links').select('tag_id').eq('post_id', id);
+      const tagIds = (linksData || []).map(l => l.tag_id).filter(Boolean);
+      if (tagIds.length > 0) {
+        const { data: tagRows } = await supabase
+          .from('post_tags').select('name').in('id', tagIds);
+        setTags(tagRows || []);
+      } else {
+        setTags([]);
+      }
 
       const { data: commentsData } = await supabase
         .from('comments').select('*').eq('post_id', id).order('created_at', { ascending: true });

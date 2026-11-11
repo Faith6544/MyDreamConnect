@@ -26,7 +26,10 @@ function PhotoAlbum() {
         .from('album_photos')
         .select('*')
         .eq('album_id', id)
-        .order('created_at', { ascending: false });
+        // Show them in the order the admin arranged (drag-and-drop in
+        // AdminAlbumPhotos). Older rows without an order yet sort last.
+        .order('order_index', { ascending: true, nullsFirst: false })
+        .order('created_at', { ascending: true });
 
       setPhotos(photosData || []);
       setLoading(false);

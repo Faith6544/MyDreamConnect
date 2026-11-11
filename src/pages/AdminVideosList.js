@@ -2,28 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabase } from '../lib/supabase';
+import { fetchInOrder, saveOrder } from '../lib/fetchOrdered';
 import './AdminVideosList.css';
 
 function AdminVideosList() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => { fetchVideos(); }, []);
 
   const fetchVideos = async () => {
-    const { data } = await supabase.from('videos').select('*').order('display_order', { ascending: true });
+    // The `videos` table needs the `display_order` column (see
+    // supabase/migrations/20261111000000_add_display_order_columns.sql).
+    // Until that migration runs, this gracefully falls back to
+    // newest-first instead of showing an empty page.
+    const { data, error } = await fetchInOrder('videos');
+    if (error) setError('Load failed: ' + error.message);
     setVideos(data || []);
     setLoading(false);
   };
 
   const handleDragEnd = async (result) => {
-    if (!result.destination) return;
-    const items = Array.from(videos);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    setVideos(items);
-    for (let i = 0; i < items.length; i++) {
-      await supabase.from('videos').update({ display_order: i + 1 }).eq('id', items[i].id);
+    if (!result.destination || result.destination.index === result.source.index) return;
+
+    const reordered = Array.from(videos);
+    const [moved] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, moved);
+
+    // Optimistic update — feels instant.
+    setVideos(reordered);
+
+    const results = (await saveOrder('videos', reordered)) || [];
+    const failed = results.find((r) => r.error);
+    if (failed) {
+      setError(
+        'Could not save the new order. Make sure the `display_order` migration ' +
+        '(supabase/migrations/20261111000000_add_display_order_columns.sql) has been run.'
+      );
     }
   };
 
@@ -39,25 +55,44 @@ function AdminVideosList() {
         <div>
           <Link to="/admin/dashboard" className="back-link">← Dashboard</Link>
           <h1>Videos</h1>
-          <p style={{ fontSize: '13px', color: '#666', marginTop: '5px' }}>Drag to reorder videos.</p>
+          <p className="admin-list-subtitle">Drag the ⠿ handle to reorder — saves automatically.</p>
         </div>
         <Link to="/admin/videos/new" className="btn-new">+ Add Video</Link>
       </header>
-      {loading ? <p>Loading...</p> : (
+
+      {error && <div className="admin-error">❌ {error}</div>}
+
+      {loading ? <p className="admin-list-loading">Loading...</p> : (
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="videos-list">
             {(provided) => (
               <table className="admin-table" {...provided.droppableProps} ref={provided.innerRef}>
-                <thead><tr><th style={{ width: '60px' }}>Sort</th><th>Title</th><th>URL</th><th>Actions</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th className="td-sort">Sort</th>
+                    <th>Title</th>
+                    <th>URL</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
                 <tbody>
                   {videos.map((video, index) => (
                     <Draggable key={video.id} draggableId={String(video.id)} index={index}>
                       {(provided, snapshot) => (
-                        <tr ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
-                          style={{ ...provided.draggableProps.style, background: snapshot.isDragging ? '#f0fdf4' : '#fff', display: snapshot.isDragging ? 'table' : 'table-row' }}>
-                          <td style={{ fontSize: '20px', color: '#aaa', cursor: 'grab' }}>⠿</td>
+                        <tr
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={snapshot.isDragging ? 'is-dragging' : ''}
+                          style={{
+                            ...provided.draggableProps.style,
+                            display: snapshot.isDragging ? 'table' : 'table-row',
+                          }}
+                        >
+                          <td className="td-sort">
+                            <span className="drag-handle" {...provided.dragHandleProps} title="Drag to reorder">⠿</span>
+                          </td>
                           <td>{video.title}</td>
-                          <td>{video.video_url?.substring(0, 30)}...</td>
+                          <td>{video.video_url?.substring(0, 30) || video.youtube_id}...</td>
                           <td className="admin-actions">
                             <Link to={`/admin/videos/edit/${video.id}`} className="btn-edit">Edit</Link>
                             <button onClick={() => handleDelete(video.id)} className="btn-delete">Delete</button>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminPostCategoryEditor.css';
+import Toast from '../components/Toast';
+import { useToast } from '../hooks/useToast';
 
 function AdminPostCategoryEditor() {
   const { id } = useParams();
@@ -12,6 +14,7 @@ function AdminPostCategoryEditor() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { toast, showToast } = useToast();
 
   useEffect(() => {
     let cancelled = false;
@@ -85,12 +88,16 @@ function AdminPostCategoryEditor() {
       const { error } = await op;
       if (error) {
         setError('Save failed: ' + error.message);
+        showToast('Save failed: ' + error.message, 'error');
         setSaving(false);
       } else {
-        navigate('/admin/post-categories');
+        // Friendly confirmation, then back to the list.
+        showToast(isEdit ? 'Category updated ✓' : 'Category created ✓');
+        setTimeout(() => navigate('/admin/post-categories'), 900);
       }
     } catch (err) {
       setError('Save failed: ' + err.message);
+      showToast('Save failed: ' + err.message, 'error');
       setSaving(false);
     }
   };
@@ -126,13 +133,14 @@ function AdminPostCategoryEditor() {
             disabled={saving}
           />
         </div>
-        <div className="admin-editor-actions">
+        <div className="admin-editor-actions is-sticky">
           <Link to="/admin/post-categories" className="btn-cancel">Cancel</Link>
           <button type="submit" className="btn-save" disabled={saving}>
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </button>
         </div>
       </form>
+      <Toast toast={toast} onClose={() => showToast(null)} />
     </div>
   );
 }

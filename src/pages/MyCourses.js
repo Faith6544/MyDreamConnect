@@ -83,18 +83,23 @@ function MyCourses() {
 
     // NEW FUNCTION TO FETCH TOP 3 FEATURED COURSES
     const fetchFeaturedCourses = async (excludeIds = []) => {
-      // Fetch all courses and their enrollment counts
-      const { data: allCourses } = await supabase
-        .from('courses')
-        .select('*, enrollments(count)');
+      // There is no FK between courses and enrollments in the live database,
+      // so the PostgREST embed `enrollments(count)` fails (PGRST200).
+      // Fetch both tables and count in JS instead.
+      const [{ data: allCourses }, { data: allEnrollments }] = await Promise.all([
+        supabase.from('courses').select('*'),
+        supabase.from('enrollments').select('course_id'),
+      ]);
 
       if (allCourses) {
-        // Sort by enrollment count descending
-        const sorted = allCourses.sort((a, b) => {
-          const countA = a.enrollments?.[0]?.count || 0;
-          const countB = b.enrollments?.[0]?.count || 0;
-          return countB - countA;
+        // Count how many enrollments each course has
+        const counts = {};
+        (allEnrollments || []).forEach((e) => {
+          if (e.course_id != null) counts[e.course_id] = (counts[e.course_id] || 0) + 1;
         });
+
+        // Sort by enrollment count descending
+        const sorted = allCourses.slice().sort((a, b) => (counts[b.id] || 0) - (counts[a.id] || 0));
         
         // Filter out courses the user is already enrolled in
         const filtered = sorted.filter(c => !excludeIds.includes(c.id));
