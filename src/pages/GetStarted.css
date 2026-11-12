@@ -307,3 +307,19 @@
   margin-bottom: 18px;
   border-left: 4px solid #27ae60;
 }
+
+/* "Forgot Password?" link under the password input */
+.auth-forgot {
+  margin: -8px 0 18px;
+  font-size: 13.5px;
+  text-align: right;
+}
+
+.auth-forgot .auth-link {
+  color: #0a4711;
+  font-weight: 600;
+}
+
+.auth-forgot .auth-link:hover {
+  color: #d4a017;
+}

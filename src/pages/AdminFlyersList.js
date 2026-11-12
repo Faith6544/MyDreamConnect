@@ -103,7 +103,7 @@ function AdminFlyersList() {
                           </td>
                           <td>
                             {f.image_url && (
-                              <img src={f.image_url} alt="" className="flyer-row-thumb" />
+                              <img src={f.image_url} alt="" className="flyer-row-thumb" loading="lazy" />
                             )}
                           </td>
                           <td>{f.title}</td>

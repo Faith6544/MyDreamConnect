@@ -82,7 +82,7 @@ function AdminPhotosList() {
                           <td className="td-sort">
                             <span className="drag-handle" {...provided.dragHandleProps} title="Drag to reorder">⠿</span>
                           </td>
-                          <td><img src={photo.image_url} alt="" className="photo-row-thumb" /></td>
+                          <td><img src={photo.image_url} alt="" className="photo-row-thumb" loading="lazy" /></td>
                           <td>{photo.title || 'Untitled'}</td>
                           <td className="admin-actions">
                             <Link to={`/admin/photos/edit/${photo.id}`} className="btn-edit">Edit</Link>

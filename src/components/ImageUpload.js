@@ -59,7 +59,7 @@ function ImageUpload({ value, onChange, label = 'Image' }) {
 
       {value && (
         <div className="img-upload-preview">
-          <img src={value} alt="Preview" />
+          <img src={value} alt="Preview" loading="lazy" />
           <button
             type="button"
             className="img-upload-remove"

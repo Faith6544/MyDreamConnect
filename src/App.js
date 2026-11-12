@@ -39,6 +39,8 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Search = lazy(() => import('./pages/Search'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Scholarship = lazy(() => import('./pages/Scholarship'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const UpdatePassword = lazy(() => import('./pages/UpdatePassword'));
 const InstructorApply = lazy(() => import('./pages/InstructorApply'));
 const InstructorConfirm = lazy(() => import('./pages/InstructorConfirm'));
 const AdminTeamList = lazy(() => import('./pages/AdminTeamList'));
@@ -123,6 +125,12 @@ function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/search" element={<Search />} />
             <Route path="/scholarship" element={<Scholarship />} />
+
+            {/* ==================== Auth ==================== */}
+            {/* /login is an alias for the GetStarted sign-in/sign-up page */}
+            <Route path="/login" element={<GetStarted />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/update-password" element={<UpdatePassword />} />
 
             {/* Instructor application flow — the approval email links to /instructor/confirm/<token> */}
             <Route path="/instructor/apply/:id" element={<ProtectedRoute><InstructorApply /></ProtectedRoute>} />

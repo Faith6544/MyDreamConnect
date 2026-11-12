@@ -163,6 +163,12 @@ function GetStarted() {
             </div>
           </div>
 
+          {mode === 'signin' && (
+            <p className="auth-forgot">
+              <Link to="/forgot-password" className="auth-link">Forgot Password?</Link>
+            </p>
+          )}
+
           {mode === 'signup' && (
             <div className="auth-row">
               <label className="auth-checkbox">

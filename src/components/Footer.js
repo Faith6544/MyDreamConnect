@@ -18,6 +18,7 @@ function Footer() {
               src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/mdc-logo-transparent.png"
               alt="MyDreamConnect"
               className="footer-logo"
+              loading="lazy"
             />
             <p className="footer-tagline">
               Committed to coaching leaders to thrive. Be educated so that

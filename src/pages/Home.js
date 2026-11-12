@@ -94,7 +94,7 @@ function HeroVideo() {
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="none"
         poster={HERO_POSTER}
       >
         {/* The <source> is omitted on mobile so the browser shows the
@@ -270,7 +270,7 @@ function Home() {
             <a href="https://bit.ly/support-mydreamconnect" target="_blank" rel="noreferrer" className="btn-donate">Donate Now</a>
           </div>
           <div className="mission-image">
-            <img src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/do.png" alt="MyDreamConnect classroom" />
+            <img src="https://kzdqbqnyytgovlngfvwr.supabase.co/storage/v1/object/public/images/uploads/do.png" alt="MyDreamConnect classroom" loading="lazy" />
           </div>
         </div>
       </section>

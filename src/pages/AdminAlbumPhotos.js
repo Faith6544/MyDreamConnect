@@ -164,7 +164,7 @@ function AdminAlbumPhotos() {
               return (
                 <div key={p.id} className="album-admin-item">
                   {src ? (
-                    <img src={src} alt={p.caption || ''} />
+                    <img src={src} alt={p.caption || ''} loading="lazy" />
                   ) : (
                     <div style={{ padding: 20, background: '#f4f4f4', textAlign: 'center', fontSize: 12, color: '#888' }}>
                       Invalid image value

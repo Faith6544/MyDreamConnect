@@ -86,7 +86,7 @@ function AdminInstructorsList() {
                           <td className="td-sort">
                             <span className="drag-handle" {...provided.dragHandleProps} title="Drag to reorder">⠿</span>
                           </td>
-                          <td><img src={inst.image_url} alt="" className="instructor-row-photo" /></td>
+                          <td><img src={inst.image_url} alt="" className="instructor-row-photo" loading="lazy" /></td>
                           <td>{inst.name}</td>
                           <td>{inst.role}</td>
                           <td className="admin-actions">
