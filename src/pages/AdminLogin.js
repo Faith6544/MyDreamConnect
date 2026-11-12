@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './AdminLogin.css';
 
@@ -82,6 +82,12 @@ function AdminLogin() {
               disabled={status === 'sending'}
             />
           </div>
+
+          <p className="admin-forgot">
+            <Link to="/admin/forgot-password" className="admin-auth-link">
+              Forgot Admin Password?
+            </Link>
+          </p>
 
           <button type="submit" className="admin-submit" disabled={status === 'sending'}>
             {status === 'sending' ? 'Signing in...' : 'Sign In'}

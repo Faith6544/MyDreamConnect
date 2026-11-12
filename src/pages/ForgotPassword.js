@@ -30,7 +30,7 @@ function ForgotPassword() {
     }
 
     setSuccess(
-      'If an account exists for that email, a password reset link has been sent. Check your inbox (and spam folder).'
+      `Check your email! We sent a password reset link to ${email}.`
     );
   };
 

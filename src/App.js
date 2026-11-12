@@ -131,6 +131,7 @@ function App() {
             <Route path="/login" element={<GetStarted />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/update-password" element={<UpdatePassword />} />
+            <Route path="/admin/forgot-password" element={<ForgotPassword />} />
 
             {/* Instructor application flow — the approval email links to /instructor/confirm/<token> */}
             <Route path="/instructor/apply/:id" element={<ProtectedRoute><InstructorApply /></ProtectedRoute>} />
